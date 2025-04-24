@@ -1,14 +1,16 @@
-import { useAccount, useDisconnect } from 'wagmi';
+import { useDisconnect } from 'wagmi';
 import './App.css';
 import { WrongNetwork } from './components/WrongNetwork';
 import { SelectWallet } from './components/SelectWallet';
 import { SelectNetwork } from './components/SelectNetwork';
 import { truncateAddress } from './utils/address';
+import Consolidate from './components/Consolidate';
+import useContractConfig from './hooks/useContractConfig';
 
 function App() {
-  const { isConnected, address, chain } = useAccount();
   const { disconnect } = useDisconnect();
-  if (isConnected && !chain?.id) {
+  const { account, chainId, contractConfig } = useContractConfig();
+  if (account.isConnected && !chainId) {
     return <WrongNetwork />;
   }
 
@@ -19,10 +21,10 @@ function App() {
           <a className='btn btn-ghost text-xl'>ConsolidateUI</a>
         </div>
         <div className='flex-none'>
-          {isConnected && address && chain ? (
+          {account.isConnected && account.address && chainId ? (
             <div className='flex items-center gap-x-2'>
-              <p className='text-sm'>{truncateAddress(address)}</p>
-              <SelectNetwork currentChainId={chain.id} />
+              <p className='text-sm'>{truncateAddress(account.address)}</p>
+              <SelectNetwork currentChainId={chainId} />
               <button
                 type='button'
                 onClick={() => disconnect()}
@@ -36,6 +38,18 @@ function App() {
           )}
         </div>
       </div>
+      {/* Main content */}
+      {account.isConnected && account.address && contractConfig && chainId ? (
+        <div className='flex-1 flex items-center justify-center'>
+          <Consolidate contractConfig={contractConfig} address={account.address} chainId={chainId} />
+        </div>
+      ) : (
+        <div className='flex-1 flex items-center justify-center'>
+          <h1 className='text-2xl font-bold'>
+            Please connect your wallet to continue
+          </h1>
+        </div>
+      )}
     </div>
   );
 }
