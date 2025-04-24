@@ -1,11 +1,11 @@
 import { http, createConfig } from 'wagmi'
-import { mainnet, sepolia, gnosis, gnosisChiado } from 'wagmi/chains'
+import { mainnet, gnosis, gnosisChiado, holesky } from 'wagmi/chains'
 
 export const config = createConfig({
-  chains: [mainnet, sepolia, gnosis, gnosisChiado],
+  chains: [mainnet, holesky, gnosis, gnosisChiado],
   transports: {
     [mainnet.id]: http(),
-    [sepolia.id]: http(),
+    [holesky.id]: http(),
     [gnosis.id]: http("https://rpc.gnosischain.com/"),
     [gnosisChiado.id]: http("https://rpc.chiadochain.net"),
   },
