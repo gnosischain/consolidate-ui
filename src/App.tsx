@@ -2,6 +2,7 @@ import { useAccount, useDisconnect } from 'wagmi';
 import './App.css';
 import { WrongNetwork } from './components/WrongNetwork';
 import { SelectWallet } from './components/SelectWallet';
+import { SelectNetwork } from './components/SelectNetwork';
 
 function App() {
   const { isConnected, address, chain } = useAccount();
@@ -12,16 +13,15 @@ function App() {
 
   return (
     <div className='w-full h-screen flex flex-col items-center justify-center'>
-      {isConnected && address ? (
+      {isConnected && address && chain ? (
         <div className='flex flex-col items-center'>
-          <button
-            type='button'
-            onClick={() => disconnect()}
-            className='btn'
-          >
+          <div className='flex gap-x-2 items-center'>
+            <SelectNetwork currentChainId={chain.id} />
+            {address}
+          </div>
+          <button type='button' onClick={() => disconnect()} className='btn'>
             disconnect
           </button>
-          {address}
         </div>
       ) : (
         <SelectWallet />
