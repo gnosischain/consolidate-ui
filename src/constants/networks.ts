@@ -21,11 +21,11 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
   [gnosis.id]: {
     explorerUrl: gnosis.blockExplorers.default.url,
     consolidateAddress: "0x0000BBdDc7CE488642fb579F8B00f3a590007251",
-    beaconExplorerUrl: "https://beaconcha.in/api/v1/validator/eth1/",
+    beaconExplorerUrl: 'https://gnosischa.in',
   },
   [gnosisChiado.id]: {
     explorerUrl: gnosisChiado.blockExplorers.default.url,
     consolidateAddress: "0x0000BBdDc7CE488642fb579F8B00f3a590007251",
-    beaconExplorerUrl: "https://beaconcha.in/api/v1/validator/eth1/",
+    beaconExplorerUrl: 'https://beacon.chiadochain.net',
   },
 }
