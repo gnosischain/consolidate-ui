@@ -9,8 +9,8 @@ import useContractConfig from './hooks/useContractConfig';
 
 function App() {
   const { disconnect } = useDisconnect();
-  const { account, chainId, contractConfig } = useContractConfig();
-  if (account.isConnected && !chainId) {
+  const { account, chainId, contractConfig, isWrongNetwork } = useContractConfig();
+  if (account.isConnected && isWrongNetwork) {
     return <WrongNetwork />;
   }
 
@@ -41,7 +41,7 @@ function App() {
       {/* Main content */}
       {account.isConnected && account.address && contractConfig && chainId ? (
         <div className='flex-1 flex items-center justify-center'>
-          <Consolidate contractConfig={contractConfig} address={account.address} chainId={chainId} />
+          <Consolidate contractConfig={contractConfig} address={account.address} />
         </div>
       ) : (
         <div className='flex-1 flex items-center justify-center'>

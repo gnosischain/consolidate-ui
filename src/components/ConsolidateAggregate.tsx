@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Validator } from '../hooks/useConsolidate';
+import { ValidatorInfo } from '../hooks/useBeaconValidators';
 
 interface ConsolidateSelectProps {
-  validators: Validator[];
+  validators: ValidatorInfo[];
   consolidateValidators: (
     selectedPubkeys: `0x${string}`[],
     size: number
@@ -14,7 +14,7 @@ export function ConsolidateAggregate({
   consolidateValidators,
 }: ConsolidateSelectProps) {
   const [chunkSize, setChunkSize] = useState(40);
-  const pubkeys = validators.map((validator) => validator.publickey);
+  const pubkeys = validators.map((validator) => validator.pubkey);
 
   const numGroups = Math.ceil(validators.length / chunkSize);
 
