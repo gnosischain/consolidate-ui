@@ -17,7 +17,7 @@ interface ConsolidateInfoProps {
           <>
             <p className="font-bold">You have {pubkeysAmount} public keys to consolidate.</p>
             <button
-              className='bg-accent px-4 py-1 rounded-full text-white mt-4 text-md font-semibold'
+              className='btn btn-primary mt-4'
               onClick={() => goToStep()}
               id='consolidate'
             >

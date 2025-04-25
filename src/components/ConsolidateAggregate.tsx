@@ -30,6 +30,7 @@ export function ConsolidateAggregate({
         min={2}
         max={64}
         value={chunkSize}
+        className='range range-sm range-primary'
         onChange={(e) => setChunkSize(Number(e.target.value))}
       ></input>
       <div className='w-full flex flex-col items-center gap-y-4'>
@@ -40,7 +41,7 @@ export function ConsolidateAggregate({
         </p>
         <button
           onClick={handleConsolidate}
-          className='bg-[#e6e1d3] p-2 rounded-lg font-bold text-black'
+          className='btn btn-primary'
         >
           Consolidate
         </button>
