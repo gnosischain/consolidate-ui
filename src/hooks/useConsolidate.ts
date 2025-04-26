@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useSendCalls, } from "wagmi";
 import { Address, concat, parseEther } from "viem";
+import { ValidatorInfo } from "./useBeaconValidators";
 
 export type Validator = {
     publickey: `0x${string}`;
@@ -9,87 +10,109 @@ export type Validator = {
     withdrawal_credentials: `0x${string}`;
 };
 
+interface Consolidation {
+    source: Address
+    target: Address
+}
 
-export async function fetchValidators(beaconExplorerUrl: string, address: string): Promise<Validator[]> {
-    try {
-        const response = await fetch(`${beaconExplorerUrl}/api/v1/validator/eth1/${address}`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch from ${beaconExplorerUrl} - status: ${response.status}`);
+interface ComputedConsolidation {
+    consolidations: Consolidation[]
+    skippedValidators: ValidatorInfo[]
+}
+
+export function computeConsolidations(
+    validators: ValidatorInfo[],
+    chunkSize: number
+): ComputedConsolidation {
+    const consolidations: Consolidation[] = []
+    const skippedValidators: ValidatorInfo[] = []
+
+    const remaining = [...validators]
+
+    while (remaining.length > 0) {
+        const target = remaining.shift()!
+        let targetBalance = target.balanceEth
+
+        if (targetBalance >= chunkSize) {
+            skippedValidators.push(target)
+            continue
         }
 
-        const data = await response.json();
-        return data.data || [];
-    } catch (error) {
-        console.error("Error fetching validator statuses:", error);
-        throw error;
+        for (let i = 0; i < remaining.length;) {
+            const candidate = remaining[i]
+
+            if (targetBalance + candidate.balanceEth <= chunkSize) {
+                consolidations.push({
+                    source: candidate.pubkey,
+                    target: target.pubkey,
+                })
+                targetBalance += candidate.balanceEth
+                remaining.splice(i, 1)
+            } else {
+                i++
+            }
+
+            if (targetBalance >= chunkSize) {
+                break
+            }
+        }
+    }
+
+    return { consolidations, skippedValidators }
+}
+
+interface ConsolidationSimulationResult {
+    totalGroups: number
+    consolidations: Consolidation[]
+    skippedValidators: ValidatorInfo[]
+}
+
+export function simulateConsolidation(
+    validators: ValidatorInfo[],
+    chunkSize: number
+): ConsolidationSimulationResult {
+    const { consolidations, skippedValidators } = computeConsolidations(validators, chunkSize)
+
+    const targetsInvolved = new Set(consolidations.map((c) => c.target))
+
+    return {
+        totalGroups: targetsInvolved.size + skippedValidators.length,
+        consolidations,
+        skippedValidators,
     }
 }
 
 export function useConsolidateValidatorsBatch(
     contract: Address,
 ) {
-    const { sendCalls } = useSendCalls();
-    // const { data: hash, sendTransaction } = useSendTransaction();
+    const { sendCalls } = useSendCalls()
 
     const consolidateValidators = useCallback(
         async (
-            selectedPubkeys: `0x${string}`[],
+            validators: ValidatorInfo[],
             chunkSize: number
         ) => {
-            // try {
-            //     const data = concat([
-            //         selectedPubkeys[0],
-            //         selectedPubkeys[1],
-            //     ]);
-            //     sendTransaction({
-            //         to: contract,
-            //         data,
-            //         value: parseEther('0.01'),
-            //     });
-
-            // } catch (err) {
-            //     console.error("Error consolidating validators:", err);
-            // }
-
-            if (selectedPubkeys.length < 2) {
+            if (validators.length < 2) {
                 throw new Error('Need at least 2 validators to consolidate.')
             }
 
-            const calls = []
+            const { consolidations } = computeConsolidations(validators, chunkSize)
 
-            const total = selectedPubkeys.length
-            const numChunks = Math.ceil(total / chunkSize)
-
-            for (let i = 0; i < numChunks; i++) {
-                const start = i * chunkSize
-                const end = Math.min(start + chunkSize, total)
-
-                const chunk = selectedPubkeys.slice(start, end)
-
-                if (chunk.length < 2) continue
-
-                const target = chunk[0]
-                const sources = chunk.slice(1)
-
-                for (const source of sources) {
-                    const data = concat([source, target])
-
-                    console.log(`Consolidate ${source} into ${target}`)
-                    console.log('LOG DATA:', data)
-
-                    calls.push({
-                        to: contract,
-                        data,
-                        value: parseEther('0.001'),
-                    })
-                }
+            if (consolidations.length === 0) {
+                throw new Error('No consolidation possible with given chunk size')
             }
+
+            const calls = consolidations.map(({ source, target }) => ({
+                to: contract,
+                data: concat([source, target]),
+                value: parseEther('0.001'),
+            }))
 
             console.log('Sending batch of', calls.length, 'calls')
 
             await sendCalls({
                 calls,
-                capabilities: {}
+                capabilities: {},
             })
         },
         [contract, sendCalls]
