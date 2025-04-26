@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ValidatorInfo } from '../hooks/useBeaconValidators';
 import { gnosis, gnosisChiado } from 'wagmi/chains';
 import { simulateConsolidation } from '../hooks/useConsolidate';
@@ -25,6 +25,10 @@ export function ConsolidateAggregate({
     consolidateValidators(validators, chunkSize);
   };
 
+  useEffect(() => {
+    setChunkSize(isGnosisNetwork ? 40 : 1280)
+  }, [isGnosisNetwork])
+
   return (
     <div className='w-full flex flex-col items-center justify-center gap-y-2 p-2'>
       <p>{validators.length} validators loaded</p>
@@ -44,8 +48,9 @@ export function ConsolidateAggregate({
 
           {simulation.skippedValidators.length > 0 && (
             <div className='mt-2'>
-              {simulation.skippedValidators.length} validators already{' '}
-              {chunkSize} GNO
+              <p className='text-warning text-sm'>
+                {simulation.skippedValidators.length} validators skipped
+              </p>
               <ul className='list-disc list-inside text-xs mt-1'>
                 {simulation.skippedValidators.map((v) => (
                   <li key={v.pubkey}>
