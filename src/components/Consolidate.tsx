@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loader from './Loader';
 import { ConsolidateInfo } from './ConsolidateInfo';
 import { ConsolidateAggregate } from './ConsolidateAggregate';
@@ -21,17 +21,14 @@ export default function Consolidate({
   contractConfig,
   address,
 }: ConsolidateProps) {
-  const { consolidateValidators } = useConsolidateValidatorsBatch(
-    contractConfig.consolidateAddress,
-  );
-
+  const { consolidateValidators, isConfirming, isConfirmed } =
+    useConsolidateValidatorsBatch(contractConfig.consolidateAddress);
 
   const { validators, loading } = useBeaconValidators(
     contractConfig.beaconExplorerUrl,
     address
   );
 
-  // const [validators, setValidators] = useState<Validator[]>([]);
   const [state, setState] = useState<{
     step: Steps;
     loading: boolean;
@@ -41,6 +38,22 @@ export default function Consolidate({
     loading: false,
     tx: '0x0',
   });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      setState((prev) => ({ ...prev, step: Steps.SUMMARY }));
+    }
+  }, [isConfirmed]);
+
+  useEffect(() => {
+    if (isConfirming) {
+      setState((prev) => ({ ...prev, loading: true }));
+    }
+
+    if (!isConfirming) {
+      setState((prev) => ({ ...prev, loading: false }));
+    }
+  }, [isConfirming]);
   const renderStep = () => {
     switch (state.step) {
       case Steps.INFO:
@@ -58,7 +71,34 @@ export default function Consolidate({
             validators={validators}
             consolidateValidators={consolidateValidators}
             chainId={contractConfig.chainId}
+            goToStep={() =>
+              setState((prev) => ({ ...prev, step: Steps.SUMMARY }))
+            }
           />
+        );
+      case Steps.SUMMARY:
+        return (
+          <div className='w-full flex flex-col items-center justify-center gap-y-2 p-2'>
+            <p>Transaction sent</p>
+            <p className='text-xs'>Transaction hash:</p>
+            <a
+              href={`${contractConfig.explorerUrl}/tx/${state.tx}`}
+              target='_blank'
+              rel='noreferrer'
+              className='text-primary'
+            >
+              {state.tx}
+            </a>
+            <p className='text-xs'>Check the transaction on the explorer</p>
+            <button
+              className='btn btn-primary mt-2'
+              onClick={() => {
+                setState((prev) => ({ ...prev, step: Steps.INFO }));
+              }}
+            >
+              Finish
+            </button>
+          </div>
         );
     }
   };

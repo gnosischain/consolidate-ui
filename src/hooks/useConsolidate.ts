@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useSendCalls, } from "wagmi";
+import { useSendCalls, useWaitForTransactionReceipt, } from "wagmi";
 import { Address, concat, parseEther } from "viem";
 import { ValidatorInfo } from "./useBeaconValidators";
 
@@ -85,7 +85,8 @@ export function simulateConsolidation(
 export function useConsolidateValidatorsBatch(
     contract: Address,
 ) {
-    const { sendCalls } = useSendCalls()
+    const { data: hash, sendCalls } = useSendCalls();
+    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: hash?.id as Address })
 
     const consolidateValidators = useCallback(
         async (
@@ -105,18 +106,19 @@ export function useConsolidateValidatorsBatch(
             const calls = consolidations.map(({ source, target }) => ({
                 to: contract,
                 data: concat([source, target]),
-                value: parseEther('0.001'),
+                value: parseEther('0.0001'),
             }))
 
             console.log('Sending batch of', calls.length, 'calls')
 
-            await sendCalls({
+            sendCalls({
                 calls,
                 capabilities: {},
             })
+
         },
         [contract, sendCalls]
     )
 
-    return { consolidateValidators }
+    return { consolidateValidators, isConfirming, isConfirmed }
 }

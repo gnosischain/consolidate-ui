@@ -10,6 +10,7 @@ interface ConsolidateSelectProps {
     size: number
   ) => Promise<void>;
   chainId: number;
+  goToStep: () => void;
 }
 
 export function ConsolidateAggregate({
@@ -21,8 +22,8 @@ export function ConsolidateAggregate({
   const [chunkSize, setChunkSize] = useState(isGnosisNetwork ? 40 : 1280);
   const simulation = simulateConsolidation(validators, chunkSize);
 
-  const handleConsolidate = () => {
-    consolidateValidators(validators, chunkSize);
+  const handleConsolidate = async () => {
+    await consolidateValidators(validators, chunkSize);
   };
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export function ConsolidateAggregate({
   return (
     <div className='w-full flex flex-col items-center justify-center gap-y-2 p-2'>
       <p>{validators.length} validators loaded</p>
-      <p className='text-xs'>Validators balance min: {chunkSize}</p>
+      <p className='text-xs'>Balance min: {chunkSize}</p>
       <input
         type='range'
         min={isGnosisNetwork ? 2 : 64}
