@@ -57,6 +57,7 @@ export default function Consolidate({
           <ConsolidateAggregate
             validators={validators}
             consolidateValidators={consolidateValidators}
+            chainId={contractConfig.chainId}
           />
         );
     }
