@@ -11,16 +11,6 @@ export interface ValidatorInfo {
     withdrawal_credentials: Address;
 }
 
-/**
- * React hook to fetch Beacon chain validators associated with the connected wallet address.
- *
- * @param beaconApiUrl - Full URL to the Beacon node API endpoint, e.g.
- *                       "https://eth-holesky.alchemyapi.io/v2/YOUR_KEY/eth/v1/beacon/states/head/validators"
- * @returns An object containing:
- *   - validators: Array of ValidatorInfo
- *   - loading: boolean while the request is in progress
- *   - error: any error encountered during fetch
- */
 export function useBeaconValidators(beaconExplorerUrl: string, address: Address, api: boolean) {
     const [validators, setValidators] = useState<ValidatorInfo[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -97,8 +87,7 @@ export function useBeaconValidators(beaconExplorerUrl: string, address: Address,
             setLoading(true);
 
             try {
-                // const response = await fetch(`https://gnosischa.in/api/v1/validator/eth1/${address}`);
-                const response = await fetch(`https://gnosischa.in/api/v1/validator/eth1/0x78E87757861185Ec5e8C0EF6BF0C69Fa7832df6C`);
+                const response = await fetch(`https://gnosischa.in/api/v1/validator/eth1/${address}`);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch from ${beaconExplorerUrl} - status: ${response.status}`);
                 }
