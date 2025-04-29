@@ -49,6 +49,7 @@ function App() {
             <Consolidate
               contractConfig={contractConfig}
               address={account.address}
+              api={account.chainId === 100}
             />
           ) : (
             <h1 className='text-xl font-bold'>

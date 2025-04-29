@@ -4,11 +4,14 @@ import { ConsolidateInfo } from './ConsolidateInfo';
 import { ConsolidateAggregate } from './ConsolidateAggregate';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { NetworkConfig } from '../constants/networks';
-import { useBeaconValidators } from '../hooks/useBeaconValidators';
+import {
+  useBeaconValidators,
+} from '../hooks/useBeaconValidators';
 
 interface ConsolidateProps {
   contractConfig: NetworkConfig;
   address: `0x${string}`;
+  api: boolean;
 }
 
 enum Steps {
@@ -20,13 +23,15 @@ enum Steps {
 export default function Consolidate({
   contractConfig,
   address,
+  api,
 }: ConsolidateProps) {
   const { consolidateValidators, isConfirming, isConfirmed } =
     useConsolidateValidatorsBatch(contractConfig.consolidateAddress);
 
   const { validators, loading } = useBeaconValidators(
     contractConfig.beaconExplorerUrl,
-    address
+    address,
+    api
   );
 
   const [state, setState] = useState<{
@@ -106,10 +111,10 @@ export default function Consolidate({
   return (
     <>
       {state.loading || loading ? (
-        <>
+        <div className='w-full flex flex-col items-center justify-center gap-y-2 p-2'>
           <Loader />
           <p className='mt-2'>Loading...</p>
-        </>
+        </div>
       ) : (
         renderStep()
       )}

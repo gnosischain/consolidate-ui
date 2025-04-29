@@ -106,7 +106,7 @@ export function useConsolidateValidatorsBatch(
             const calls = consolidations.map(({ source, target }) => ({
                 to: contract,
                 data: concat([source, target]),
-                value: parseEther('0.0001'),
+                value: parseEther('0.0003'),
             }))
 
             console.log('Sending batch of', calls.length, 'calls')
