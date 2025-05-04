@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ValidatorInfo } from '../hooks/useBeaconValidators';
 import { simulateConsolidation } from '../hooks/useConsolidate';
 import { NETWORK_CONFIG } from '../constants/networks';
