@@ -1,28 +1,28 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
-  font-family: 'CustomFont';
-  src: url('/Acumin-Pro-SemiCond-Book.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
+	font-family: 'CustomFont';
+	src: url('/Acumin-Pro-SemiCond-Book.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
 }
 
 @font-face {
-  font-family: 'CustomFont';
-  src: url('/Acumin-Pro-SemiCond-Semibold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
+	font-family: 'CustomFont';
+	src: url('/Acumin-Pro-SemiCond-Semibold.woff2') format('woff2');
+	font-weight: 600;
+	font-style: normal;
 }
 
 :root {
-  color-scheme: light dark;
-  font-family: 'CustomFont', sans-serif;
-  font-synthesis: none;
-  font-weight: 400;
-  line-height: 1.5;
-  text-rendering: optimizeLegibility;
+	color-scheme: light dark;
+	font-family: 'CustomFont', sans-serif;
+	font-synthesis: none;
+	font-weight: 400;
+	line-height: 1.5;
+	text-rendering: optimizeLegibility;
 
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-text-size-adjust: 100%;
 }

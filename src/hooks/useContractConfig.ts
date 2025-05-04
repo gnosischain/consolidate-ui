@@ -1,13 +1,13 @@
-import { useAccount } from "wagmi";
-import { NETWORK_CONFIG } from "../constants/networks";
+import { useAccount } from 'wagmi';
+import { NETWORK_CONFIG } from '../constants/networks';
 
 const useContractConfig = () => {
-  const account = useAccount();
-  const chainId = account?.chainId;
-  const contractConfig = chainId ? NETWORK_CONFIG[chainId] : undefined;
-  const isWrongNetwork = !contractConfig;
+	const account = useAccount();
+	const chainId = account?.chainId;
+	const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
+	const isWrongNetwork = !network;
 
-  return { chainId, account, contractConfig, isWrongNetwork };
+	return { chainId, account, network, isWrongNetwork };
 };
 
 export default useContractConfig;
