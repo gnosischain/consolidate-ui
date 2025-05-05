@@ -40,7 +40,7 @@ function App() {
                 </div>
 				</div>
 				<div className="flex gap-x-2">
-					<a href="" target='_blank' className="underline text-sm flex items-center">Gnosis Chain <img src='/external.svg' alt='External Link' className='w-3 h-3 ml-1'/></a>
+					<a href="https://www.gnosis.io/" target='_blank' className="underline text-sm flex items-center">Explore<img src='/external.svg' alt='External Link' className='w-3 h-3 ml-1'/></a>
 					{account.isConnected && account.address && chainId ? (
 						<div className="flex items-center gap-x-2">
 							<p className="text-sm">{truncateAddress(account.address)}</p>
