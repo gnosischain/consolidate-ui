@@ -14,7 +14,7 @@ export function SelectWallet() {
 		return acc;
 	}, []);
 
-	const acceptedConnectors = ['metamask'];
+	const acceptedConnectors = ['metamask', 'safe'];
 
 	return (
 		<>
