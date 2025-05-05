@@ -18,7 +18,7 @@ interface Consolidation {
 interface ComputedConsolidation {
 	consolidations: Consolidation[];
 	skippedValidators: ValidatorInfo[];
-	targets: ValidatorInfo[];
+	targets: Set<ValidatorInfo>;
 }
 
 // TODO: Improve this. Right now the balances are rounded to the nearest integer,
@@ -28,40 +28,34 @@ export function computeConsolidations(
 	chunkSize: number,
 	upgradeAllToCompounding = true,
 ): ComputedConsolidation {
-	const consolidations: Consolidation[] = [];
+	const selfConsolidations: Consolidation[] = [];
+	const groupConsolidations: Consolidation[] = [];
 	const skippedValidators: ValidatorInfo[] = [];
-
 	const remaining = [...validators];
-	const targets = [];
+	// const targets = [];
+	const targets = new Set<ValidatorInfo>()
 	let target;
 
+	if (upgradeAllToCompounding) {
+		for (const v of validators) {
+			selfConsolidations.push({ source: v.pubkey, target: v.pubkey })
+		  }
+	}
+
 	while ((target = remaining.shift())) {
-		let targetBalance = Math.round(target.balanceEth);
+		let targetBalance = target.balanceEth;
 
 		if (targetBalance >= chunkSize) {
-			if (upgradeAllToCompounding) {
-				targets.push(target);
-				consolidations.push({
-					source: target.pubkey,
-					target: target.pubkey,
-				});
-			} else {
-				skippedValidators.push(target);
-			}
+			skippedValidators.push(target);
 			continue;
-		} else {
-			targets.push(target);
-			consolidations.push({
-				source: target.pubkey,
-				target: target.pubkey,
-			});
 		}
 
-		for (let i = 0; i < remaining.length; ) {
+		for (let i = 0; i < remaining.length;) {
 			const candidate = remaining[i];
 
 			if (targetBalance + Math.round(candidate.balanceEth) <= chunkSize) {
-				consolidations.push({
+				targets.add(target);
+				groupConsolidations.push({
 					source: candidate.pubkey,
 					target: target.pubkey,
 				});
@@ -77,7 +71,7 @@ export function computeConsolidations(
 		}
 	}
 
-	return { consolidations, skippedValidators, targets };
+	return { consolidations: [...selfConsolidations, ...groupConsolidations], skippedValidators, targets };
 }
 
 interface ConsolidationSimulationResult {
@@ -91,16 +85,14 @@ export function simulateConsolidation(
 	chunkSize: number,
 	upgradeAllToCompounding = true,
 ): ConsolidationSimulationResult {
-	const { consolidations, skippedValidators } = computeConsolidations(
+	const { consolidations, skippedValidators, targets } = computeConsolidations(
 		validators,
 		chunkSize,
 		upgradeAllToCompounding,
 	);
 
-	const targetsInvolved = new Set(consolidations.map((c) => c.target));
-
 	return {
-		totalGroups: targetsInvolved.size + skippedValidators.length,
+		totalGroups: targets.size + skippedValidators.length,
 		consolidations,
 		skippedValidators,
 	};
