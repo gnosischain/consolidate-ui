@@ -18,9 +18,29 @@ function App() {
 		<div className="w-full h-screen flex flex-col">
 			<div className="navbar bg-base-100 shadow-sm">
 				<div className="flex-1">
-					<a className="btn btn-ghost text-xl">ConsolidateUI</a>
+				<div className='flex justify-center sm:justify-start mt-4 sm:mt-0'>
+                <img
+                  src='/logo.svg'
+                  alt='Gnosis Logo'
+                  width={45}
+                  height={24}
+                />
+                <div className='flex flex-col ml-2 justify-center'>
+                  <img
+                    src='/gnosis.svg'
+                    alt='Gnosis Text'
+                    width={100}
+                    height={24}
+                    className='mb-1 mt-0.5'
+                  />
+                  <p className='text-[6px] leading-[6px] sm:text-[8px] sm:leading-[8px] mt-1 '>
+                    BEACON CHAIN CONSOLIDATION
+                  </p>
+				  </div>
+                </div>
 				</div>
-				<div className="flex-none">
+				<div className="flex gap-x-2">
+					<a href="" target='_blank' className="underline text-sm flex items-center">Gnosis Chain <img src='/external.svg' alt='External Link' className='w-3 h-3 ml-1'/></a>
 					{account.isConnected && account.address && chainId ? (
 						<div className="flex items-center gap-x-2">
 							<p className="text-sm">{truncateAddress(account.address)}</p>
