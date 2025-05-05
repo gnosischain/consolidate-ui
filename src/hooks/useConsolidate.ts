@@ -114,9 +114,9 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 
 	const consolidateValidators = useCallback(
 		async (validators: ValidatorInfo[], chunkSize: number, upgradeAllToCompounding = true) => {
-			if (validators.length < 2) {
-				throw new Error('Need at least 2 validators to consolidate.');
-			}
+			// if (validators.length < 2) {
+			// 	throw new Error('Need at least 2 validators to consolidate.');
+			// }
 
 			const { consolidations } = computeConsolidations(
 				validators,

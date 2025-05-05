@@ -81,14 +81,14 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 					})
 					.map((v: {
 						index: string; validator: {
-							withdrawal_credentials: string; pubkey: Address
-						}; balance: string
+							withdrawal_credentials: string; pubkey: Address, effective_balance: string
+						}
 					}) => {
 						const creds: string = v.validator.withdrawal_credentials;
 						return ({
 							index: Number(v.index),
 							pubkey: v.validator.pubkey,
-							balanceEth: Number(v.balance) / 1e9 / network.cl.multiplier,
+							balanceEth: Number(v.validator.effective_balance) / 1e9 / network.cl.multiplier,
 							withdrawal_credentials: creds,
 							type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
 						})
