@@ -69,17 +69,18 @@ interface ConsolidationSimulationResult {
 }
 
 export function simulateConsolidation(
-	validators: ValidatorInfo[],
+	compoundingValidators: ValidatorInfo[],
+	type1Validators: ValidatorInfo[],
 	chunkSize: number,
 	includeType1: boolean,
 ): ConsolidationSimulationResult {
 	const { consolidations, skippedValidators, targets } = computeConsolidations(
-		validators,
+		compoundingValidators,
 		chunkSize,
 	);
 
 	if(includeType1){
-		const selfConsolidations = computeSelfConsolidations(validators.filter(v => v.type === 1));
+		const selfConsolidations = computeSelfConsolidations(type1Validators.filter(v => v.type === 1));
 		consolidations.unshift(...selfConsolidations);
 	}
 

@@ -27,7 +27,7 @@ export function ConsolidateAggregate({
 	const [includeType1, setIncludeType1] = useState(true);
 	const type1Validators = validators.filter((v) => v.type === 1);
 	const compoundingValidators = validators.filter((v) => v.type === 2);
-	const simulation = simulateConsolidation(compoundingValidators, chunkSize, includeType1);
+	const simulation = simulateConsolidation(compoundingValidators, type1Validators, chunkSize, includeType1);
 
 	const handleConsolidate = async () => {
 		const { consolidations } = computeConsolidations(compoundingValidators, chunkSize);
