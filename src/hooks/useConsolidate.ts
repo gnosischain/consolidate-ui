@@ -69,13 +69,13 @@ interface ConsolidationSimulationResult {
 }
 
 export function simulateConsolidation(
-	compoundingValidators: ValidatorInfo[],
+	validators: ValidatorInfo[],
 	type1Validators: ValidatorInfo[],
 	chunkSize: number,
 	includeType1: boolean,
 ): ConsolidationSimulationResult {
 	const { consolidations, skippedValidators, targets } = computeConsolidations(
-		compoundingValidators,
+		validators,
 		chunkSize,
 	);
 
