@@ -85,7 +85,7 @@ export function simulateConsolidation(
 	}
 
 	return {
-		totalGroups: (targets.size !== 0 ? targets.size : compoundingValidators.length) + skippedValidators.length + (includeType1 ? 0 : type1Validators.length),
+		totalGroups: (targets.size !== 0 ? targets.size + skippedValidators.length : compoundingValidators.length) + (includeType1 ? 0 : type1Validators.length),
 		consolidations,
 		skippedValidators,
 	};
