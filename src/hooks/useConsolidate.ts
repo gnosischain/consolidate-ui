@@ -75,7 +75,7 @@ export function simulateConsolidation(
 	includeType1: boolean,
 ): ConsolidationSimulationResult {
 	const { consolidations, skippedValidators, targets } = computeConsolidations(
-		validators,
+		includeType1 ? validators : validators.filter(v => v.type !== 1),
 		chunkSize,
 	);
 
