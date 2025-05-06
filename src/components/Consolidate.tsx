@@ -5,9 +5,10 @@ import { ConsolidateAggregate } from './ConsolidateAggregate';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { NetworkConfig } from '../constants/networks';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
+import { Address } from 'viem';
 
 interface ConsolidateProps {
-	address: `0x${string}`;
+	address: Address;
 	network: NetworkConfig;
 }
 
@@ -18,7 +19,7 @@ enum Steps {
 }
 
 export default function Consolidate({ network, address }: ConsolidateProps) {
-	const { consolidateValidators, isConfirming, isConfirmed } = useConsolidateValidatorsBatch(
+	const { consolidateValidators, isConfirming, isConfirmed, hash } = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
 
@@ -27,7 +28,7 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 	const [state, setState] = useState<{
 		step: Steps;
 		loading: boolean;
-		tx: `0x${string}`;
+		tx: Address;
 	}>({
 		step: Steps.INFO,
 		loading: false,
@@ -35,20 +36,21 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 	});
 
 	useEffect(() => {
-		if (isConfirmed) {
-			setState((prev) => ({ ...prev, step: Steps.SUMMARY }));
+		if (hash?.id || isConfirmed) {
+			console.log('Transaction confirmed', hash?.id);
+			setState((prev) => ({
+				...prev,
+				step: Steps.SUMMARY,
+				loading: false,
+				tx: hash?.id as Address,
+			}));
+		} else {
+			if (isConfirming) {
+				setState((prev) => ({ ...prev, loading: true }));
+			}
 		}
-	}, [isConfirmed]);
+	}, [hash?.id, isConfirmed, isConfirming]);
 
-	useEffect(() => {
-		if (isConfirming) {
-			setState((prev) => ({ ...prev, loading: true }));
-		}
-
-		if (!isConfirming) {
-			setState((prev) => ({ ...prev, loading: false }));
-		}
-	}, [isConfirming]);
 	const renderStep = () => {
 		switch (state.step) {
 			case Steps.INFO:

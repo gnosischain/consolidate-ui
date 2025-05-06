@@ -106,7 +106,7 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 			const calls = consolidations.map(({ source, target }) => ({
 				to: contract,
 				data: concat([source, target]),
-				value: parseEther('0.0003'),
+				value: parseEther('0.000001'),
 			}));
 
 			console.log('Sending batch of', calls.length, 'calls');
@@ -119,7 +119,7 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 		[contract, sendCalls],
 	);
 
-	return { consolidateValidators, isConfirming, isConfirmed };
+	return { consolidateValidators, isConfirming, isConfirmed, hash };
 }
 
 export function computeSelfConsolidations(

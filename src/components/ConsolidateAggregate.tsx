@@ -73,7 +73,7 @@ export function ConsolidateAggregate({
 			<div className="collapse collapse-arrow border-base-300 border">
 				<input type="checkbox" />
 				<div className="collapse-title text-sm font-semibold">
-					Type 1 Validators: {type1Validators.length}
+					0x01 Validators: {type1Validators.length}
 				</div>
 				<div className="collapse-content text-sm">
 					<ul className="list rounded-box">
@@ -112,7 +112,7 @@ export function ConsolidateAggregate({
 						checked={upgradeAll}
 						onChange={(e) => setUpgradeAll(e.currentTarget.checked)}
 					/>
-					Upgrade 0x01 validators to compounding
+					Include 0x01 validators
 				</label>
 			</div>
 
