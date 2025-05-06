@@ -69,23 +69,23 @@ interface ConsolidationSimulationResult {
 }
 
 export function simulateConsolidation(
-	validators: ValidatorInfo[],
+	compoundingValidators: ValidatorInfo[],
 	type1Validators: ValidatorInfo[],
 	chunkSize: number,
 	includeType1: boolean,
 ): ConsolidationSimulationResult {
 	const { consolidations, skippedValidators, targets } = computeConsolidations(
-		includeType1 ? validators : validators.filter(v => v.type !== 1),
+		includeType1 ? [...type1Validators, ...compoundingValidators] : compoundingValidators,
 		chunkSize,
 	);
 
-	if(includeType1){
+	if (includeType1) {
 		const selfConsolidations = computeSelfConsolidations(type1Validators.filter(v => v.type === 1));
 		consolidations.unshift(...selfConsolidations);
 	}
 
 	return {
-		totalGroups: targets.size + skippedValidators.length + (includeType1 ? 0 : type1Validators.length),
+		totalGroups: (targets.size !== 0 ? targets.size : compoundingValidators.length) + skippedValidators.length + (includeType1 ? 0 : type1Validators.length),
 		consolidations,
 		skippedValidators,
 	};
