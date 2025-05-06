@@ -24,8 +24,7 @@ export function computeConsolidations(
 	validators: ValidatorInfo[],
 	chunkSize: number,
 ): ComputedConsolidation {
-	const selfConsolidations: Consolidation[] = [];
-	const groupConsolidations: Consolidation[] = [];
+	const consolidations: Consolidation[] = [];
 	const skippedValidators: ValidatorInfo[] = [];
 	const remaining = [...validators];
 	const targets = new Set<ValidatorInfo>()
@@ -42,9 +41,9 @@ export function computeConsolidations(
 		for (let i = 0; i < remaining.length;) {
 			const candidate = remaining[i];
 
-			if (targetBalance + Math.round(candidate.balanceEth) <= chunkSize) {
+			if (targetBalance + candidate.balanceEth <= chunkSize) {
 				targets.add(target);
-				groupConsolidations.push({
+				consolidations.push({
 					sourceIndex: candidate.index,
 					sourceKey: candidate.pubkey,
 					sourceBalance: candidate.balanceEth,
@@ -57,14 +56,10 @@ export function computeConsolidations(
 			} else {
 				i++;
 			}
-
-			if (targetBalance >= chunkSize) {
-				break;
-			}
 		}
 	}
 
-	return { consolidations: [...selfConsolidations, ...groupConsolidations], skippedValidators, targets };
+	return { consolidations, skippedValidators, targets };
 }
 
 interface ConsolidationSimulationResult {
