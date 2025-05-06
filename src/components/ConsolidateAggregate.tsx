@@ -24,6 +24,8 @@ export function ConsolidateAggregate({
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [upgradeAll, setUpgradeAll] = useState(true);
 	const simulation = simulateConsolidation(validators, chunkSize, upgradeAll);
+	const type1Validators = validators.filter((v) => v.type === 1);
+	const compoundingValidators = validators.filter((v) => v.type === 2);
 
 	const handleConsolidate = async () => {
 		await consolidateValidators(validators, chunkSize, upgradeAll);
@@ -32,27 +34,67 @@ export function ConsolidateAggregate({
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
 	return (
-		<div className="w-full flex flex-col items-center justify-center gap-y-2 p-2">
-			<p>{validators.length} validators loaded</p>
-			<p className="text-xs">Balance min: {chunkSize}</p>
-			<input
-				type="range"
-				min={network.cl.minBalance}
-				max={network.cl.maxBalance}
-				value={chunkSize}
-				className="range range-sm range-primary"
-				onChange={(e) => setChunkSize(Number(e.target.value))}
-			></input>
+		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
+			<p className="font-bold">My validators</p>
+			<div className="collapse collapse-arrow border-base-300 border">
+				<input type="checkbox" />
+				<div className="collapse-title text-sm font-semibold">
+					Compounding Validators: {compoundingValidators.length}
+				</div>
+				<div className="collapse-content text-sm">
+					<ul className="list rounded-box">
+						{compoundingValidators.map((v) => (
+							<li className="list-row" key={v.index}>
+								<p>
+									{v.index} ({v.balanceEth} GNO)
+								</p>
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
+			<div className="flex justify-end mt-4">
+				<button className="btn btn-sm btn-ghost text-primary">Upgrade all</button>
+			</div>
+			<div className="collapse collapse-arrow border-base-300 border">
+				<input type="checkbox" />
+				<div className="collapse-title text-sm font-semibold">
+					Type 1 Validators: {type1Validators.length}
+				</div>
+				<div className="collapse-content text-sm">
+					<ul className="list rounded-box">
+						{type1Validators.map((v) => (
+							<li className="list-row" key={v.index}>
+								<p>
+									{v.index} ({v.balanceEth} GNO)
+								</p>
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
 
-			<label className="label">
+			<div className="flex flex-col w-full items-center mt-4 gap-y-2">
+				<p className="text-xs">Balance min: {chunkSize}</p>
 				<input
-					className="checkbox"
-					type="checkbox"
-					checked={upgradeAll}
-					onChange={(e) => setUpgradeAll(e.currentTarget.checked)}
-				/>
-				Upgrade all to compounding
-			</label>
+					type="range"
+					min={network.cl.minBalance}
+					max={network.cl.maxBalance}
+					value={chunkSize}
+					className="range range-sm range-primary"
+					onChange={(e) => setChunkSize(Number(e.target.value))}
+				></input>
+
+				<label className="label">
+					<input
+						className="checkbox checkbox-sm"
+						type="checkbox"
+						checked={upgradeAll}
+						onChange={(e) => setUpgradeAll(e.currentTarget.checked)}
+					/>
+					Upgrade 0x01 validators to compounding
+				</label>
+			</div>
 
 			<div className="w-full flex flex-col items-center gap-y-4">
 				<div className="text-center text-sm p-2">
@@ -66,13 +108,16 @@ export function ConsolidateAggregate({
 							</p>
 							<ul className="list-disc list-inside text-xs mt-1">
 								{simulation.skippedValidators.map((v) => (
-									<li key={v.pubkey}>
-										{v.pubkey} ({v.balanceEth} GNO)
+									<li key={v.index}>
+										{v.index} ({v.balanceEth} GNO)
 									</li>
 								))}
 							</ul>
 						</div>
 					)}
+				</div>
+				<div className="flex flex-col gap-y-2 w-full">
+					<p className="font-semibold">Details</p>
 				</div>
 				<button onClick={handleConsolidate} className="btn btn-primary">
 					Consolidate

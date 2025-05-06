@@ -3,13 +3,6 @@ import { useSendCalls, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
 import { ValidatorInfo } from './useBeaconValidators';
 
-export type Validator = {
-	publickey: `0x${string}`;
-	valid_signature: boolean;
-	validatorindex: number;
-	withdrawal_credentials: `0x${string}`;
-};
-
 interface Consolidation {
 	source: Address;
 	target: Address;
@@ -32,7 +25,6 @@ export function computeConsolidations(
 	const groupConsolidations: Consolidation[] = [];
 	const skippedValidators: ValidatorInfo[] = [];
 	const remaining = [...validators];
-	// const targets = [];
 	const targets = new Set<ValidatorInfo>()
 	let target;
 

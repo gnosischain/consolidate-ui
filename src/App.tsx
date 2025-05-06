@@ -16,7 +16,7 @@ function App() {
 
 	return (
 		<div className="w-full h-screen flex flex-col">
-			<div className="navbar bg-base-100 shadow-sm">
+			<div className="navbar bg-base-200 shadow-sm">
 				<div className="flex-1">
 				<div className='flex justify-center sm:justify-start mt-4 sm:mt-0'>
                 <img
@@ -55,8 +55,8 @@ function App() {
 				</div>
 			</div>
 			{/* Main content */}
-			<div className="flex h-full w-full items-center justify-center">
-				<div className="flex max-w-4xl w-full border border-base-300 rounded-lg shadow-sm items-center justify-center p-8">
+			<div className="flex h-full w-full items-center justify-center bg-base-100">
+				<div className="flex max-w-4xl w-full bg-slate-800 rounded-lg shadow-sm items-center justify-center p-8">
 					{account.isConnected && account.address && network && chainId ? (
 						<Consolidate network={network} address={account.address} />
 					) : (
