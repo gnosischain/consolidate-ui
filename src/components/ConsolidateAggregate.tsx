@@ -7,6 +7,7 @@ import {
 	simulateConsolidation,
 } from '../hooks/useConsolidate';
 import { NETWORK_CONFIG } from '../constants/networks';
+import { ValidatorList } from './ValidatorList';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -42,58 +43,27 @@ export function ConsolidateAggregate({
 		await consolidateValidators(consolidations);
 	};
 
-	const handleUpgradeSingle = async (validator: ValidatorInfo) => {
-		const consolidation = computeSelfConsolidations([validator]);
-		await consolidateValidators(consolidation);
-	};
-
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
 	return (
 		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
 			<p className="font-bold">My validators</p>
-			<div className="collapse collapse-arrow border-base-300 border">
-				<input type="checkbox" />
-				<div className="collapse-title text-sm font-semibold">
-					Compounding Validators: {compoundingValidators.length}
-				</div>
-				<div className="collapse-content text-sm">
-					<ul className="list rounded-box">
-						{compoundingValidators.map((v) => (
-							<li className="list-row" key={v.index}>
-								<p>
-									{v.index} ({v.balanceEth} GNO)
-								</p>
-							</li>
-						))}
-					</ul>
-				</div>
-			</div>
+			<ValidatorList
+				title={`Compounding Validators (${compoundingValidators.length})`}
+				validators={compoundingValidators}
+			/>
 			<div className="flex justify-end mt-4">
 				<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
 					Upgrade all
 				</button>
 			</div>
-			<div className="collapse collapse-arrow border-base-300 border">
-				<input type="checkbox" />
-				<div className="collapse-title text-sm font-semibold">
-					0x01 Validators: {type1Validators.length}
-				</div>
-				<div className="collapse-content text-sm">
-					<ul className="list rounded-box">
-						{type1Validators.map((v) => (
-							<li className="list-row flex justify-between" key={v.index}>
-								<p className="font-semibold">
-									{v.index} ({v.balanceEth} GNO)
-								</p>
-								<button className="btn btn-sm btn-ghost" onClick={() => handleUpgradeSingle(v)}>
-									Upgrade
-								</button>
-							</li>
-						))}
-					</ul>
-				</div>
-			</div>
+
+			<ValidatorList
+				title={`0x01 Validators (${type1Validators.length})`}
+				validators={type1Validators}
+				actionLabel="Upgrade"
+				onAction={(v) => consolidateValidators(computeSelfConsolidations([v]))}
+			/>
 
 			<div className="flex flex-col w-full items-center mt-4 gap-y-2">
 				<p className="text-xs">Balance min: {chunkSize}</p>
@@ -144,7 +114,7 @@ export function ConsolidateAggregate({
 					{simulation.consolidations.map((c, i) => (
 						<div key={i} className="flex justify-between items-center bg-base-200 p-2 rounded-lg">
 							<p className="text-sm">
-								{c.sourceIndex} - {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
+								{c.sourceIndex} → {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
 							</p>
 							{c.targetBalance === 0 && <p className="text-warning text-xs">Self consolidation</p>}
 						</div>

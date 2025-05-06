@@ -15,8 +15,8 @@ export function ValidatorList({ title, validators, actionLabel, onAction }: Vali
       <div className="collapse-content text-sm">
         <ul className="list rounded-box">
           {validators.map((v) => (
-            <li key={v.index} className="flex justify-between">
-              <span className="font-semibold">{v.index} ({v.balanceEth.toFixed(2)})</span>
+            <li key={v.index} className="list-row flex justify-between">
+              <span>{v.index} ({v.balanceEth} GNO)</span>
               {actionLabel && onAction && (
                 <button
                   className="btn btn-sm btn-ghost"
