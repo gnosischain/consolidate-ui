@@ -19,7 +19,6 @@ interface ComputedConsolidation {
 export function computeConsolidations(
 	validators: ValidatorInfo[],
 	chunkSize: number,
-	upgradeAllToCompounding = true,
 ): ComputedConsolidation {
 	const selfConsolidations: Consolidation[] = [];
 	const groupConsolidations: Consolidation[] = [];
@@ -27,12 +26,6 @@ export function computeConsolidations(
 	const remaining = [...validators];
 	const targets = new Set<ValidatorInfo>()
 	let target;
-
-	if (upgradeAllToCompounding) {
-		for (const v of validators) {
-			selfConsolidations.push({ source: v.pubkey, target: v.pubkey })
-		}
-	}
 
 	while ((target = remaining.shift())) {
 		let targetBalance = target.balanceEth;
@@ -75,13 +68,17 @@ interface ConsolidationSimulationResult {
 export function simulateConsolidation(
 	validators: ValidatorInfo[],
 	chunkSize: number,
-	upgradeAllToCompounding = true,
+	includeType1: boolean,
 ): ConsolidationSimulationResult {
 	const { consolidations, skippedValidators, targets } = computeConsolidations(
 		validators,
 		chunkSize,
-		upgradeAllToCompounding,
 	);
+
+	if(includeType1){
+		const selfConsolidations = computeSelfConsolidations(validators.filter(v => v.type === 1));
+		consolidations.push(...selfConsolidations);
+	}
 
 	return {
 		totalGroups: targets.size + skippedValidators.length,

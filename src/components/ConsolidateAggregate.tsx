@@ -23,13 +23,17 @@ export function ConsolidateAggregate({
 	const network = NETWORK_CONFIG[chainId];
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
-	const [upgradeAll, setUpgradeAll] = useState(true);
-	const simulation = simulateConsolidation(validators, chunkSize, upgradeAll);
+	const [includeType1, setIncludeType1] = useState(true);
+	const simulation = simulateConsolidation(validators, chunkSize, includeType1);
 	const type1Validators = validators.filter((v) => v.type === 1);
 	const compoundingValidators = validators.filter((v) => v.type === 2);
 
 	const handleConsolidate = async () => {
-		const { consolidations } = computeConsolidations(validators, chunkSize, upgradeAll);
+		const { consolidations } = computeConsolidations(validators, chunkSize);
+		if (includeType1) {
+			const selfConsolidations = computeSelfConsolidations(type1Validators);
+			consolidations.push(...selfConsolidations);
+		}
 		await consolidateValidators(consolidations);
 	};
 
@@ -79,13 +83,10 @@ export function ConsolidateAggregate({
 					<ul className="list rounded-box">
 						{type1Validators.map((v) => (
 							<li className="list-row flex justify-between" key={v.index}>
-								<p className='font-semibold'>
+								<p className="font-semibold">
 									{v.index} ({v.balanceEth} GNO)
 								</p>
-								<button
-									className="btn btn-sm btn-ghost"
-									onClick={() => handleUpgradeSingle(v)}
-								>
+								<button className="btn btn-sm btn-ghost" onClick={() => handleUpgradeSingle(v)}>
 									Upgrade
 								</button>
 							</li>
@@ -105,15 +106,17 @@ export function ConsolidateAggregate({
 					onChange={(e) => setChunkSize(Number(e.target.value))}
 				></input>
 
-				<label className="label">
-					<input
-						className="checkbox checkbox-sm"
-						type="checkbox"
-						checked={upgradeAll}
-						onChange={(e) => setUpgradeAll(e.currentTarget.checked)}
-					/>
-					Include 0x01 validators
-				</label>
+				{type1Validators.length > 0 && (
+					<label className="label">
+						<input
+							className="checkbox checkbox-sm"
+							type="checkbox"
+							checked={includeType1}
+							onChange={(e) => setIncludeType1(e.currentTarget.checked)}
+						/>
+						Include 0x01 validators
+					</label>
+				)}
 			</div>
 
 			<div className="w-full flex flex-col items-center gap-y-4">
