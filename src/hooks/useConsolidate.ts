@@ -4,8 +4,12 @@ import { Address, concat, parseEther } from 'viem';
 import { ValidatorInfo } from './useBeaconValidators';
 
 export interface Consolidation {
-	source: Address;
-	target: Address;
+	sourceIndex: number;
+	sourceKey: Address;
+	sourceBalance: number;
+	targetIndex: number;
+	targetKey: Address;
+	targetBalance: number;
 }
 
 interface ComputedConsolidation {
@@ -30,7 +34,7 @@ export function computeConsolidations(
 	while ((target = remaining.shift())) {
 		let targetBalance = target.balanceEth;
 
-		if (targetBalance >= chunkSize) {
+		if (targetBalance >= chunkSize && target.type === 2) {
 			skippedValidators.push(target);
 			continue;
 		}
@@ -41,10 +45,14 @@ export function computeConsolidations(
 			if (targetBalance + Math.round(candidate.balanceEth) <= chunkSize) {
 				targets.add(target);
 				groupConsolidations.push({
-					source: candidate.pubkey,
-					target: target.pubkey,
+					sourceIndex: candidate.index,
+					sourceKey: candidate.pubkey,
+					sourceBalance: candidate.balanceEth,
+					targetIndex: target.index,
+					targetKey: target.pubkey,
+					targetBalance: targetBalance,
 				});
-				targetBalance += Math.round(candidate.balanceEth);
+				targetBalance += candidate.balanceEth;
 				remaining.splice(i, 1);
 			} else {
 				i++;
@@ -77,7 +85,7 @@ export function simulateConsolidation(
 
 	if(includeType1){
 		const selfConsolidations = computeSelfConsolidations(validators.filter(v => v.type === 1));
-		consolidations.push(...selfConsolidations);
+		consolidations.unshift(...selfConsolidations);
 	}
 
 	return {
@@ -100,9 +108,9 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 				throw new Error('No consolidation possible with given chunk size');
 			}
 
-			const calls = consolidations.map(({ source, target }) => ({
+			const calls = consolidations.map(({ sourceKey, targetKey }) => ({
 				to: contract,
-				data: concat([source, target]),
+				data: concat([sourceKey, targetKey]),
 				value: parseEther('0.000001'),
 			}));
 
@@ -125,7 +133,7 @@ export function computeSelfConsolidations(
 	const selfConsolidations: Consolidation[] = [];
 
 	for (const v of validators) {
-		selfConsolidations.push({ source: v.pubkey, target: v.pubkey });
+		selfConsolidations.push({ sourceIndex: v.index, sourceKey: v.pubkey, sourceBalance: 1, targetIndex: v.index, targetKey: v.pubkey, targetBalance: 0 });
 	}
 
 	return selfConsolidations;

@@ -24,15 +24,15 @@ export function ConsolidateAggregate({
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [includeType1, setIncludeType1] = useState(true);
-	const simulation = simulateConsolidation(validators, chunkSize, includeType1);
 	const type1Validators = validators.filter((v) => v.type === 1);
 	const compoundingValidators = validators.filter((v) => v.type === 2);
+	const simulation = simulateConsolidation(validators, chunkSize, includeType1);
 
 	const handleConsolidate = async () => {
-		const { consolidations } = computeConsolidations(validators, chunkSize);
+		const { consolidations } = computeConsolidations(compoundingValidators, chunkSize);
 		if (includeType1) {
 			const selfConsolidations = computeSelfConsolidations(type1Validators);
-			consolidations.push(...selfConsolidations);
+			consolidations.unshift(...selfConsolidations);
 		}
 		await consolidateValidators(consolidations);
 	};
@@ -141,6 +141,14 @@ export function ConsolidateAggregate({
 				</div>
 				<div className="flex flex-col gap-y-2 w-full">
 					<p className="font-semibold">Details</p>
+					{simulation.consolidations.map((c, i) => (
+						<div key={i} className="flex justify-between items-center bg-base-200 p-2 rounded-lg">
+							<p className="text-sm">
+								{c.sourceIndex} - {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
+							</p>
+							{c.targetBalance === 0 && <p className="text-warning text-xs">Self consolidation</p>}
+						</div>
+					))}
 				</div>
 				<button onClick={handleConsolidate} className="btn btn-primary">
 					Consolidate
