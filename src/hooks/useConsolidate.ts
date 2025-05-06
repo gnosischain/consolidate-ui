@@ -3,7 +3,7 @@ import { useSendCalls, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
 import { ValidatorInfo } from './useBeaconValidators';
 
-interface Consolidation {
+export interface Consolidation {
 	source: Address;
 	target: Address;
 }
@@ -31,7 +31,7 @@ export function computeConsolidations(
 	if (upgradeAllToCompounding) {
 		for (const v of validators) {
 			selfConsolidations.push({ source: v.pubkey, target: v.pubkey })
-		  }
+		}
 	}
 
 	while ((target = remaining.shift())) {
@@ -97,16 +97,7 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 	});
 
 	const consolidateValidators = useCallback(
-		async (validators: ValidatorInfo[], chunkSize: number, upgradeAllToCompounding = true) => {
-			// if (validators.length < 2) {
-			// 	throw new Error('Need at least 2 validators to consolidate.');
-			// }
-
-			const { consolidations } = computeConsolidations(
-				validators,
-				chunkSize,
-				upgradeAllToCompounding,
-			);
+		async (consolidations: Consolidation[]) => {
 
 			if (consolidations.length === 0) {
 				throw new Error('No consolidation possible with given chunk size');
@@ -129,4 +120,16 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 	);
 
 	return { consolidateValidators, isConfirming, isConfirmed };
+}
+
+export function computeSelfConsolidations(
+	validators: ValidatorInfo[],
+): Consolidation[] {
+	const selfConsolidations: Consolidation[] = [];
+
+	for (const v of validators) {
+		selfConsolidations.push({ source: v.pubkey, target: v.pubkey });
+	}
+
+	return selfConsolidations;
 }

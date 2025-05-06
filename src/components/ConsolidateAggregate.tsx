@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { ValidatorInfo } from '../hooks/useBeaconValidators';
-import { simulateConsolidation } from '../hooks/useConsolidate';
+import {
+	computeConsolidations,
+	computeSelfConsolidations,
+	Consolidation,
+	simulateConsolidation,
+} from '../hooks/useConsolidate';
 import { NETWORK_CONFIG } from '../constants/networks';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
-	consolidateValidators: (
-		selectedPubkeys: ValidatorInfo[],
-		size: number,
-		upgradeAll: boolean,
-	) => Promise<void>;
+	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
 	chainId: number;
 	goToStep: () => void;
 }
@@ -28,7 +29,18 @@ export function ConsolidateAggregate({
 	const compoundingValidators = validators.filter((v) => v.type === 2);
 
 	const handleConsolidate = async () => {
-		await consolidateValidators(validators, chunkSize, upgradeAll);
+		const { consolidations } = computeConsolidations(validators, chunkSize, upgradeAll);
+		await consolidateValidators(consolidations);
+	};
+
+	const handleUpgradeAll = async () => {
+		const consolidations = computeSelfConsolidations(type1Validators);
+		await consolidateValidators(consolidations);
+	};
+
+	const handleUpgradeSingle = async (validator: ValidatorInfo) => {
+		const consolidation = computeSelfConsolidations([validator]);
+		await consolidateValidators(consolidation);
 	};
 
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
@@ -54,7 +66,9 @@ export function ConsolidateAggregate({
 				</div>
 			</div>
 			<div className="flex justify-end mt-4">
-				<button className="btn btn-sm btn-ghost text-primary">Upgrade all</button>
+				<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
+					Upgrade all
+				</button>
 			</div>
 			<div className="collapse collapse-arrow border-base-300 border">
 				<input type="checkbox" />
@@ -64,10 +78,16 @@ export function ConsolidateAggregate({
 				<div className="collapse-content text-sm">
 					<ul className="list rounded-box">
 						{type1Validators.map((v) => (
-							<li className="list-row" key={v.index}>
-								<p>
+							<li className="list-row flex justify-between" key={v.index}>
+								<p className='font-semibold'>
 									{v.index} ({v.balanceEth} GNO)
 								</p>
+								<button
+									className="btn btn-sm btn-ghost"
+									onClick={() => handleUpgradeSingle(v)}
+								>
+									Upgrade
+								</button>
 							</li>
 						))}
 					</ul>
