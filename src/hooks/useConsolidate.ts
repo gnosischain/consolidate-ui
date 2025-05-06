@@ -74,19 +74,18 @@ export function simulateConsolidation(
 	chunkSize: number,
 	includeType1: boolean,
 ): ConsolidationSimulationResult {
-	let selfConsolidations: Consolidation[] = [];
 	const { consolidations, skippedValidators, targets } = computeConsolidations(
 		validators,
 		chunkSize,
 	);
 
 	if(includeType1){
-		selfConsolidations = computeSelfConsolidations(type1Validators.filter(v => v.type === 1));
+		const selfConsolidations = computeSelfConsolidations(type1Validators.filter(v => v.type === 1));
 		consolidations.unshift(...selfConsolidations);
 	}
 
 	return {
-		totalGroups: targets.size + skippedValidators.length + selfConsolidations.length,
+		totalGroups: targets.size + skippedValidators.length + (includeType1 ? 0 : type1Validators.length),
 		consolidations,
 		skippedValidators,
 	};
