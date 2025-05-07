@@ -70,7 +70,9 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 			setLoading(true);
 
 			try {
-				const response = await fetch(`${network.beaconchainApi}/api/v1/validator/eth1/${address}`);
+				const response = await fetch(`${network.beaconchainApi}/api/v1/validator/withdrawalCredentials/${address}`);
+
+				console.log('Response:', response);
 				if (!response.ok) {
 					throw new Error(
 						`Failed to fetch from ${network.beaconchainApi} - status: ${response.status}`,
@@ -94,6 +96,7 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 					fetchValidatorDetailsBatch(network, pubkeys),
 				);
 				const batchResults = await Promise.all(batchPromises);
+				console.log('Batch results:', batchResults);
 
 				setValidators(batchResults.flat());
 			} catch (err) {
