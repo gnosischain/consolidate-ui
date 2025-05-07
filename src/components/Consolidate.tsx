@@ -19,7 +19,7 @@ enum Steps {
 }
 
 export default function Consolidate({ network, address }: ConsolidateProps) {
-	const { consolidateValidators, isConfirming, isConfirmed, hash } = useConsolidateValidatorsBatch(
+	const { consolidateValidators, callStatusData} = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
 
@@ -36,20 +36,20 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 	});
 
 	useEffect(() => {
-		if (hash?.id || isConfirmed) {
-			console.log('Transaction confirmed', hash?.id);
+		if (callStatusData?.status === 'success') {
+			console.log('Transaction confirmed');
 			setState((prev) => ({
 				...prev,
 				step: Steps.SUMMARY,
 				loading: false,
-				tx: hash?.id as Address,
+				tx: callStatusData.id as Address,
 			}));
 		} else {
-			if (isConfirming) {
+			if (callStatusData?.status === 'pending') {
 				setState((prev) => ({ ...prev, loading: true }));
 			}
 		}
-	}, [hash?.id, isConfirmed, isConfirming]);
+	}, [callStatusData?.id, callStatusData?.status]);
 
 	const renderStep = () => {
 		switch (state.step) {

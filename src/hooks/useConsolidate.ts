@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useSendCalls, useWaitForTransactionReceipt } from 'wagmi';
+import { useCallsStatus, useSendCalls } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
 import { ValidatorInfo } from './useBeaconValidators';
 
@@ -33,7 +33,7 @@ export function computeConsolidations(
 	while ((target = remaining.shift())) {
 		let targetBalance = target.balanceEth;
 
-		if (targetBalance >= chunkSize && target.type === 2) {
+		if (targetBalance >= chunkSize) {
 			skippedValidators.push(target);
 			continue;
 		}
@@ -74,27 +74,43 @@ export function simulateConsolidation(
 	chunkSize: number,
 	includeType1: boolean,
 ): ConsolidationSimulationResult {
-	const { consolidations, skippedValidators, targets } = computeConsolidations(
-		includeType1 ? [...type1Validators, ...compoundingValidators] : compoundingValidators,
-		chunkSize,
-	);
-
-	if (includeType1) {
-		const selfConsolidations = computeSelfConsolidations(type1Validators.filter(v => v.type === 1));
-		consolidations.unshift(...selfConsolidations);
-	}
-
+	const initialCount = compoundingValidators.length + type1Validators.length;
+  
+	const selfCalls: Consolidation[] = includeType1
+	  ? computeSelfConsolidations(type1Validators)
+	  : [];
+	const groupingSet = includeType1
+	  ? [...compoundingValidators, ...type1Validators]
+	  : compoundingValidators;
+  
+	const {
+	  consolidations: mergeCalls,
+	  skippedValidators,
+	} = computeConsolidations(groupingSet, chunkSize);
+  
+	const mergeCount = mergeCalls.length;
+  
+	const totalGroups = initialCount - mergeCount;
+  
 	return {
-		totalGroups: (targets.size !== 0 ? targets.size + skippedValidators.length : compoundingValidators.length) + (includeType1 ? 0 : type1Validators.length),
-		consolidations,
-		skippedValidators,
+	  totalGroups,
+	  consolidations: [...selfCalls, ...mergeCalls],
+	  skippedValidators,
 	};
-}
+  }
 
 export function useConsolidateValidatorsBatch(contract: Address) {
 	const { data: hash, sendCalls } = useSendCalls();
-	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-		hash: hash?.id as Address,
+	// const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+	// 	hash: hash?.id as Address,
+	// });
+
+	const { data: callStatusData } = useCallsStatus({
+		id: hash?.id || '',
+		query: {
+			enabled: !!hash,
+			refetchInterval: (data) => data.state.data?.status === "success" ? false : 1000,
+		},
 	});
 
 	const consolidateValidators = useCallback(
@@ -120,7 +136,7 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 		[contract, sendCalls],
 	);
 
-	return { consolidateValidators, isConfirming, isConfirmed, hash };
+	return { consolidateValidators, callStatusData };
 }
 
 export function computeSelfConsolidations(
