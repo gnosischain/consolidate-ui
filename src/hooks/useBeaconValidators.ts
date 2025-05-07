@@ -70,37 +70,60 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 			setLoading(true);
 
 			try {
-				const response = await fetch(`${network.beaconchainApi}/api/v1/validator/withdrawalCredentials/${address}`);
+				const allValidators: { publickey: string; validator_index: number }[] = [];
+				const limit = 200;
+				let offset = 0;
+				let keepGoing = true;
 
-				console.log('Response:', response);
-				if (!response.ok) {
-					throw new Error(
-						`Failed to fetch from ${network.beaconchainApi} - status: ${response.status}`,
+				while (keepGoing) {
+					const url = new URL(
+						`/api/v1/validator/withdrawalCredentials/${address}`,
+						network.beaconchainApi
 					);
+					url.searchParams.set('limit', String(limit));
+					url.searchParams.set('offset', String(offset));
+
+					console.log(`Fetching validators, offset=${offset} limit=${limit}`);
+					const response = await fetch(url.toString());
+					if (!response.ok) {
+						throw new Error(
+							`Failed to fetch from ${url.toString()} – status ${response.status}`
+						);
+					}
+
+					const { data: list }: {
+						data: { publickey: string; validator_index: number }[]
+					} = await response.json();
+
+					allValidators.push(...list);
+
+					if (list.length === limit && offset < 800) {
+						offset += limit;
+						await new Promise(res => setTimeout(res, 500));
+					} else {
+						keepGoing = false;
+					}
 				}
 
-				const { data: list }: { data: { publickey: string; validator_index: number }[] } =
-					await response.json();
-
-				if (list.length === 0) {
+				if (allValidators.length === 0) {
 					setValidators([]);
 					return;
 				}
-
 				const batches = chunkArray(
-					list.map((v) => v.publickey),
-					100,
+					allValidators.map((v) => v.publickey),
+					50,
 				);
 
-				const batchPromises = batches.map((pubkeys) =>
-					fetchValidatorDetailsBatch(network, pubkeys),
-				);
-				const batchResults = await Promise.all(batchPromises);
-				console.log('Batch results:', batchResults);
+				const detailed: ValidatorInfo[] = [];
+				for (const pubkeyBatch of batches) {
+					const batchDetails = await fetchValidatorDetailsBatch(network, pubkeyBatch);
+					detailed.push(...batchDetails);
+					await new Promise(res => setTimeout(res, 500));
+				}
+				setValidators(detailed);
 
-				setValidators(batchResults.flat());
 			} catch (err) {
-				setError(err);
+				setError(err as Error);
 			} finally {
 				setLoading(false);
 			}
