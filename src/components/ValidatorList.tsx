@@ -13,7 +13,7 @@ export function ValidatorList({ title, validators, actionLabel, onAction }: Vali
       <input type="checkbox" />
       <div className="collapse-title text-sm font-semibold">{title}</div>
       <div className="collapse-content text-sm">
-        <ul className="list rounded-box">
+        <ul className="list rounded-box max-h-60 overflow-y-auto">
           {validators.map((v) => (
             <li key={v.index} className="list-row flex justify-between">
               <span>{v.index} ({v.balanceEth} GNO)</span>

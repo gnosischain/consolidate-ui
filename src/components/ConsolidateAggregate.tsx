@@ -118,15 +118,27 @@ export function ConsolidateAggregate({
 					)}
 				</div>
 				<div className="flex flex-col gap-y-2 w-full">
-					<p className="font-semibold">Details</p>
-					{simulation.consolidations.map((c, i) => (
-						<div key={i} className="flex justify-between items-center bg-base-200 p-2 rounded-lg">
-							<p className="text-sm">
-								{c.sourceIndex} → {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
-							</p>
-							{c.targetBalance === 0 && <p className="text-warning text-xs">Self consolidation</p>}
+					<div className="collapse collapse-arrow border-base-300 border">
+						<input type="checkbox" />
+						<div className="collapse-title text-sm font-semibold">Details</div>
+						<div className="collapse-content text-sm">
+							<ul className="list rounded-box max-h-60 overflow-y-auto">
+								{simulation.consolidations.map((c, i) => (
+									<li
+										key={i}
+										className="list-row flex justify-between items-center rounded-lg"
+									>
+										<p className="text-sm">
+											{c.sourceIndex} → {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
+										</p>
+										{c.targetBalance === 0 && (
+											<p className="text-warning text-xs">Self consolidation</p>
+										)}
+									</li>
+								))}
+							</ul>
 						</div>
-					))}
+					</div>
 				</div>
 				<button onClick={handleConsolidate} className="btn btn-primary">
 					Consolidate
