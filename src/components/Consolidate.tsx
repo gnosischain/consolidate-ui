@@ -64,7 +64,9 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 				return (
 					<ConsolidateAggregate
 						validators={validators}
-						consolidateValidators={consolidateValidators}
+						consolidateValidators={async (consolidations) => {
+							consolidateValidators(consolidations);
+						}}
 						chainId={network.chainId}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
 					/>
