@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useCallsStatus, useSendCalls } from 'wagmi';
+import { useCallback, useEffect, useRef } from 'react';
+import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
 import { ValidatorInfo } from './useBeaconValidators';
 
@@ -75,36 +75,36 @@ export function simulateConsolidation(
 	includeType1: boolean,
 ): ConsolidationSimulationResult {
 	const initialCount = compoundingValidators.length + type1Validators.length;
-  
+
 	const selfCalls: Consolidation[] = includeType1
-	  ? computeSelfConsolidations(type1Validators)
-	  : [];
+		? computeSelfConsolidations(type1Validators)
+		: [];
 	const groupingSet = includeType1
-	  ? [...compoundingValidators, ...type1Validators]
-	  : compoundingValidators;
-  
+		? [...compoundingValidators, ...type1Validators]
+		: compoundingValidators;
+
 	const {
-	  consolidations: mergeCalls,
-	  skippedValidators,
+		consolidations: mergeCalls,
+		skippedValidators,
 	} = computeConsolidations(groupingSet, chunkSize);
-  
+
 	const mergeCount = mergeCalls.length;
-  
+
 	const totalGroups = initialCount - mergeCount;
-  
+
 	return {
-	  totalGroups,
-	  consolidations: [...selfCalls, ...mergeCalls],
-	  skippedValidators,
+		totalGroups,
+		consolidations: [...selfCalls, ...mergeCalls],
+		skippedValidators,
 	};
-  }
+}
 
 export function useConsolidateValidatorsBatch(contract: Address) {
-	const { data: hash, sendCalls } = useSendCalls();
-	// const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-	// 	hash: hash?.id as Address,
-	// });
-
+	const { data: hash, sendCalls, status } = useSendCalls();
+	const { data, sendTransaction } = useSendTransaction();
+	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+		hash: data as Address,
+	});
 	const { data: callStatusData } = useCallsStatus({
 		id: hash?.id || '',
 		query: {
@@ -113,30 +113,55 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 		},
 	});
 
-	const consolidateValidators = useCallback(
-		async (consolidations: Consolidation[]) => {
 
+	const lastBatchRef = useRef<Consolidation[] | null>(null)
+
+	const consolidateValidators = useCallback(
+		(consolidations: Consolidation[]) => {
 			if (consolidations.length === 0) {
-				throw new Error('No consolidation possible with given chunk size');
+				throw new Error('No consolidation possible with given chunk size')
 			}
+			lastBatchRef.current = consolidations
 
 			const calls = consolidations.map(({ sourceKey, targetKey }) => ({
 				to: contract,
 				data: concat([sourceKey, targetKey]),
 				value: parseEther('0.000001'),
-			}));
+			}))
 
-			console.log('Sending batch of', calls.length, 'calls');
-
-			sendCalls({
-				calls,
-				capabilities: {},
-			});
+			console.log('Attempting batch of', calls.length, 'calls…')
+			sendCalls({ calls, capabilities: {} })
 		},
 		[contract, sendCalls],
-	);
+	)
 
-	return { consolidateValidators, callStatusData };
+	useEffect(() => {
+		if (status === 'error' && lastBatchRef.current) {
+			console.warn('Batch failed – falling back to individual txs')
+
+			const calls = lastBatchRef.current.map(({ sourceKey, targetKey }) => ({
+				to: contract,
+				data: concat([sourceKey, targetKey]),
+				value: parseEther('0.000001'),
+			}))
+
+			Promise.all(
+				calls.map((call) =>
+					sendTransaction({
+						to: call.to,
+						data: call.data,
+						value: call.value,
+					})
+				),
+			).then(() => {
+				console.log('All individual transactions submitted')
+			}).catch((err) => {
+				console.error('Fallback submission error', err)
+			})
+		}
+	}, [status, contract, sendTransaction])
+
+	return { consolidateValidators, callStatusData, isConfirming, isConfirmed };
 }
 
 export function computeSelfConsolidations(
