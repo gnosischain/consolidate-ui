@@ -15,51 +15,67 @@ export interface Consolidation {
 interface ComputedConsolidation {
 	consolidations: Consolidation[];
 	skippedValidators: ValidatorInfo[];
-	targets: Set<ValidatorInfo>;
+	targets: Set<number>;
 }
 
 // TODO: Improve this. Right now the balances are rounded to the nearest integer,
 // which is not ideal but at least works closer to what one would expect.
 export function computeConsolidations(
-	validators: ValidatorInfo[],
-	chunkSize: number,
+	compounding: ValidatorInfo[],
+	type1: ValidatorInfo[],
+	chunkSize: number
 ): ComputedConsolidation {
-	const consolidations: Consolidation[] = [];
-	const skippedValidators: ValidatorInfo[] = [];
-	const remaining = [...validators];
-	const targets = new Set<ValidatorInfo>()
-	let target;
+	const consolidations: Consolidation[] = []
+	const skippedValidators: ValidatorInfo[] = []
+	const targets = new Set<number>()
 
-	while ((target = remaining.shift())) {
-		let targetBalance = target.balanceEth;
+	const remaining = [
+		...compounding.map((v) => ({ ...v, type: 2 })),
+		...type1.map((v) => ({ ...v, type: 1 })),
+	]
 
-		if (targetBalance >= chunkSize) {
-			skippedValidators.push(target);
-			continue;
+	while (remaining.length > 0) {
+		const target = remaining.shift()!
+		let tb = target.balanceEth
+
+		if (tb >= chunkSize) {
+			skippedValidators.push(target)
+			continue
+		}
+
+		if (target.type === 1) {
+			consolidations.push({
+				sourceIndex: target.index,
+				sourceKey: target.pubkey,
+				sourceBalance: target.balanceEth,
+				targetIndex: target.index,
+				targetKey: target.pubkey,
+				targetBalance: 0,
+			})
 		}
 
 		for (let i = 0; i < remaining.length;) {
-			const candidate = remaining[i];
-
-			if (targetBalance + candidate.balanceEth <= chunkSize) {
-				targets.add(target);
+			const cand = remaining[i]
+			if (tb + cand.balanceEth <= chunkSize) {
 				consolidations.push({
-					sourceIndex: candidate.index,
-					sourceKey: candidate.pubkey,
-					sourceBalance: candidate.balanceEth,
+					sourceIndex: cand.index,
+					sourceKey: cand.pubkey,
+					sourceBalance: cand.balanceEth,
 					targetIndex: target.index,
 					targetKey: target.pubkey,
-					targetBalance: targetBalance,
-				});
-				targetBalance += candidate.balanceEth;
-				remaining.splice(i, 1);
+					targetBalance: tb,
+				})
+				tb += cand.balanceEth
+				remaining.splice(i, 1)
 			} else {
-				i++;
+				i++
 			}
 		}
+
+		targets.add(target.index)
 	}
 
-	return { consolidations, skippedValidators, targets };
+	return { consolidations, skippedValidators, targets }
 }
 
 interface ConsolidationSimulationResult {
@@ -69,34 +85,19 @@ interface ConsolidationSimulationResult {
 }
 
 export function simulateConsolidation(
-	compoundingValidators: ValidatorInfo[],
-	type1Validators: ValidatorInfo[],
+	compounding: ValidatorInfo[],
+	type1: ValidatorInfo[],
 	chunkSize: number,
-	includeType1: boolean,
+	includeType1: boolean
 ): ConsolidationSimulationResult {
-	const initialCount = compoundingValidators.length + type1Validators.length;
+	const compCopy = compounding.slice()
+	const t1Copy = includeType1 ? type1.slice() : []
 
-	const selfCalls: Consolidation[] = includeType1
-		? computeSelfConsolidations(type1Validators)
-		: [];
-	const groupingSet = includeType1
-		? [...compoundingValidators, ...type1Validators]
-		: compoundingValidators;
+	const { consolidations, skippedValidators, targets } =
+		computeConsolidations(compCopy, t1Copy, chunkSize)
 
-	const {
-		consolidations: mergeCalls,
-		skippedValidators,
-	} = computeConsolidations(groupingSet, chunkSize);
-
-	const mergeCount = mergeCalls.length;
-
-	const totalGroups = initialCount - mergeCount;
-
-	return {
-		totalGroups,
-		consolidations: [...selfCalls, ...mergeCalls],
-		skippedValidators,
-	};
+	const totalGroups = targets.size + skippedValidators.length
+	return { totalGroups, consolidations, skippedValidators }
 }
 
 export function useConsolidateValidatorsBatch(contract: Address) {

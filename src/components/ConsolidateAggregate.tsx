@@ -35,14 +35,10 @@ export function ConsolidateAggregate({
 	);
 
 	const handleConsolidate = async () => {
-		const { consolidations } = computeConsolidations(
-			includeType1 ? [...type1Validators, ...compoundingValidators] : compoundingValidators,
-			chunkSize,
-		);
-		if (includeType1) {
-			const selfConsolidations = computeSelfConsolidations(type1Validators);
-			consolidations.unshift(...selfConsolidations);
-		}
+		const t1Pool = includeType1 ? type1Validators : [];
+
+		const { consolidations } = computeConsolidations(compoundingValidators, t1Pool, chunkSize);
+
 		await consolidateValidators(consolidations);
 	};
 
@@ -124,14 +120,11 @@ export function ConsolidateAggregate({
 						<div className="collapse-content text-sm">
 							<ul className="list rounded-box max-h-60 overflow-y-auto">
 								{simulation.consolidations.map((c, i) => (
-									<li
-										key={i}
-										className="list-row flex justify-between items-center rounded-lg"
-									>
+									<li key={i} className="list-row flex justify-between items-center rounded-lg">
 										<p className="text-sm">
 											{c.sourceIndex} → {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
 										</p>
-										{c.targetBalance === 0 && (
+										{c.sourceIndex === c.targetIndex && (
 											<p className="text-warning text-xs">Self consolidation</p>
 										)}
 									</li>
