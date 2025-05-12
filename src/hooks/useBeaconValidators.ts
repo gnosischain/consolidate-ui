@@ -159,10 +159,17 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 			pubkey: string;
 			effectivebalance: number;
 			withdrawalcredentials: string;
-		}>;
+		}> | {
+			validatorindex: number;
+			pubkey: string;
+			effectivebalance: number;
+			withdrawalcredentials: string;
+		};
 	} = await resp.json();
 
-	return body.data.map((d) => ({
+	const rows = Array.isArray(body.data) ? body.data : [body.data];
+
+	return rows.map((d) => ({
 		index: d.validatorindex,
 		pubkey: d.pubkey as Address,
 		balanceEth: d.effectivebalance / network.cl.multiplier / 1e9,
