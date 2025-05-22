@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
-import { ValidatorInfo } from './useBeaconValidators';
+import { ValidatorInfo } from '../types/validators';
 
 export interface Consolidation {
 	sourceIndex: number;

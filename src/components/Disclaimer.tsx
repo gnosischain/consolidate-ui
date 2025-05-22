@@ -7,7 +7,7 @@ export function DisclaimerBanner() {
 	return (
 		<div className="fixed bottom-0 w-full bg-yellow-100 border-t border-yellow-400 p-3 text-sm text-yellow-800 flex justify-between items-center z-50">
 			<span>
-				⚠️ Disclaimer: Use this app at your own risk. We are not responsible for any losses and you must review every transaction before accepting it.
+				⚠️ Disclaimer: Use this app at your own risk. Gnosis is not responsible for any losses and you must review every transaction before accepting it.
 			</span>
 			<button
 				onClick={() => setVisible(false)}

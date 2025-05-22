@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { ValidatorInfo } from '../hooks/useBeaconValidators';
 import {
 	computeConsolidations,
 	computeSelfConsolidations,
@@ -8,6 +7,7 @@ import {
 } from '../hooks/useConsolidate';
 import { NETWORK_CONFIG } from '../constants/networks';
 import { ValidatorList } from './ValidatorList';
+import { ValidatorInfo } from '../types/validators';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -51,7 +51,7 @@ export function ConsolidateAggregate({
 
 	return (
 		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
-			<p className="font-bold">My validators</p>
+			<p className="font-bold">Your validators</p>
 			<ValidatorList
 				title={`Compounding Validators (${compoundingValidators.length})`}
 				validators={compoundingValidators}
