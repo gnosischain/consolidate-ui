@@ -1,5 +1,4 @@
 import { ValidatorInfo } from '../types/validators';
-import { truncateAddress } from '../utils/address';
 import { ValidatorBadge } from './ValidatorBadge';
 
 interface ValidatorItemProps {
@@ -14,7 +13,7 @@ export function ValidatorItem({ validator, actionLabel, onAction }: ValidatorIte
 			<th>
 				<input type="checkbox" />
 			</th>
-			<td>{truncateAddress(validator.withdrawal_credentials)}</td>
+			<td>{validator.index}</td>
 			<td>{validator.type}</td>
 			<td>
 				<ValidatorBadge filterStatus={validator.filterStatus} status={validator.status} />

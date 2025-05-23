@@ -112,7 +112,7 @@ export function ConsolidateAggregate({
 					<thead>
 						<tr>
 							<th></th>
-							<th>Address</th>
+							<th>Index</th>
 							<th>Type</th>
 							<th>Status</th>
 							<th>Balance</th>
