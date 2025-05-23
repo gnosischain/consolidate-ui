@@ -111,7 +111,7 @@ export function ConsolidateAggregate({
 								validator={v}
 								actionLabel={v.type == 1 && v.status !== 'exited' ? 'Upgrade' : ''}
 								onAction={
-									v.type == 1 && v.status !== 'exited'
+									v.type == 1 && v.filterStatus !== 'exited'
 										? (v) => consolidateValidators(computeSelfConsolidations([v]))
 										: undefined
 								}

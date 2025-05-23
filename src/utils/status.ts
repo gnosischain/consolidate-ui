@@ -1,7 +1,7 @@
 import { ValidatorStatus } from "../types/api";
 import { FilterStatus } from "../types/validators";
 
-export const STATUS_TO_FILTER: Record<ValidatorStatus, FilterStatus | undefined> = {
+export const STATUS_TO_FILTER: Record<ValidatorStatus, FilterStatus> = {
     pending_initialized: FilterStatus.PENDING,
     pending_queued: FilterStatus.PENDING,
     active_ongoing: FilterStatus.ACTIVE,

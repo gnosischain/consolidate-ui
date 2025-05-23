@@ -14,8 +14,8 @@ export interface ValidatorInfo {
     balanceEth: number;
     withdrawal_credentials: Address;
     type: number;
-    status?: ValidatorStatus;
-    filterStatus?: FilterStatus;
+    status: ValidatorStatus;
+    filterStatus: FilterStatus;
 }
 
 export interface ValidatorIndex {

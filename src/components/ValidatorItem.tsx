@@ -1,13 +1,14 @@
 import { ValidatorInfo } from '../types/validators';
 import { truncateAddress } from '../utils/address';
+import { ValidatorBadge } from './ValidatorBadge';
 
-interface ValidatorListProps {
+interface ValidatorItemProps {
 	validator: ValidatorInfo;
 	actionLabel?: string;
 	onAction?: (v: ValidatorInfo) => void;
 }
 
-export function ValidatorItem({ validator, actionLabel, onAction }: ValidatorListProps) {
+export function ValidatorItem({ validator, actionLabel, onAction }: ValidatorItemProps) {
 	return (
 		<tr key={validator.index}>
 			<th>
@@ -15,7 +16,9 @@ export function ValidatorItem({ validator, actionLabel, onAction }: ValidatorLis
 			</th>
 			<td>{truncateAddress(validator.withdrawal_credentials)}</td>
 			<td>{validator.type}</td>
-			<td>{validator.status}</td>
+			<td>
+				<ValidatorBadge filterStatus={validator.filterStatus} status={validator.status} />
+			</td>
 			<td>{validator.balanceEth} GNO</td>
 			{actionLabel && onAction && (
 				<button className="btn btn-sm btn-ghost" onClick={() => onAction(validator)}>
