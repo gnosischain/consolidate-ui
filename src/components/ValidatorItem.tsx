@@ -15,7 +15,7 @@ export function ValidatorItem({
 	withdrawalValidators,
 }: ValidatorItemProps) {
 	return (
-		<tr key={validator.index}>
+		<tr key={validator.index} className="group">
 			<th>
 				<input type="checkbox" />
 			</th>
@@ -27,13 +27,13 @@ export function ValidatorItem({
 			<td>{validator.balanceEth} GNO</td>
 
 			<td>
-				<div className="dropdown dropdown-end">
+				<div className="dropdown dropdown-left group-last:dropdown-end">
 					<div tabIndex={0} role="button" className="btn btn-ghost btn-circle btn-sm">
 						<img src="/ellipsis-vertical.svg" alt="Actions" className="w-5 h-5" />
 					</div>
 					<ul
 						tabIndex={0}
-						className="dropdown-content menu bg-base-100 rounded-box z-10 overflow-visible w-36 p-2 shadow-sm"
+						className="dropdown-content menu bg-base-100 rounded-box z-10 w-36 p-2 shadow-sm"
 					>
 						<li>
 							<button className="btn btn-ghost">Deposit</button>

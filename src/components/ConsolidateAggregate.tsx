@@ -6,7 +6,6 @@ import {
 	simulateConsolidation,
 } from '../hooks/useConsolidate';
 import { NETWORK_CONFIG } from '../constants/networks';
-// import { ValidatorList } from './ValidatorList';
 import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
@@ -69,6 +68,7 @@ export function ConsolidateAggregate({
 
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
+
 	return (
 		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
 			<p className="font-bold">Your validators</p>
@@ -109,7 +109,7 @@ export function ConsolidateAggregate({
 					</button>
 				)}
 			</div>
-			<div className="overflow-x-auto max-h-72">
+			<div className="overflow-auto h-72">
 				<table className="table">
 					{/* head */}
 					<thead>
