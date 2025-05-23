@@ -85,13 +85,13 @@ export function ConsolidateAggregate({
 					setFilter={setFilterStatus}
 					value={'inactive'}
 				/>
+				<Filter text="Exited" filter={filterStatus} setFilter={setFilterStatus} value={'exited'} />
 				<Filter
 					text="Pending"
 					filter={filterStatus}
 					setFilter={setFilterStatus}
 					value={'pending'}
 				/>
-				<Filter text="Exited" filter={filterStatus} setFilter={setFilterStatus} value={'exited'} />
 			</div>
 			<div className="overflow-x-auto max-h-60">
 				<table className="table">

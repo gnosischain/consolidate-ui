@@ -6,6 +6,7 @@ import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { NetworkConfig } from '../constants/networks';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address } from 'viem';
+import { FilterStatus } from '../types/validators';
 
 interface ConsolidateProps {
 	address: Address;
@@ -19,7 +20,7 @@ enum Steps {
 }
 
 export default function Consolidate({ network, address }: ConsolidateProps) {
-	const { consolidateValidators, callStatusData} = useConsolidateValidatorsBatch(
+	const { consolidateValidators, callStatusData } = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
 
@@ -56,7 +57,13 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 			case Steps.INFO:
 				return (
 					<ConsolidateInfo
-						pubkeysAmount={validators.length}
+						pubkeysAmount={
+							validators.filter(
+								(v) =>
+									v.filterStatus === FilterStatus.ACTIVE ||
+									v.filterStatus === FilterStatus.INACTIVE,
+							).length
+						}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SELECT }))}
 					/>
 				);

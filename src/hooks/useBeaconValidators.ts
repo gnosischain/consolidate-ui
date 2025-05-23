@@ -4,6 +4,7 @@ import { NetworkConfig } from '../constants/networks';
 import { APIValidatorDetailsResponse, APIValidatorsResponse } from '../types/api';
 import { ValidatorIndex, ValidatorInfo } from '../types/validators';
 import { STATUS_TO_FILTER } from '../utils/status';
+import { BeaconChainResponse } from '../types/beacon';
 
 const LIMIT = 200;
 
@@ -21,14 +22,15 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 				const addrHex = address.toLowerCase().replace(/^0x/, '');
 
 				const res = await fetch(
-					network.clEndpoint + '/eth/v1/beacon/states/finalized/validators?status=active_ongoing',
+					network.clEndpoint + '/eth/v1/beacon/states/finalized/validators',
 				);
 				if (!res.ok) {
 					throw new Error(`HTTP ${res.status} - ${res.statusText}`);
 				}
 
 				const json = await res.json();
-				const data = json.data;
+				console.log(json.data);
+				const data: BeaconChainResponse[] = json.data;
 
 				const filtered: ValidatorInfo[] = data
 					.filter((v: { validator: { withdrawal_credentials: string }; index: number }) => {
@@ -37,18 +39,20 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 							(creds.startsWith('0x01') || creds.startsWith('0x02')) && creds.endsWith(addrHex)
 						);
 					})
-					.map((v: {
-						index: string; validator: {
-							withdrawal_credentials: string; pubkey: Address, effective_balance: string
-						}
-					}) => {
-						const creds: string = v.validator.withdrawal_credentials;
+					.map((v) => {
+
+						const creds = v.validator.withdrawal_credentials;
+						const address = `0x${creds.slice(-40)}` as Address;
+
+						const filterStatus = STATUS_TO_FILTER[v.status];
 						return ({
 							index: Number(v.index),
 							pubkey: v.validator.pubkey,
 							balanceEth: Number(v.validator.effective_balance) / 1e9 / network.cl.multiplier,
-							withdrawal_credentials: creds,
+							withdrawal_credentials: address,
 							type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
+							filterStatus: filterStatus,
+							status: v.status,
 						})
 					});
 
@@ -138,8 +142,8 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 	const rows = Array.isArray(body.data) ? body.data : [body.data];
 
 	return rows.map(d => {
-		const rawCred = d.withdrawalcredentials;
-		const address = `0x${rawCred.slice(-40)}` as Address;
+		const creds = d.withdrawalcredentials;
+		const address = `0x${creds.slice(-40)}` as Address;
 
 		const filterStatus = STATUS_TO_FILTER[d.status];
 
@@ -148,7 +152,7 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 			pubkey: d.pubkey as Address,
 			balanceEth: d.effectivebalance / network.cl.multiplier / 1e9,
 			withdrawal_credentials: address,
-			type: rawCred.startsWith('0x02') ? 2 : 1,
+			type: creds.startsWith('0x02') ? 2 : 1,
 			filterStatus: filterStatus,
 			status: d.status,
 		}
