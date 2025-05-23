@@ -140,7 +140,7 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 		index: d.validatorindex,
 		pubkey: d.pubkey as Address,
 		balanceEth: d.effectivebalance / network.cl.multiplier / 1e9,
-		withdrawal_credentials: d.withdrawalcredentials as Address,
+		withdrawal_credentials: (`0x${d.withdrawalcredentials.slice(-40)}`) as Address,
 		type: d.withdrawalcredentials.startsWith('0x02') ? 2 : d.withdrawalcredentials.startsWith('0x01') ? 1 : 0,
 		status: d.status,
 	}));

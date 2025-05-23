@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	computeConsolidations,
-	computeSelfConsolidations,
+	// computeSelfConsolidations,
 	Consolidation,
 	simulateConsolidation,
 } from '../hooks/useConsolidate';
 import { NETWORK_CONFIG } from '../constants/networks';
-import { ValidatorList } from './ValidatorList';
+// import { ValidatorList } from './ValidatorList';
 import { ValidatorInfo } from '../types/validators';
+import { Filter } from './Filter';
+import { ValidatorList2 } from './ValidatorList2';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -24,6 +26,8 @@ export function ConsolidateAggregate({
 	const network = NETWORK_CONFIG[chainId];
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
+	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
+	const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
 	const [includeType1, setIncludeType1] = useState(true);
 	const type1Validators = validators.filter((v) => v.type === 1);
 	const compoundingValidators = validators.filter((v) => v.type === 2);
@@ -34,6 +38,17 @@ export function ConsolidateAggregate({
 		includeType1,
 	);
 
+	const filteredValidators = useMemo(() => {
+		let result = validators;
+		if (filterVersion) {
+			result = result.filter((v) => v.type === Number(filterVersion));
+		}
+		if (filterStatus) {
+			result = result.filter((v) => v.status === filterStatus);
+		}
+		return result;
+	}, [validators, filterVersion, filterStatus]);
+
 	const handleConsolidate = async () => {
 		const t1Pool = includeType1 ? type1Validators : [];
 
@@ -42,17 +57,33 @@ export function ConsolidateAggregate({
 		await consolidateValidators(consolidations);
 	};
 
-	const handleUpgradeAll = async () => {
-		const consolidations = computeSelfConsolidations(type1Validators);
-		await consolidateValidators(consolidations);
-	};
+	// const handleUpgradeAll = async () => {
+	// 	const consolidations = computeSelfConsolidations(type1Validators);
+	// 	await consolidateValidators(consolidations);
+	// };
 
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
 	return (
 		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
 			<p className="font-bold">Your validators</p>
-			<ValidatorList
+
+			{/* FILTER */}
+			<div className="flex gap-x-2 items-center w-full">
+				<p className="text-sm">Version</p>
+				<Filter text="All" filter={filterVersion} setFilter={setFilterVersion} value={undefined} />
+				<Filter text="1" filter={filterVersion} setFilter={setFilterVersion} value={'1'} />
+				<Filter text="2" filter={filterVersion} setFilter={setFilterVersion} value={'2'} />
+			</div>
+			<div className="flex gap-x-2 items-center w-full">
+				<p className="text-sm">Status</p>
+				<Filter text="All" filter={filterStatus} setFilter={setFilterStatus} value={undefined} />
+				<Filter text="Active" filter={filterStatus} setFilter={setFilterStatus} value={'active'} />
+				<Filter text="Inactive" filter={filterStatus} setFilter={setFilterStatus} value={'inactive'} />
+				<Filter text="Pending" filter={filterStatus} setFilter={setFilterStatus} value={'pending'} />
+			</div>
+			<ValidatorList2 validators={filteredValidators}/>
+			{/* <ValidatorList
 				title={`Compounding Validators (${compoundingValidators.length})`}
 				validators={compoundingValidators}
 			/>
@@ -67,7 +98,7 @@ export function ConsolidateAggregate({
 				validators={type1Validators}
 				actionLabel="Upgrade"
 				onAction={(v) => consolidateValidators(computeSelfConsolidations([v]))}
-			/>
+			/> */}
 
 			<div className="flex flex-col w-full items-center mt-4 gap-y-2">
 				<p className="text-xs">Balance min: {chunkSize}</p>
