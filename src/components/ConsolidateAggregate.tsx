@@ -28,8 +28,8 @@ export function ConsolidateAggregate({
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
 	const [includeType1, setIncludeType1] = useState(true);
-	const type1Validators = validators.filter((v) => v.type === 1);
-	const compoundingValidators = validators.filter((v) => v.type === 2);
+	const type1Validators = validators.filter((v) => v.type === 1 && v.filterStatus !== 'exited');
+	const compoundingValidators = validators.filter((v) => v.type === 2 && v.filterStatus !== 'exited');
 	const simulation = simulateConsolidation(
 		compoundingValidators,
 		type1Validators,
@@ -50,7 +50,7 @@ export function ConsolidateAggregate({
 	}, [validators, filterVersion, filterStatus]);
 
 	const handleConsolidate = async () => {
-		const t1Pool = includeType1 ? type1Validators : [];
+		const t1Pool = includeType1 ? type1Validators.filter((v) => v.filterStatus) : [];
 
 		const { consolidations } = computeConsolidations(compoundingValidators, t1Pool, chunkSize);
 
@@ -87,7 +87,7 @@ export function ConsolidateAggregate({
 					value={'pending'}
 				/>
 			</div>
-			<div className="overflow-x-auto max-h-60">
+			<div className="overflow-x-auto max-h-72">
 				<table className="table">
 					{/* head */}
 					<thead>
