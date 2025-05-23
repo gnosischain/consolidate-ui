@@ -21,9 +21,11 @@ export function ValidatorItem({ validator, actionLabel, onAction }: ValidatorIte
 			</td>
 			<td>{validator.balanceEth} GNO</td>
 			{actionLabel && onAction && (
-				<button className="btn btn-sm btn-ghost" onClick={() => onAction(validator)}>
-					{actionLabel}
-				</button>
+				<td>
+					<button className="btn btn-sm btn-ghost" onClick={() => onAction(validator)}>
+						{actionLabel}
+					</button>
+				</td>
 			)}
 		</tr>
 	);

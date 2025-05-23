@@ -29,7 +29,9 @@ export function ConsolidateAggregate({
 	const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
 	const [includeType1, setIncludeType1] = useState(true);
 	const type1Validators = validators.filter((v) => v.type === 1 && v.filterStatus !== 'exited');
-	const compoundingValidators = validators.filter((v) => v.type === 2 && v.filterStatus !== 'exited');
+	const compoundingValidators = validators.filter(
+		(v) => v.type === 2 && v.filterStatus !== 'exited',
+	);
 	const simulation = simulateConsolidation(
 		compoundingValidators,
 		type1Validators,
@@ -57,10 +59,10 @@ export function ConsolidateAggregate({
 		await consolidateValidators(consolidations);
 	};
 
-	// const handleUpgradeAll = async () => {
-	// 	const consolidations = computeSelfConsolidations(type1Validators);
-	// 	await consolidateValidators(consolidations);
-	// };
+	const handleUpgradeAll = async () => {
+		const consolidations = computeSelfConsolidations(type1Validators);
+		await consolidateValidators(consolidations);
+	};
 
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
@@ -75,17 +77,34 @@ export function ConsolidateAggregate({
 				<Filter text="1" filter={filterVersion} setFilter={setFilterVersion} value={'1'} />
 				<Filter text="2" filter={filterVersion} setFilter={setFilterVersion} value={'2'} />
 			</div>
-			<div className="flex gap-x-2 items-center w-full">
-				<p className="text-sm">Status</p>
-				<Filter text="All" filter={filterStatus} setFilter={setFilterStatus} value={undefined} />
-				<Filter text="Active" filter={filterStatus} setFilter={setFilterStatus} value={'active'} />
-				<Filter text="Exited" filter={filterStatus} setFilter={setFilterStatus} value={'exited'} />
-				<Filter
-					text="Pending"
-					filter={filterStatus}
-					setFilter={setFilterStatus}
-					value={'pending'}
-				/>
+			<div className="flex items-center justify-between w-full">
+				<div className="flex gap-x-2 items-center w-full">
+					<p className="text-sm">Status</p>
+					<Filter text="All" filter={filterStatus} setFilter={setFilterStatus} value={undefined} />
+					<Filter
+						text="Active"
+						filter={filterStatus}
+						setFilter={setFilterStatus}
+						value={'active'}
+					/>
+					<Filter
+						text="Exited"
+						filter={filterStatus}
+						setFilter={setFilterStatus}
+						value={'exited'}
+					/>
+					<Filter
+						text="Pending"
+						filter={filterStatus}
+						setFilter={setFilterStatus}
+						value={'pending'}
+					/>
+				</div>
+				{filterVersion === '1' && (
+					<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
+						Upgrade all
+					</button>
+				)}
 			</div>
 			<div className="overflow-x-auto max-h-72">
 				<table className="table">
@@ -102,6 +121,7 @@ export function ConsolidateAggregate({
 					<tbody>
 						{filteredValidators.map((v) => (
 							<ValidatorItem
+								key={v.index}
 								validator={v}
 								actionLabel={v.type == 1 && v.status !== 'exited' ? 'Upgrade' : ''}
 								onAction={
@@ -114,12 +134,6 @@ export function ConsolidateAggregate({
 					</tbody>
 				</table>
 			</div>
-
-			{/* <div className="flex justify-end mt-4">
-				<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
-					Upgrade all
-				</button>
-			</div> */}
 
 			<div className="flex flex-col w-full items-center mt-4 gap-y-2">
 				<p className="text-xs">Balance min: {chunkSize}</p>
