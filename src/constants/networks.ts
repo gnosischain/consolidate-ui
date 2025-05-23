@@ -4,6 +4,7 @@ import { mainnet, gnosis, gnosisChiado, sepolia } from 'wagmi/chains';
 export interface NetworkConfig {
 	explorerUrl: string;
 	consolidateAddress: Address;
+	withdrawalAddress: Address;
 	beaconchainApi?: string;
 	clEndpoint: string;
 	chainId: number;
@@ -33,6 +34,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 	[mainnet.id]: {
 		explorerUrl: mainnet.blockExplorers.default.url,
 		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
+		withdrawalAddress: '0x00000961Ef480Eb55e80D19ad83579A64c007002',
 		beaconchainApi: 'https://beaconcha.in',
 		clEndpoint: 'https://' + QUICKNODE_ENDPOINT + '.quiknode.pro/' + QUICKNODE_TOKEN,
 		chainId: mainnet.id,
@@ -41,6 +43,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 	[sepolia.id]: {
 		explorerUrl: sepolia.blockExplorers.default.url,
 		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
+		withdrawalAddress: '0x00000961Ef480Eb55e80D19ad83579A64c007002',
 		clEndpoint:
 			'https://' + QUICKNODE_ENDPOINT + '.ethereum-sepolia.quiknode.pro/' + QUICKNODE_TOKEN,
 		chainId: sepolia.id,
@@ -49,6 +52,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 	[gnosis.id]: {
 		explorerUrl: gnosis.blockExplorers.default.url,
 		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
+		withdrawalAddress: '0x00000961Ef480Eb55e80D19ad83579A64c007002',
 		clEndpoint: 'https://rpc-gbc.gnosischain.com',
 		beaconchainApi: 'https://gnosischa.in',
 		chainId: gnosis.id,
@@ -57,6 +61,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 	[gnosisChiado.id]: {
 		explorerUrl: gnosisChiado.blockExplorers.default.url,
 		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
+		withdrawalAddress: '0x00000961Ef480Eb55e80D19ad83579A64c007002',
 		clEndpoint: 'https://rpc-gbc.chiadochain.net',
 		chainId: gnosisChiado.id,
 		cl: GNOSIS_CL,

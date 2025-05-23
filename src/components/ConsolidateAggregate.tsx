@@ -10,9 +10,11 @@ import { NETWORK_CONFIG } from '../constants/networks';
 import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
+import { Withdrawal } from '../hooks/useWithdraw';
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
 	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
+	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>
 	chainId: number;
 	goToStep: () => void;
 }
@@ -20,13 +22,14 @@ interface ConsolidateSelectProps {
 export function ConsolidateAggregate({
 	validators,
 	consolidateValidators,
+	withdrawalValidators,
 	chainId,
 }: ConsolidateSelectProps) {
 	const network = NETWORK_CONFIG[chainId];
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
-	const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
+	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
 	const [includeType1, setIncludeType1] = useState(true);
 	const type1Validators = validators.filter((v) => v.type === 1 && v.filterStatus === 'active');
 	const compoundingValidators = validators.filter(
@@ -123,12 +126,12 @@ export function ConsolidateAggregate({
 							<ValidatorItem
 								key={v.index}
 								validator={v}
-								actionLabel={v.type == 1 && v.status !== 'exited' ? 'Upgrade' : ''}
-								onAction={
-									v.type == 1 && v.filterStatus !== 'exited'
-										? (v) => consolidateValidators(computeSelfConsolidations([v]))
-										: undefined
-								}
+								consolidateValidators={async (consolidations) => {
+									await consolidateValidators(consolidations);
+								}}
+								withdrawalValidators={async (withdrawal) => {
+									await withdrawalValidators(withdrawal);
+								}}
 							/>
 						))}
 					</tbody>
