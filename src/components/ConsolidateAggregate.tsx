@@ -79,12 +79,6 @@ export function ConsolidateAggregate({
 				<p className="text-sm">Status</p>
 				<Filter text="All" filter={filterStatus} setFilter={setFilterStatus} value={undefined} />
 				<Filter text="Active" filter={filterStatus} setFilter={setFilterStatus} value={'active'} />
-				<Filter
-					text="Inactive"
-					filter={filterStatus}
-					setFilter={setFilterStatus}
-					value={'inactive'}
-				/>
 				<Filter text="Exited" filter={filterStatus} setFilter={setFilterStatus} value={'exited'} />
 				<Filter
 					text="Pending"

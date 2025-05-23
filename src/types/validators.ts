@@ -3,7 +3,6 @@ import { ValidatorStatus } from "./api";
 
 export enum FilterStatus {
     ACTIVE = "active",
-    INACTIVE = "inactive",
     PENDING = "pending",
     EXITED = "exited",
 }
