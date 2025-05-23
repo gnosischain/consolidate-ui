@@ -13,7 +13,7 @@ export interface ValidatorInfo {
     pubkey: Address;
     balanceEth: number;
     withdrawal_credentials: Address;
-    type: 0 | 1 | 2;
+    type: number;
     status?: ValidatorStatus;
     filterStatus?: FilterStatus;
 }
