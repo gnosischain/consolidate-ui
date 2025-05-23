@@ -3,6 +3,7 @@ import { Address } from 'viem';
 import { NetworkConfig } from '../constants/networks';
 import { APIValidatorDetailsResponse, APIValidatorsResponse } from '../types/api';
 import { ValidatorIndex, ValidatorInfo } from '../types/validators';
+import { STATUS_TO_FILTER } from '../utils/status';
 
 const LIMIT = 200;
 
@@ -136,14 +137,22 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 
 	const rows = Array.isArray(body.data) ? body.data : [body.data];
 
-	return rows.map((d) => ({
-		index: d.validatorindex,
-		pubkey: d.pubkey as Address,
-		balanceEth: d.effectivebalance / network.cl.multiplier / 1e9,
-		withdrawal_credentials: (`0x${d.withdrawalcredentials.slice(-40)}`) as Address,
-		type: d.withdrawalcredentials.startsWith('0x02') ? 2 : d.withdrawalcredentials.startsWith('0x01') ? 1 : 0,
-		status: d.status,
-	}));
+	return rows.map(d => {
+		const rawCred = d.withdrawalcredentials;
+		const address = `0x${rawCred.slice(-40)}` as Address;
+
+		const filterStatus = STATUS_TO_FILTER[d.status];
+
+		return {
+			index: d.validatorindex,
+			pubkey: d.pubkey as Address,
+			balanceEth: d.effectivebalance / network.cl.multiplier / 1e9,
+			withdrawal_credentials: address,
+			type: rawCred.startsWith('0x02') ? 2 : 1,
+			filterStatus: filterStatus,
+			status: d.status,
+		}
+	})
 };
 
 const fetchValidatorsByAddress = async (network: NetworkConfig, address: string, offset: number): Promise<ValidatorIndex[]> => {

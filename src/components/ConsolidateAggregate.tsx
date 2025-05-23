@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
 	computeConsolidations,
-	// computeSelfConsolidations,
+	computeSelfConsolidations,
 	Consolidation,
 	simulateConsolidation,
 } from '../hooks/useConsolidate';
@@ -9,8 +9,7 @@ import { NETWORK_CONFIG } from '../constants/networks';
 // import { ValidatorList } from './ValidatorList';
 import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
-import { ValidatorList2 } from './ValidatorList2';
-
+import { ValidatorItem } from './ValidatorItem';
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
 	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
@@ -44,8 +43,9 @@ export function ConsolidateAggregate({
 			result = result.filter((v) => v.type === Number(filterVersion));
 		}
 		if (filterStatus) {
-			result = result.filter((v) => v.status === filterStatus);
+			result = result.filter((v) => v.filterStatus === filterStatus);
 		}
+		console.log(result, filterStatus);
 		return result;
 	}, [validators, filterVersion, filterStatus]);
 
@@ -79,26 +79,53 @@ export function ConsolidateAggregate({
 				<p className="text-sm">Status</p>
 				<Filter text="All" filter={filterStatus} setFilter={setFilterStatus} value={undefined} />
 				<Filter text="Active" filter={filterStatus} setFilter={setFilterStatus} value={'active'} />
-				<Filter text="Inactive" filter={filterStatus} setFilter={setFilterStatus} value={'inactive'} />
-				<Filter text="Pending" filter={filterStatus} setFilter={setFilterStatus} value={'pending'} />
+				<Filter
+					text="Inactive"
+					filter={filterStatus}
+					setFilter={setFilterStatus}
+					value={'inactive'}
+				/>
+				<Filter
+					text="Pending"
+					filter={filterStatus}
+					setFilter={setFilterStatus}
+					value={'pending'}
+				/>
+				<Filter text="Exited" filter={filterStatus} setFilter={setFilterStatus} value={'exited'} />
 			</div>
-			<ValidatorList2 validators={filteredValidators}/>
-			{/* <ValidatorList
-				title={`Compounding Validators (${compoundingValidators.length})`}
-				validators={compoundingValidators}
-			/>
-			<div className="flex justify-end mt-4">
+			<div className="overflow-x-auto max-h-60">
+				<table className="table">
+					{/* head */}
+					<thead>
+						<tr>
+							<th></th>
+							<th>Address</th>
+							<th>Type</th>
+							<th>Status</th>
+							<th>Balance</th>
+						</tr>
+					</thead>
+					<tbody>
+						{filteredValidators.map((v) => (
+							<ValidatorItem
+								validator={v}
+								actionLabel={v.type == 1 && v.status !== 'exited' ? 'Upgrade' : ''}
+								onAction={
+									v.type == 1 && v.status !== 'exited'
+										? (v) => consolidateValidators(computeSelfConsolidations([v]))
+										: undefined
+								}
+							/>
+						))}
+					</tbody>
+				</table>
+			</div>
+
+			{/* <div className="flex justify-end mt-4">
 				<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
 					Upgrade all
 				</button>
-			</div>
-
-			<ValidatorList
-				title={`0x01 Validators (${type1Validators.length})`}
-				validators={type1Validators}
-				actionLabel="Upgrade"
-				onAction={(v) => consolidateValidators(computeSelfConsolidations([v]))}
-			/> */}
+			</div> */}
 
 			<div className="flex flex-col w-full items-center mt-4 gap-y-2">
 				<p className="text-xs">Balance min: {chunkSize}</p>
