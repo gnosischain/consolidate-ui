@@ -28,9 +28,9 @@ export function ConsolidateAggregate({
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
 	const [includeType1, setIncludeType1] = useState(true);
-	const type1Validators = validators.filter((v) => v.type === 1 && v.filterStatus !== 'exited');
+	const type1Validators = validators.filter((v) => v.type === 1 && v.filterStatus === 'active');
 	const compoundingValidators = validators.filter(
-		(v) => v.type === 2 && v.filterStatus !== 'exited',
+		(v) => v.type === 2 && v.filterStatus === 'active',
 	);
 	const simulation = simulateConsolidation(
 		compoundingValidators,

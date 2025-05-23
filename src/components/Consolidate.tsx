@@ -60,8 +60,7 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 						pubkeysAmount={
 							validators.filter(
 								(v) =>
-									v.filterStatus === FilterStatus.ACTIVE ||
-									v.filterStatus === FilterStatus.INACTIVE,
+									v.filterStatus === FilterStatus.ACTIVE
 							).length
 						}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SELECT }))}
