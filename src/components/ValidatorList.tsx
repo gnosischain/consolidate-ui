@@ -1,4 +1,4 @@
-import { ValidatorInfo } from '../hooks/useBeaconValidators';
+import { ValidatorInfo } from "../types/validators";
 
 interface ValidatorListProps {
   title: string;
