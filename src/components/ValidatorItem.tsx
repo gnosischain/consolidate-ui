@@ -30,13 +30,13 @@ export function ValidatorItem({
 			<td>{validator.balanceEth} GNO</td>
 
 			<td>
-				<div className={`flex rounded-md transition-all duration-300 ${showActions ? 'bg-base-200' : ''}`}>
+				<div className={`flex rounded-md max-w-fit transition-all duration-300 ${showActions ? 'bg-base-200' : ''}`}>
 					<button className="btn btn-ghost btn-circle btn-sm" onClick={() => setShowActions(!showActions)}>
 						<img src={showActions ? "/xmark.svg" : "/ellipsis-vertical.svg"} alt="Actions" className="w-5 h-5" />
 					</button>
 					{showActions && (
 						<>
-							<button className="btn btn-ghost btn-circle btn-sm"><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
+							<button disabled={true} className="btn btn-ghost btn-circle btn-sm"><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
 							<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
 							{validator.type === 1 && (
 								<button

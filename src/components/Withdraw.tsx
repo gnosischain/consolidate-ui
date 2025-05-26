@@ -22,11 +22,11 @@ export default function Withdraw({ validator, withdrawalValidators }: WithdrawPr
         <img src="/withdraw.svg" alt="Withdraw" className="w-4 h-4" />
       </button>
       <dialog ref={dialogRef} className="modal">
-        <form className="modal-box">
+        <div className="modal-box">
           <h3 className="text-lg font-bold">Validator {validator.index}</h3>
           <p className="text-sm text-gray-500">Balance: {validator.balanceEth} GNO</p>
           <fieldset className="fieldset mt-2 w-full gap-y-2">
-            <legend className="fieldset-legend">Withdraw amount</legend>
+            <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(validator.balanceEth)}>Max</button></legend>
             <input
               type="number"
               placeholder="Type here"
@@ -46,10 +46,10 @@ export default function Withdraw({ validator, withdrawalValidators }: WithdrawPr
                   amount: amount,
                 },
               ])}>
-              Withdraw
+              {amount === validator.balanceEth ? 'Exit validator'  : 'Withdraw ' + amount + ' GNO'}
             </button>
           </div>
-        </form>
+        </div>
         <form method="dialog" className="modal-backdrop">
           <button>close</button>
         </form>

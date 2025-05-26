@@ -17,7 +17,7 @@ function App() {
 
 	return (
 		<div className="w-full h-screen flex flex-col">
-			<div className="navbar bg-base-200 shadow-sm">
+			<div className="navbar z-50 bg-base-200 shadow-sm">
 				<div className="flex-1">
 					<div className="flex justify-center sm:justify-start mt-4 sm:mt-0">
 						<img src="/logo.svg" alt="Gnosis Logo" width={45} height={24} />
