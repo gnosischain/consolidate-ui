@@ -5,7 +5,7 @@ import {
 	Consolidation,
 	simulateConsolidation,
 } from '../hooks/useConsolidate';
-import { NETWORK_CONFIG, NetworkConfig } from '../constants/networks';
+import { NetworkConfig } from '../constants/networks';
 import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
