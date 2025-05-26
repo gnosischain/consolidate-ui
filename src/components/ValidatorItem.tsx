@@ -18,7 +18,7 @@ export function ValidatorItem({
 }: ValidatorItemProps) {
 	const [showActions, setShowActions] = useState(false);
 	return (
-		<tr key={validator.index} className="group">
+		<tr key={validator.index}>
 			{/* <th>
 				<input type="checkbox" />
 			</th> */}

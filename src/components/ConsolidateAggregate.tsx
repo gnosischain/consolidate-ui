@@ -9,6 +9,7 @@ import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
 import { Withdrawal } from '../hooks/useWithdraw';
+import { ConsolidationSummary } from './ConsolidationSummary';
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
 	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
@@ -52,10 +53,6 @@ export function ConsolidateAggregate({
 
 		return { type1Validators, consolidations, totalGroups, skippedValidators };
 	}, [filteredValidators, chunkSize]);
-
-	const handleConsolidate = async () => {
-		await consolidateValidators(consolidations);
-	};
 
 	const handleUpgradeAll = async () => {
 		const consolidations = computeSelfConsolidations(type1Validators);
@@ -168,29 +165,7 @@ export function ConsolidateAggregate({
 						</div>
 					)}
 				</div>
-				<div className="flex flex-col gap-y-2 w-full">
-					<div className="collapse collapse-arrow border-base-300 border">
-						<input type="checkbox" />
-						<div className="collapse-title text-sm font-semibold">Details</div>
-						<div className="collapse-content text-sm">
-							<ul className="list rounded-box max-h-60 overflow-y-auto">
-								{consolidations.map((c, i) => (
-									<li key={i} className="list-row flex justify-between items-center rounded-lg">
-										<p className="text-sm">
-											{c.sourceIndex} → {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
-										</p>
-										{c.sourceIndex === c.targetIndex && (
-											<p className="text-warning text-xs">Self consolidation</p>
-										)}
-									</li>
-								))}
-							</ul>
-						</div>
-					</div>
-				</div>
-				<button onClick={handleConsolidate} className="btn btn-primary">
-					Consolidate
-				</button>
+				<ConsolidationSummary consolidations={consolidations} consolidateValidators={consolidateValidators} />
 			</div>
 		</div>
 	);
