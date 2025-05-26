@@ -7,6 +7,7 @@ import { NetworkConfig } from '../constants/networks';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address } from 'viem';
 import { FilterStatus } from '../types/validators';
+import { useWithdraw } from '../hooks/useWithdraw';
 
 interface ConsolidateProps {
 	address: Address;
@@ -23,6 +24,7 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 	const { consolidateValidators, callStatusData } = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
+	const { withdrawalValidators } = useWithdraw(network.withdrawalAddress);
 
 	const { validators, loading } = useBeaconValidators(network, address);
 
@@ -57,12 +59,7 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 			case Steps.INFO:
 				return (
 					<ConsolidateInfo
-						pubkeysAmount={
-							validators.filter(
-								(v) =>
-									v.filterStatus === FilterStatus.ACTIVE
-							).length
-						}
+						pubkeysAmount={validators.filter((v) => v.filterStatus === FilterStatus.ACTIVE).length}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SELECT }))}
 					/>
 				);
@@ -73,7 +70,10 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 						consolidateValidators={async (consolidations) => {
 							consolidateValidators(consolidations);
 						}}
-						chainId={network.chainId}
+						withdrawalValidators={async (withdrawal) => {
+							withdrawalValidators(withdrawal);
+						}}
+						network={network}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
 					/>
 				);

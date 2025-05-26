@@ -78,28 +78,6 @@ export function computeConsolidations(
 	return { consolidations, skippedValidators, targets }
 }
 
-interface ConsolidationSimulationResult {
-	totalGroups: number;
-	consolidations: Consolidation[];
-	skippedValidators: ValidatorInfo[];
-}
-
-export function simulateConsolidation(
-	compounding: ValidatorInfo[],
-	type1: ValidatorInfo[],
-	chunkSize: number,
-	includeType1: boolean
-): ConsolidationSimulationResult {
-	const compCopy = compounding.slice()
-	const t1Copy = includeType1 ? type1.slice() : []
-
-	const { consolidations, skippedValidators, targets } =
-		computeConsolidations(compCopy, t1Copy, chunkSize)
-
-	const totalGroups = targets.size + skippedValidators.length
-	return { totalGroups, consolidations, skippedValidators }
-}
-
 export function useConsolidateValidatorsBatch(contract: Address) {
 	const { data: hash, sendCalls, status } = useSendCalls();
 	const { data, sendTransaction } = useSendTransaction();
