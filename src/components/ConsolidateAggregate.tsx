@@ -3,7 +3,6 @@ import {
 	computeConsolidations,
 	computeSelfConsolidations,
 	Consolidation,
-	simulateConsolidation,
 } from '../hooks/useConsolidate';
 import { NetworkConfig } from '../constants/networks';
 import { ValidatorInfo } from '../types/validators';
@@ -28,17 +27,6 @@ export function ConsolidateAggregate({
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
-	const [includeType1, setIncludeType1] = useState(true);
-	const type1Validators = validators.filter((v) => v.type === 1 && v.filterStatus === 'active');
-	const compoundingValidators = validators.filter(
-		(v) => v.type === 2 && v.filterStatus === 'active',
-	);
-	const simulation = simulateConsolidation(
-		compoundingValidators,
-		type1Validators,
-		chunkSize,
-		includeType1,
-	);
 
 	const filteredValidators = useMemo(() => {
 		let result = validators;
@@ -48,15 +36,24 @@ export function ConsolidateAggregate({
 		if (filterStatus) {
 			result = result.filter((v) => v.filterStatus === filterStatus);
 		}
-		console.log(result, filterStatus);
 		return result;
 	}, [validators, filterVersion, filterStatus]);
 
+	const { type1Validators, consolidations, totalGroups, skippedValidators } = useMemo(() => {
+		const type1Validators = filteredValidators.filter(
+			(v) => v.type === 1 && v.filterStatus === 'active'
+		);
+		const compoundingValidators = filteredValidators.filter(
+			(v) => v.type === 2 && v.filterStatus === 'active'
+		);
+
+		const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingValidators, type1Validators, chunkSize);
+		const totalGroups = targets.size + skippedValidators.length;
+
+		return { type1Validators, consolidations, totalGroups, skippedValidators };
+	}, [filteredValidators, chunkSize]);
+
 	const handleConsolidate = async () => {
-		const t1Pool = includeType1 ? type1Validators.filter((v) => v.filterStatus) : [];
-
-		const { consolidations } = computeConsolidations(compoundingValidators, t1Pool, chunkSize);
-
 		await consolidateValidators(consolidations);
 	};
 
@@ -66,7 +63,6 @@ export function ConsolidateAggregate({
 	};
 
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
-
 
 	return (
 		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
@@ -149,33 +145,21 @@ export function ConsolidateAggregate({
 					value={chunkSize}
 					className="range range-sm range-primary"
 					onChange={(e) => setChunkSize(Number(e.target.value))}
-				></input>
-
-				{type1Validators.length > 0 && (
-					<label className="label">
-						<input
-							className="checkbox checkbox-sm"
-							type="checkbox"
-							checked={includeType1}
-							onChange={(e) => setIncludeType1(e.currentTarget.checked)}
-						/>
-						Include 0x01 validators
-					</label>
-				)}
+				/>
 			</div>
 
 			<div className="w-full flex flex-col items-center gap-y-4">
 				<div className="text-center text-sm p-2">
-					<p>{simulation.totalGroups} validators after consolidation</p>
-					<p>{simulation.consolidations.length} consolidations request</p>
+					<p>{totalGroups} validators after consolidation</p>
+					<p>{consolidations.length} consolidations request</p>
 
-					{simulation.skippedValidators.length > 0 && (
+					{skippedValidators.length > 0 && (
 						<div className="mt-2">
 							<p className="text-warning text-sm">
-								{simulation.skippedValidators.length} validators skipped
+								{skippedValidators.length} validators skipped
 							</p>
 							<ul className="list-disc list-inside text-xs mt-1">
-								{simulation.skippedValidators.map((v) => (
+								{skippedValidators.map((v) => (
 									<li key={v.index}>
 										{v.index} ({v.balanceEth} GNO)
 									</li>
@@ -190,7 +174,7 @@ export function ConsolidateAggregate({
 						<div className="collapse-title text-sm font-semibold">Details</div>
 						<div className="collapse-content text-sm">
 							<ul className="list rounded-box max-h-60 overflow-y-auto">
-								{simulation.consolidations.map((c, i) => (
+								{consolidations.map((c, i) => (
 									<li key={i} className="list-row flex justify-between items-center rounded-lg">
 										<p className="text-sm">
 											{c.sourceIndex} → {c.targetIndex} ({c.sourceBalance + c.targetBalance} GNO)
