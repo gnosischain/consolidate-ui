@@ -1,7 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { ValidatorInfo } from "../types/validators";
 import { computeWithdrawals, Withdrawal } from "../hooks/useWithdraw";
-import { formatEther } from "viem";
 
 
 interface WithdrawProps {
