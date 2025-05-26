@@ -10,6 +10,7 @@ import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
 import { Withdrawal } from '../hooks/useWithdraw';
 import { ConsolidationSummary } from './ConsolidationSummary';
+import WithdrawBatch from './WithdrawBatch';
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
 	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
@@ -40,6 +41,10 @@ export function ConsolidateAggregate({
 		return result;
 	}, [validators, filterVersion, filterStatus]);
 
+	const totalBalance = useMemo(() => {
+		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0);
+	}, [validators]);
+
 	const { type1Validators, consolidations, totalGroups, skippedValidators } = useMemo(() => {
 		const type1Validators = filteredValidators.filter(
 			(v) => v.type === 1 && v.filterStatus === 'active'
@@ -64,9 +69,13 @@ export function ConsolidateAggregate({
 	return (
 		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
 			<p className="font-bold">Your validators</p>
+			<div className="flex items-center  w-full">
+				<p className="text-sm text-gray-500 mr-2">Balance: {totalBalance} GNO</p>
+				<WithdrawBatch validators={filteredValidators} totalBalance={totalBalance} withdrawalValidators={withdrawalValidators} />
+			</div>
 
 			{/* FILTER */}
-			<div className="flex gap-x-2 items-center w-full">
+			<div className="flex gap-x-2 items-center w-full mt-4">
 				<p className="text-sm">Version</p>
 				<Filter text="All" filter={filterVersion} setFilter={setFilterVersion} value={undefined} />
 				<Filter text="1" filter={filterVersion} setFilter={setFilterVersion} value={'1'} />

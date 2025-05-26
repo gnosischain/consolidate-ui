@@ -1,11 +1,51 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, encodePacked, parseEther, parseGwei } from 'viem';
+import { ValidatorInfo } from '../types/validators';
 
 export interface Withdrawal {
 	pubkey: Address;
 	amount: number;
 }
+
+export function computeWithdrawals(
+	validators: ValidatorInfo[],
+	amountToWithdraw: number,
+	totalValidatorBalance: number,
+	preventExit = true
+): { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: number } {
+	if (totalValidatorBalance === 0 || amountToWithdraw <= 0) {
+		return { withdrawals: [], exits: [], withdrawalsAmount: 0 };
+	}
+
+	const exitBuffer = preventExit ? 0.01 : 0;
+	const eligibleValidators = validators.filter(v => v.balanceEth > exitBuffer);
+
+	const withdrawals: Withdrawal[] = [];
+	const exits: ValidatorInfo[] = [];
+
+	for (const v of eligibleValidators) {
+		const maxWithdrawable = v.balanceEth - exitBuffer;
+		const proportionalAmount = (v.balanceEth / totalValidatorBalance) * amountToWithdraw;
+		const rawAmount = Math.min(proportionalAmount, maxWithdrawable);
+
+		if (rawAmount > 0) {
+			withdrawals.push({ pubkey: v.pubkey, amount: rawAmount });
+
+			if (!preventExit && rawAmount === v.balanceEth) {
+				exits.push(v);
+			}
+		}
+	}
+
+	return {
+		withdrawals,
+		exits,
+		withdrawalsAmount: withdrawals.reduce((sum, w) => sum + w.amount, 0),
+	};
+}
+
+
 
 export function useWithdraw(contract: Address) {
 	const { data: hash, sendCalls, status } = useSendCalls();
