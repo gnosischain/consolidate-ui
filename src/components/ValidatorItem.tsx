@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { computeSelfConsolidations, Consolidation } from '../hooks/useConsolidate';
 import { Withdrawal } from '../hooks/useWithdraw';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
+import Withdraw from './Withdraw';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -14,11 +16,12 @@ export function ValidatorItem({
 	consolidateValidators,
 	withdrawalValidators,
 }: ValidatorItemProps) {
+	const [showActions, setShowActions] = useState(false);
 	return (
 		<tr key={validator.index} className="group">
-			<th>
+			{/* <th>
 				<input type="checkbox" />
-			</th>
+			</th> */}
 			<td>{validator.index}</td>
 			<td>{validator.type}</td>
 			<td>
@@ -27,44 +30,24 @@ export function ValidatorItem({
 			<td>{validator.balanceEth} GNO</td>
 
 			<td>
-				<div className="dropdown dropdown-left group-last:dropdown-end">
-					<div tabIndex={0} role="button" className="btn btn-ghost btn-circle btn-sm">
-						<img src="/ellipsis-vertical.svg" alt="Actions" className="w-5 h-5" />
-					</div>
-					<ul
-						tabIndex={0}
-						className="dropdown-content menu bg-base-100 rounded-box z-10 w-36 p-2 shadow-sm"
-					>
-						<li>
-							<button className="btn btn-ghost">Deposit</button>
-						</li>
-						<li>
-							<button
-								className="btn btn-ghost"
-								onClick={() =>
-									withdrawalValidators([
-										{
-											pubkey: validator.pubkey,
-											amount: 2,
-										},
-									])
-								}
-							>
-								Exit
-							</button>
-						</li>
-						{validator.type === 1 && (
-							<li>
+				<div className={`flex rounded-md transition-all duration-300 ${showActions ? 'bg-base-200' : ''}`}>
+					<button className="btn btn-ghost btn-circle btn-sm" onClick={() => setShowActions(!showActions)}>
+						<img src={showActions ? "/xmark.svg" : "/ellipsis-vertical.svg"} alt="Actions" className="w-5 h-5" />
+					</button>
+					{showActions && (
+						<>
+							<button className="btn btn-ghost btn-circle btn-sm"><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
+							<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
+							{validator.type === 1 && (
 								<button
-									className="btn btn-ghost"
+									className="btn btn-ghost btn-circle btn-sm"
 									onClick={() => consolidateValidators(computeSelfConsolidations([validator]))}
 								>
-									Upgrade
+									<img src="/upgrade.svg" alt="Upgrade" className="w-5 h-5" />
 								</button>
-							</li>
-						)}
-					</ul>
-				</div>
+							)}
+						</>
+					)} </div>
 			</td>
 		</tr>
 	);

@@ -73,7 +73,7 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 						withdrawalValidators={async (withdrawal) => {
 							withdrawalValidators(withdrawal);
 						}}
-						chainId={network.chainId}
+						network={network}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
 					/>
 				);

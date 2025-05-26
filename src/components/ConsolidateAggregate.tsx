@@ -5,7 +5,7 @@ import {
 	Consolidation,
 	simulateConsolidation,
 } from '../hooks/useConsolidate';
-import { NETWORK_CONFIG } from '../constants/networks';
+import { NETWORK_CONFIG, NetworkConfig } from '../constants/networks';
 import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
@@ -13,8 +13,8 @@ import { Withdrawal } from '../hooks/useWithdraw';
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
 	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
-	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>
-	chainId: number;
+	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
+	network: NetworkConfig;
 	goToStep: () => void;
 }
 
@@ -22,9 +22,8 @@ export function ConsolidateAggregate({
 	validators,
 	consolidateValidators,
 	withdrawalValidators,
-	chainId,
+	network,
 }: ConsolidateSelectProps) {
-	const network = NETWORK_CONFIG[chainId];
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
@@ -114,7 +113,7 @@ export function ConsolidateAggregate({
 					{/* head */}
 					<thead>
 						<tr>
-							<th></th>
+							{/* <th></th> */}
 							<th>Index</th>
 							<th>Type</th>
 							<th>Status</th>
@@ -130,6 +129,9 @@ export function ConsolidateAggregate({
 									await consolidateValidators(consolidations);
 								}}
 								withdrawalValidators={async (withdrawal) => {
+									withdrawal.forEach((w) => {
+										w.amount = w.amount * network.cl.multiplier;
+									});
 									await withdrawalValidators(withdrawal);
 								}}
 							/>
