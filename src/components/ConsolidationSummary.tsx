@@ -37,7 +37,6 @@ export function ConsolidationSummary({ consolidations, consolidateValidators }: 
     return (
         <>
             <button
-                disabled={consolidations.length === 0}
                 className="btn btn-primary"
                 onClick={() => dialogRef.current?.showModal()}
             >
