@@ -1,12 +1,38 @@
-import { useRef } from "react";
-import { Consolidation } from "../hooks/useConsolidate";
+import { useState, useMemo, useRef } from 'react';
+import { Consolidation } from '../hooks/useConsolidate';
 
-export function ConsolidationSummary({ consolidations, consolidateValidators }: { consolidations: Consolidation[], consolidateValidators: (consolidations: Consolidation[]) => Promise<void> }) {
+interface ConsolidationSummaryProps {
+    consolidations: Consolidation[];
+    consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
+}
 
-    const dialogRef = useRef<HTMLDialogElement>(null);
+const BATCH_SIZE = 200;
+
+export function ConsolidationSummary({ consolidations, consolidateValidators }: ConsolidationSummaryProps) {
+    const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
+
+    
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+    const batches = useMemo(() => {
+        const batchCount = Math.ceil(consolidations.length / BATCH_SIZE);
+        const batches = Array.from({ length: batchCount }, (_, i) => {
+            const start = i * BATCH_SIZE;
+            return consolidations.slice(start, start + BATCH_SIZE);
+        });
+        return batches;
+    }, [consolidations]);
+
     const handleConsolidate = async () => {
-        await consolidateValidators(consolidations);
+        if (currentBatchIndex < batches.length) {
+            await consolidateValidators(batches[currentBatchIndex]);
+            setCurrentBatchIndex(prev => prev + 1);
+        }
     };
+
+    if (consolidations.length === 0) {
+        return null;
+    }
 
     return (
         <>
@@ -44,9 +70,22 @@ export function ConsolidationSummary({ consolidations, consolidateValidators }: 
                             </tbody>
                         </table>
                     </div>
-                    <button onClick={handleConsolidate} className="btn btn-primary">
-                        Consolidate
+
+                    <button
+                        onClick={handleConsolidate}
+                        className="btn btn-primary"
+                        disabled={currentBatchIndex >= batches.length}
+                    >
+                        {currentBatchIndex >= batches.length
+                            ? "All Consolidations Complete"
+                            : `Consolidate Batch ${currentBatchIndex + 1}/${batches.length}`
+                        }
                     </button>
+                    {batches.length > 1 && (
+                        <p className="text-xs text-center">
+                            Processing in batches of {BATCH_SIZE} consolidations
+                        </p>
+                    )}
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>
