@@ -77,7 +77,7 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 
 					allValidators.push(...list);
 
-					if (list.length === LIMIT && offset < 800) {
+					if (list.length === LIMIT && offset < 2000) {
 						offset += LIMIT;
 						await new Promise(res => setTimeout(res, 500));
 					} else {
