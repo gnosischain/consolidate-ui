@@ -29,6 +29,12 @@ export function ConsolidateAggregate({
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
+	const type1ValidatorsActive = validators.filter(
+		(v) => v.type === 1 && v.filterStatus === 'active'
+	);
+	const compoundingValidatorsActive = validators.filter(
+		(v) => v.type === 2 && v.filterStatus === 'active'
+	);
 
 	const filteredValidators = useMemo(() => {
 		let result = validators;
@@ -41,37 +47,42 @@ export function ConsolidateAggregate({
 		return result;
 	}, [validators, filterVersion, filterStatus]);
 
+	const filteredActive = useMemo(
+		() => filteredValidators.filter(v => v.filterStatus === 'active'),
+		[filteredValidators]
+	);
+
 	const totalBalance = useMemo(() => {
 		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0);
 	}, [validators]);
 
-	const { type1Validators, consolidations, totalGroups, skippedValidators } = useMemo(() => {
-		const type1Validators = filteredValidators.filter(
+	const { consolidations, totalGroups, skippedValidators } = useMemo(() => {
+		const type1Filtered = filteredActive.filter(
 			(v) => v.type === 1 && v.filterStatus === 'active'
 		);
-		const compoundingValidators = filteredValidators.filter(
+		const compoundingFiltered = filteredActive.filter(
 			(v) => v.type === 2 && v.filterStatus === 'active'
 		);
 
-		const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingValidators, type1Validators, chunkSize);
+		const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingFiltered, type1Filtered, chunkSize);
 		const totalGroups = targets.size + skippedValidators.length;
 
-		return { type1Validators, consolidations, totalGroups, skippedValidators };
-	}, [filteredValidators, chunkSize]);
+		return { consolidations, totalGroups, skippedValidators };
+	}, [filteredActive, chunkSize]);
 
 	const handleUpgradeAll = async () => {
-		const consolidations = computeSelfConsolidations(type1Validators);
+		const consolidations = computeSelfConsolidations(type1ValidatorsActive);
 		await consolidateValidators(consolidations);
 	};
 
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
 	return (
-		<div className="w-full flex w-full flex-col justify-center gap-y-2 p-2">
+		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
 			<p className="font-bold">Your validators</p>
 			<div className="flex items-center  w-full">
 				<p className="text-sm text-gray-500 mr-2">Balance: {totalBalance} GNO</p>
-				<WithdrawBatch validators={filteredValidators} totalBalance={totalBalance} withdrawalValidators={withdrawalValidators} />
+				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalBalance} withdrawalValidators={withdrawalValidators} />
 			</div>
 
 			{/* FILTER */}
