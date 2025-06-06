@@ -29,7 +29,6 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 				}
 
 				const json = await res.json();
-				console.log(json.data);
 				const data: BeaconChainResponse[] = json.data;
 
 				const filtered: ValidatorInfo[] = data
@@ -136,8 +135,6 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 	const body: {
 		data: APIValidatorDetailsResponse[] | APIValidatorDetailsResponse;
 	} = await resp.json();
-
-	console.log(body);
 
 	const rows = Array.isArray(body.data) ? body.data : [body.data];
 

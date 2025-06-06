@@ -11,8 +11,8 @@ const BATCH_SIZE = 200;
 export function ConsolidationSummary({ consolidations, consolidateValidators }: ConsolidationSummaryProps) {
     const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
 
-    
-  const dialogRef = useRef<HTMLDialogElement>(null);
+
+    const dialogRef = useRef<HTMLDialogElement>(null);
 
     const batches = useMemo(() => {
         const batchCount = Math.ceil(consolidations.length / BATCH_SIZE);

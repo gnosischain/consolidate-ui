@@ -18,8 +18,6 @@ interface ComputedConsolidation {
 	targets: Set<number>;
 }
 
-// TODO: Improve this. Right now the balances are rounded to the nearest integer,
-// which is not ideal but at least works closer to what one would expect.
 export function computeConsolidations(
 	compounding: ValidatorInfo[],
 	type1: ValidatorInfo[],

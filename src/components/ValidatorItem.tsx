@@ -29,25 +29,35 @@ export function ValidatorItem({
 			</td>
 			<td>{validator.balanceEth} GNO</td>
 
-			<td>
-				<div className={`flex rounded-md max-w-fit transition-all duration-300 ${showActions ? 'bg-base-200' : ''}`}>
-					<button className="btn btn-ghost btn-circle btn-sm" onClick={() => setShowActions(!showActions)}>
-						<img src={showActions ? "/xmark.svg" : "/ellipsis-vertical.svg"} alt="Actions" className="w-5 h-5" />
-					</button>
-					{showActions && (
-						<>
-							<button disabled={true} className="btn btn-ghost btn-circle btn-sm"><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
-							<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
-							{validator.type === 1 && (
-								<button
-									className="btn btn-ghost btn-circle btn-sm"
-									onClick={() => consolidateValidators(computeSelfConsolidations([validator]))}
-								>
-									<img src="/upgrade.svg" alt="Upgrade" className="w-5 h-5" />
-								</button>
-							)}
-						</>
-					)} </div>
+			<td className="min-w-24">
+				{validator.filterStatus === 'active' && (
+					<div className={`flex rounded-md max-w-fit transition-all duration-300 ${showActions ? 'bg-base-200' : ''}`}>
+						<button className="btn btn-ghost btn-circle btn-sm" onClick={() => setShowActions(!showActions)}>
+							<img src={showActions ? "/xmark.svg" : "/ellipsis-vertical.svg"} alt="Actions" className="w-5 h-5" />
+						</button>
+						{showActions && (
+							<>
+								{/* <div className="tooltip" data-tip="Deposit">
+									<button disabled={true} className="btn btn-ghost btn-circle btn-sm"><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
+								</div> */}
+								{validator.type === 1 && (
+									<div className="tooltip" data-tip="Upgrade">
+										<button
+											className="btn btn-ghost btn-circle btn-sm"
+											onClick={() => consolidateValidators(computeSelfConsolidations([validator]))}
+										>
+											<img src="/upgrade.svg" alt="Upgrade" className="w-5 h-5" />
+										</button>
+									</div>
+								)}
+
+								{validator.type === 2 && (
+									<div className="tooltip" data-tip="Withdraw">
+										<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
+									</div>
+								)}
+							</>
+						)} </div>)}
 			</td>
 		</tr>
 	);
