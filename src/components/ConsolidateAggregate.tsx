@@ -8,7 +8,7 @@ import { NetworkConfig } from '../constants/networks';
 import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
-import { Withdrawal } from '../hooks/useWithdraw';
+import { Withdrawal } from '../types/validators';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import WithdrawBatch from './WithdrawBatch';
 interface ConsolidateSelectProps {
@@ -17,12 +17,14 @@ interface ConsolidateSelectProps {
 	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
 	network: NetworkConfig;
 	goToStep: () => void;
+	computeWithdrawals: (validators: ValidatorInfo[], amountToWithdraw: number, totalValidatorBalance: number, preventExit: boolean) => { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: number };
 }
 
 export function ConsolidateAggregate({
 	validators,
 	consolidateValidators,
 	withdrawalValidators,
+	computeWithdrawals,
 	network,
 }: ConsolidateSelectProps) {
 	const targetBalance = network.cl.maxBalance * 0.625;
@@ -82,7 +84,7 @@ export function ConsolidateAggregate({
 			<p className="font-bold">Your validators</p>
 			<div className="flex items-center  w-full">
 				<p className="text-sm text-gray-500 mr-2">Balance: {totalBalance} GNO</p>
-				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalBalance} withdrawalValidators={withdrawalValidators} />
+				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalBalance} withdrawalValidators={withdrawalValidators} computeWithdrawals={computeWithdrawals} />
 			</div>
 
 			{/* FILTER */}

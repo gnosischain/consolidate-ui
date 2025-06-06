@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { computeSelfConsolidations, Consolidation } from '../hooks/useConsolidate';
-import { Withdrawal } from '../hooks/useWithdraw';
-import { ValidatorInfo } from '../types/validators';
+import { ValidatorInfo, Withdrawal } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 

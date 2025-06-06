@@ -21,3 +21,8 @@ export interface ValidatorIndex {
     pubkey: Address;
     index: number;
 }
+
+export interface Withdrawal {
+	pubkey: Address;
+	amount: number;
+}

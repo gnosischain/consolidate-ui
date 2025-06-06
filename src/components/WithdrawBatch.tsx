@@ -1,15 +1,16 @@
 import { useMemo, useRef, useState } from "react";
 import { ValidatorInfo } from "../types/validators";
-import { computeWithdrawals, Withdrawal } from "../hooks/useWithdraw";
+import { Withdrawal } from "../types/validators";
 
 
 interface WithdrawProps {
   validators: ValidatorInfo[];
   totalBalance: number;
   withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
+  computeWithdrawals: (validators: ValidatorInfo[], amountToWithdraw: number, totalValidatorBalance: number, preventExit: boolean) => { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: number };
 }
 
-export default function WithdrawBatch({ validators, totalBalance, withdrawalValidators }: WithdrawProps) {
+export default function WithdrawBatch({ validators, totalBalance, withdrawalValidators, computeWithdrawals }: WithdrawProps) {
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [amount, setAmount] = useState(0);
