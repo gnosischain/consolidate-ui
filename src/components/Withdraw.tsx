@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
-import { ValidatorInfo } from "../types/validators";
-import { Withdrawal } from "../hooks/useWithdraw";
+import { ValidatorInfo, Withdrawal } from "../types/validators";
 
 
 interface WithdrawProps {
