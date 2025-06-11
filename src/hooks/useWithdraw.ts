@@ -23,7 +23,7 @@ export function useWithdraw(network: NetworkConfig) {
 
 	const computeWithdrawals = useCallback(
 		(validators: ValidatorInfo[], amountToWithdraw: bigint, totalValidatorBalance: bigint, preventExit = true) => {
-			if (totalValidatorBalance === 0n || amountToWithdraw <= 0) {
+			if (totalValidatorBalance === 0n || amountToWithdraw <= 0n) {
 				return { withdrawals: [], exits: [], withdrawalsAmount: 0n };
 			}
 
