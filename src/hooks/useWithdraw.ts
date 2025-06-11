@@ -1,53 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, encodePacked, parseEther, parseGwei } from 'viem';
-import { ValidatorInfo } from '../types/validators';
+import { ValidatorInfo, Withdrawal } from '../types/validators';
+import { NetworkConfig } from '../constants/networks';
 
-export interface Withdrawal {
-	pubkey: Address;
-	amount: number;
-}
-
-export function computeWithdrawals(
-	validators: ValidatorInfo[],
-	amountToWithdraw: number,
-	totalValidatorBalance: number,
-	preventExit = true
-): { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: number } {
-	if (totalValidatorBalance === 0 || amountToWithdraw <= 0) {
-		return { withdrawals: [], exits: [], withdrawalsAmount: 0 };
-	}
-
-	const exitBuffer = preventExit ? 0.01 : 0;
-	const eligibleValidators = validators.filter(v => v.balanceEth > exitBuffer);
-
-	const withdrawals: Withdrawal[] = [];
-	const exits: ValidatorInfo[] = [];
-
-	for (const v of eligibleValidators) {
-		const maxWithdrawable = v.balanceEth - exitBuffer;
-		const proportionalAmount = (v.balanceEth / totalValidatorBalance) * amountToWithdraw;
-		const rawAmount = Math.min(proportionalAmount, maxWithdrawable);
-
-		if (rawAmount > 0) {
-			withdrawals.push({ pubkey: v.pubkey, amount: rawAmount });
-
-			if (!preventExit && rawAmount === v.balanceEth) {
-				exits.push(v);
-			}
-		}
-	}
-
-	return {
-		withdrawals,
-		exits,
-		withdrawalsAmount: withdrawals.reduce((sum, w) => sum + w.amount, 0),
-	};
-}
-
-
-
-export function useWithdraw(contract: Address) {
+export function useWithdraw(network: NetworkConfig) {
 	const { data: hash, sendCalls, status } = useSendCalls();
 	const { data, sendTransaction } = useSendTransaction();
 	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -64,6 +21,46 @@ export function useWithdraw(contract: Address) {
 
 	const lastBatchRef = useRef<Withdrawal[] | null>(null)
 
+	const computeWithdrawals = useCallback(
+		(validators: ValidatorInfo[], amountToWithdraw: bigint, totalValidatorBalance: bigint, preventExit = true) => {
+			if (totalValidatorBalance === 0n || amountToWithdraw <= 0n) {
+				return { withdrawals: [], exits: [], withdrawalsAmount: 0n };
+			}
+
+			const exitBuffer = preventExit ? parseEther(network.cl.minBalance.toString()) : 0n;
+			const eligibleValidators = validators.filter(v => v.balanceEth > exitBuffer);
+
+			const withdrawals: Withdrawal[] = [];
+			const exits: ValidatorInfo[] = [];
+
+			for (const v of eligibleValidators) {
+				const maxWithdrawable = v.balanceEth - BigInt(exitBuffer);
+				const proportionalAmount = (v.balanceEth * amountToWithdraw) / totalValidatorBalance;
+				let rawAmount = proportionalAmount < maxWithdrawable ? proportionalAmount : maxWithdrawable;
+
+				if (!preventExit) {
+					const leftover = v.balanceEth - rawAmount;
+					if (leftover > 0 && leftover < parseEther(network.cl.minBalance.toString())) {
+					  rawAmount = v.balanceEth;
+					}
+				  }
+
+				if (rawAmount > 0) {
+					withdrawals.push({ pubkey: v.pubkey, amount: rawAmount });
+
+					if (!preventExit && rawAmount === v.balanceEth) {
+						exits.push(v);
+					}
+				}
+			}
+
+			return {
+				withdrawals,
+				exits,
+				withdrawalsAmount: withdrawals.reduce((sum, w) => sum + w.amount, 0n),
+			};
+		}, [network]);
+
 	const withdrawalValidators = useCallback(
 		(withdrawal: Withdrawal[]) => {
 			if (withdrawal.length === 0) {
@@ -73,7 +70,7 @@ export function useWithdraw(contract: Address) {
 
 			const calls = withdrawal.map(({ pubkey, amount }) => (
 				{
-					to: contract,
+					to: network.withdrawalAddress,
 					data: encodePacked(
 						["bytes", "uint64"],
 						[
@@ -85,15 +82,16 @@ export function useWithdraw(contract: Address) {
 				}))
 			sendCalls({ calls, capabilities: {} })
 		},
-		[contract, sendCalls],
+		[network, sendCalls],
 	)
+
 
 	useEffect(() => {
 		if (status === 'error' && lastBatchRef.current) {
 			console.warn('Batch failed – falling back to individual txs')
 
 			const calls = lastBatchRef.current.map(({ pubkey, amount }) => ({
-				to: contract,
+				to: network.withdrawalAddress,
 				data: encodePacked(
 					["bytes", "uint64"],
 					[
@@ -118,7 +116,7 @@ export function useWithdraw(contract: Address) {
 				console.error('Fallback submission error', err)
 			})
 		}
-	}, [status, contract, sendTransaction])
+	}, [status, network, sendTransaction])
 
-	return { withdrawalValidators, callStatusData, isConfirming, isConfirmed };
+	return { withdrawalValidators, callStatusData, isConfirming, isConfirmed, computeWithdrawals };
 }

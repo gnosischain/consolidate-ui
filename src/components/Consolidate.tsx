@@ -24,7 +24,7 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 	const { consolidateValidators, callStatusData } = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
-	const { withdrawalValidators } = useWithdraw(network.withdrawalAddress);
+	const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
 
 	const { validators, loading } = useBeaconValidators(network, address);
 
@@ -75,6 +75,7 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 						}}
 						network={network}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
+						computeWithdrawals={computeWithdrawals}
 					/>
 				);
 			case Steps.SUMMARY:

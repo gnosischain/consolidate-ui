@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Address } from 'viem';
+import { Address, parseGwei } from 'viem';
 import { NetworkConfig } from '../constants/networks';
 import { APIValidatorDetailsResponse, APIValidatorsResponse } from '../types/api';
 import { ValidatorIndex, ValidatorInfo } from '../types/validators';
@@ -29,7 +29,6 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 				}
 
 				const json = await res.json();
-				console.log(json.data);
 				const data: BeaconChainResponse[] = json.data;
 
 				const filtered: ValidatorInfo[] = data
@@ -48,7 +47,7 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 						return ({
 							index: Number(v.index),
 							pubkey: v.validator.pubkey,
-							balanceEth: Number(v.validator.effective_balance) / 1e9 / network.cl.multiplier,
+							balanceEth: parseGwei(v.validator.effective_balance.toString()) / BigInt(network.cl.multiplier),
 							withdrawal_credentials: address,
 							type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
 							filterStatus: filterStatus,
@@ -137,8 +136,6 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 		data: APIValidatorDetailsResponse[] | APIValidatorDetailsResponse;
 	} = await resp.json();
 
-	console.log(body);
-
 	const rows = Array.isArray(body.data) ? body.data : [body.data];
 
 	return rows.map(d => {
@@ -150,7 +147,7 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 		return {
 			index: d.validatorindex,
 			pubkey: d.pubkey as Address,
-			balanceEth: d.effectivebalance / network.cl.multiplier / 1e9,
+			balanceEth: parseGwei(d.effectivebalance.toString()) / BigInt(network.cl.multiplier),
 			withdrawal_credentials: address,
 			type: creds.startsWith('0x02') ? 2 : 1,
 			filterStatus: filterStatus,

@@ -10,7 +10,7 @@ export enum FilterStatus {
 export interface ValidatorInfo {
     index: number;
     pubkey: Address;
-    balanceEth: number;
+    balanceEth: bigint;
     withdrawal_credentials: Address;
     type: number;
     status: ValidatorStatus;
@@ -20,4 +20,18 @@ export interface ValidatorInfo {
 export interface ValidatorIndex {
     pubkey: Address;
     index: number;
+}
+
+export interface Withdrawal {
+	pubkey: Address;
+	amount: bigint;
+}
+
+export interface Consolidation {
+	sourceIndex: number;
+	sourceKey: Address;
+	sourceBalance: bigint;
+	targetIndex: number;
+	targetKey: Address;
+	targetBalance: bigint;
 }

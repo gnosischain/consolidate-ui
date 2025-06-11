@@ -1,16 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
-import { ValidatorInfo } from '../types/validators';
-
-export interface Consolidation {
-	sourceIndex: number;
-	sourceKey: Address;
-	sourceBalance: number;
-	targetIndex: number;
-	targetKey: Address;
-	targetBalance: number;
-}
+import { Consolidation, ValidatorInfo } from '../types/validators';
 
 interface ComputedConsolidation {
 	consolidations: Consolidation[];
@@ -18,12 +9,10 @@ interface ComputedConsolidation {
 	targets: Set<number>;
 }
 
-// TODO: Improve this. Right now the balances are rounded to the nearest integer,
-// which is not ideal but at least works closer to what one would expect.
 export function computeConsolidations(
 	compounding: ValidatorInfo[],
 	type1: ValidatorInfo[],
-	chunkSize: number
+	chunkSize: bigint
 ): ComputedConsolidation {
 	const consolidations: Consolidation[] = []
 	const skippedValidators: ValidatorInfo[] = []
@@ -50,7 +39,7 @@ export function computeConsolidations(
 				sourceBalance: target.balanceEth,
 				targetIndex: target.index,
 				targetKey: target.pubkey,
-				targetBalance: 0,
+				targetBalance: 0n,
 			})
 		}
 
@@ -149,7 +138,7 @@ export function computeSelfConsolidations(
 	const selfConsolidations: Consolidation[] = [];
 
 	for (const v of validators) {
-		selfConsolidations.push({ sourceIndex: v.index, sourceKey: v.pubkey, sourceBalance: 1, targetIndex: v.index, targetKey: v.pubkey, targetBalance: 0 });
+		selfConsolidations.push({ sourceIndex: v.index, sourceKey: v.pubkey, sourceBalance: 1n, targetIndex: v.index, targetKey: v.pubkey, targetBalance: 0n });
 	}
 
 	return selfConsolidations;
