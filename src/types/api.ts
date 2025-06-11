@@ -20,6 +20,7 @@ export interface APIValidatorDetailsResponse {
     activationeligibilityepoch: number;
     activationepoch: number;
     balance: number;
+    // in gwei
     effectivebalance: number;
     exitepoch: number;
     lastattestationslot: number;

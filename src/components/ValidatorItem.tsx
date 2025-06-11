@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { computeSelfConsolidations, Consolidation } from '../hooks/useConsolidate';
-import { ValidatorInfo, Withdrawal } from '../types/validators';
+import { computeSelfConsolidations } from '../hooks/useConsolidate';
+import { Consolidation, ValidatorInfo, Withdrawal } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
+import { formatEther } from 'viem';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -26,7 +27,7 @@ export function ValidatorItem({
 			<td>
 				<ValidatorBadge filterStatus={validator.filterStatus} status={validator.status} />
 			</td>
-			<td>{validator.balanceEth} GNO</td>
+			<td>{formatEther(validator.balanceEth)} GNO</td>
 
 			<td className="min-w-24">
 				{validator.filterStatus === 'active' && (

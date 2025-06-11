@@ -22,25 +22,25 @@ export function useWithdraw(network: NetworkConfig) {
 	const lastBatchRef = useRef<Withdrawal[] | null>(null)
 
 	const computeWithdrawals = useCallback(
-		(validators: ValidatorInfo[], amountToWithdraw: number, totalValidatorBalance: number, preventExit = true) => {
-			if (totalValidatorBalance === 0 || amountToWithdraw <= 0) {
-				return { withdrawals: [], exits: [], withdrawalsAmount: 0 };
+		(validators: ValidatorInfo[], amountToWithdraw: bigint, totalValidatorBalance: bigint, preventExit = true) => {
+			if (totalValidatorBalance === 0n || amountToWithdraw <= 0) {
+				return { withdrawals: [], exits: [], withdrawalsAmount: 0n };
 			}
 
-			const exitBuffer = preventExit ? network.cl.minBalance : 0;
+			const exitBuffer = preventExit ? parseEther(network.cl.minBalance.toString()) : 0n;
 			const eligibleValidators = validators.filter(v => v.balanceEth > exitBuffer);
 
 			const withdrawals: Withdrawal[] = [];
 			const exits: ValidatorInfo[] = [];
 
 			for (const v of eligibleValidators) {
-				const maxWithdrawable = v.balanceEth - exitBuffer;
-				const proportionalAmount = (v.balanceEth / totalValidatorBalance) * amountToWithdraw;
-				let rawAmount = Math.min(proportionalAmount, maxWithdrawable);
+				const maxWithdrawable = v.balanceEth - BigInt(exitBuffer);
+				const proportionalAmount = (v.balanceEth * amountToWithdraw) / totalValidatorBalance;
+				let rawAmount = proportionalAmount < maxWithdrawable ? proportionalAmount : maxWithdrawable;
 
 				if (!preventExit) {
 					const leftover = v.balanceEth - rawAmount;
-					if (leftover > 0 && leftover < network.cl.minBalance) {
+					if (leftover > 0 && leftover < parseEther(network.cl.minBalance.toString())) {
 					  rawAmount = v.balanceEth;
 					}
 				  }
@@ -57,7 +57,7 @@ export function useWithdraw(network: NetworkConfig) {
 			return {
 				withdrawals,
 				exits,
-				withdrawalsAmount: withdrawals.reduce((sum, w) => sum + w.amount, 0),
+				withdrawalsAmount: withdrawals.reduce((sum, w) => sum + w.amount, 0n),
 			};
 		}, [network]);
 

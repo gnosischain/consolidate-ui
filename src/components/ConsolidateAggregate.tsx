@@ -2,22 +2,23 @@ import { useEffect, useMemo, useState } from 'react';
 import {
 	computeConsolidations,
 	computeSelfConsolidations,
-	Consolidation,
 } from '../hooks/useConsolidate';
 import { NetworkConfig } from '../constants/networks';
-import { ValidatorInfo } from '../types/validators';
+import { Consolidation, ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
 import { Withdrawal } from '../types/validators';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import WithdrawBatch from './WithdrawBatch';
+import { formatEther, parseEther } from 'viem';
+
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
 	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
 	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
 	network: NetworkConfig;
 	goToStep: () => void;
-	computeWithdrawals: (validators: ValidatorInfo[], amountToWithdraw: number, totalValidatorBalance: number, preventExit: boolean) => { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: number };
+	computeWithdrawals: (validators: ValidatorInfo[], amountToWithdraw: bigint, totalValidatorBalance: bigint, preventExit: boolean) => { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: bigint };
 }
 
 export function ConsolidateAggregate({
@@ -55,8 +56,12 @@ export function ConsolidateAggregate({
 	);
 
 	const totalBalance = useMemo(() => {
-		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0);
+		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0n);
 	}, [validators]);
+
+	const totalCompoundingBalance = useMemo(() => {
+		return compoundingValidatorsActive.reduce((acc, v) => acc + v.balanceEth, 0n);
+	}, [compoundingValidatorsActive]);
 
 	const { consolidations, totalGroups, skippedValidators } = useMemo(() => {
 		const type1Filtered = filteredActive.filter(
@@ -66,7 +71,7 @@ export function ConsolidateAggregate({
 			(v) => v.type === 2 && v.filterStatus === 'active'
 		);
 
-		const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingFiltered, type1Filtered, chunkSize);
+		const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingFiltered, type1Filtered, parseEther(chunkSize.toString()));
 		const totalGroups = targets.size + skippedValidators.length;
 
 		return { consolidations, totalGroups, skippedValidators };
@@ -83,8 +88,8 @@ export function ConsolidateAggregate({
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
 			<p className="font-bold">Your validators</p>
 			<div className="flex items-center  w-full">
-				<p className="text-sm text-gray-500 mr-2">Balance: {totalBalance} GNO</p>
-				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalBalance} withdrawalValidators={withdrawalValidators} computeWithdrawals={computeWithdrawals} />
+				<p className="text-sm text-gray-500 mr-2">Balance: {formatEther(totalBalance)} GNO</p>
+				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} withdrawalValidators={withdrawalValidators} computeWithdrawals={computeWithdrawals} />
 			</div>
 
 			{/* FILTER */}
@@ -145,7 +150,7 @@ export function ConsolidateAggregate({
 								}}
 								withdrawalValidators={async (withdrawal) => {
 									withdrawal.forEach((w) => {
-										w.amount = w.amount * network.cl.multiplier;
+										w.amount = w.amount * BigInt(network.cl.multiplier);
 									});
 									await withdrawalValidators(withdrawal);
 								}}
@@ -180,7 +185,7 @@ export function ConsolidateAggregate({
 							<ul className="list-disc list-inside text-xs mt-1">
 								{skippedValidators.map((v) => (
 									<li key={v.index}>
-										{v.index} ({v.balanceEth} GNO)
+										{v.index} ({formatEther(v.balanceEth)} GNO)
 									</li>
 								))}
 							</ul>

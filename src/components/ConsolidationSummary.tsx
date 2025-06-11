@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
-import { Consolidation } from '../hooks/useConsolidate';
+import { Consolidation } from '../types/validators';
+import { formatEther } from 'viem';
 
 interface ConsolidationSummaryProps {
     consolidations: Consolidation[];
@@ -60,7 +61,7 @@ export function ConsolidationSummary({ consolidations, consolidateValidators }: 
                                     <tr key={i}>
                                         <td>{c.sourceIndex}</td>
                                         <td>{c.targetIndex}</td>
-                                        <td>{c.sourceBalance + c.targetBalance} GNO</td>
+                                        <td>{formatEther(c.sourceBalance + c.targetBalance)} GNO</td>
                                         <td>{c.sourceIndex === c.targetIndex && (
                                             <p className="text-warning text-xs">Self consolidation</p>
                                         )}</td>
