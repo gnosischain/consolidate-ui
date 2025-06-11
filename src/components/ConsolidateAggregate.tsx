@@ -3,7 +3,6 @@ import {
 	computeConsolidations,
 	computeSelfConsolidations,
 } from '../hooks/useConsolidate';
-import { NetworkConfig } from '../constants/networks';
 import { Consolidation, ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
@@ -11,6 +10,8 @@ import { Withdrawal } from '../types/validators';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import WithdrawBatch from './WithdrawBatch';
 import { formatEther, parseEther } from 'viem';
+import Deposit from './Deposit';
+import { NetworkConfig } from '../types/network';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -127,6 +128,7 @@ export function ConsolidateAggregate({
 						Upgrade all
 					</button>
 				)}
+				<Deposit />
 			</div>
 			<div className="overflow-auto h-72">
 				<table className="table">
