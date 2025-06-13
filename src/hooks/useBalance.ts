@@ -11,7 +11,7 @@ function useBalance(contractConfig: NetworkConfig | undefined, address: `0x${str
   const { isSuccess: claimSuccess } = useWaitForTransactionReceipt({
     hash: claimHash,
   });
-  const { data: balance, queryKey } = useReadContract({
+  const { data: balance, refetch: refetchBalance } = useReadContract({
     abi: ERC677ABI,
     address: contractConfig?.tokenAddress,
     functionName: "balanceOf",
@@ -21,7 +21,7 @@ function useBalance(contractConfig: NetworkConfig | undefined, address: `0x${str
     },
   });
 
-  const { data: claimBalance, queryKey: claimQueryKey } = useReadContract({
+  const { data: claimBalance, refetch: refetchClaimBalance } = useReadContract({
     abi: depositABI,
     address: contractConfig?.depositAddress,
     functionName: "withdrawableAmount",
@@ -42,14 +42,6 @@ function useBalance(contractConfig: NetworkConfig | undefined, address: `0x${str
       args: [address || "0x0000000000000000000000000000000000000000"],
     });
   }, [address, contractConfig, writeContract]);
-
-  const refetchBalance = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey });
-  }, [queryClient, queryKey]);
-
-  const refetchClaimBalance = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: claimQueryKey });
-  }, [queryClient, claimQueryKey]);
   
   useEffect(() => {
     if (claimSuccess) {
