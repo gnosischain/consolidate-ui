@@ -70,7 +70,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         throw Error("Invalid withdrawal credential type.");
       }
 
-      if (!validDeposits.every((d) => d.withdrawal_credentials.startsWith(_credentialType))) {
+      if (!validDeposits.every((d) => d.withdrawal_credentials.startsWith(_credentialType.toString()))) {
         throw Error(`All validators in the file must have the same withdrawal credentials of type ${_credentialType}`);
       }
 
@@ -78,7 +78,8 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         throw Error(`Number of validators exceeds the maximum batch size of ${MAX_BATCH_DEPOSIT}. Please upload a file with ${MAX_BATCH_DEPOSIT} or fewer validators.`);
       }
 
-      if ((_credentialType === "00" || _credentialType === "01") && !validDeposits.every((d) => BigInt(d.amount) === BigInt(DEPOSIT_TOKEN_AMOUNT_OLD))) {
+      if ((!_credentialType || _credentialType === 1) && !validDeposits.every((d) => BigInt(d.amount) === BigInt(DEPOSIT_TOKEN_AMOUNT_OLD))) {
+        console.log(validDeposits.every((d) => BigInt(d.amount) === BigInt(DEPOSIT_TOKEN_AMOUNT_OLD)));
         throw Error("Amount should be exactly 32 tokens for deposits.");
       }
 
@@ -123,14 +124,14 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
 
   const deposit = useCallback(async () => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      const data = generateDepositData(deposits, credentialType === "01" || credentialType === "02");
+      const data = generateDepositData(deposits, credentialType === 1 || credentialType === 2);
       writeContract({
         address: contractConfig.tokenAddress,
         abi: ERC677ABI,
         functionName: "transferAndCall",
         args: [
           contractConfig.depositAddress,
-          credentialType === '02' || credentialType === "01" ? totalDepositAmountBN : depositAmountBN,
+          credentialType === 2 || credentialType === 1 ? totalDepositAmountBN : depositAmountBN,
           `0x${data}`,
         ],
       });

@@ -7,14 +7,14 @@ export enum FilterStatus {
     EXITED = "exited",
 }
 
-export type CredentialType = "00" | "01" | "02";
+export type CredentialType = 0 | 1 | 2;
 
 export interface ValidatorInfo {
     index: number;
     pubkey: Address;
     balanceEth: bigint;
     withdrawal_credentials: Address;
-    type: number;
+    type: CredentialType;
     status: ValidatorStatus;
     filterStatus: FilterStatus;
 }

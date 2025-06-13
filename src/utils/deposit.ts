@@ -23,13 +23,13 @@ export const generateDepositData = (deposits: DepositDataJson[], isBatch: boolea
 
 export const getCredentialType = (withdrawalCredential: string): CredentialType | undefined => {
   if (withdrawalCredential.startsWith("00")) {
-    return "00";
+    return 0;
   }
   if (withdrawalCredential.startsWith("01")) {
-    return "01";
+    return 1;
   }
   if (withdrawalCredential.startsWith("02")) {
-    return "02";
+    return 2;
   }
   return undefined;
 };
