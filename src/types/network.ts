@@ -16,4 +16,5 @@ export interface NetworkConfig {
 		maxBalance: number;
 		multiplier: number;
 	};
+	forkVersion: string;
 }

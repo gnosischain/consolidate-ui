@@ -7,6 +7,8 @@ export enum FilterStatus {
     EXITED = "exited",
 }
 
+export type CredentialType = "00" | "01" | "02";
+
 export interface ValidatorInfo {
     index: number;
     pubkey: Address;

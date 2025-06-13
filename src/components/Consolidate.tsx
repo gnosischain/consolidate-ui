@@ -3,15 +3,23 @@ import Loader from './Loader';
 import { ConsolidateInfo } from './ConsolidateInfo';
 import { ConsolidateAggregate } from './ConsolidateAggregate';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
-import { NetworkConfig } from '../constants/networks';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address } from 'viem';
 import { FilterStatus } from '../types/validators';
 import { useWithdraw } from '../hooks/useWithdraw';
+import { NetworkConfig } from '../types/network';
+import useDeposit from '../hooks/useDeposit';
 
 interface ConsolidateProps {
 	address: Address;
 	network: NetworkConfig;
+	balance: {
+		balance: bigint;
+		claimBalance: bigint;
+		refetchBalance: () => void;
+		refetchClaimBalance: () => void;
+		claim: () => void;
+	};
 }
 
 enum Steps {
@@ -20,10 +28,12 @@ enum Steps {
 	SUMMARY = 'summary',
 }
 
-export default function Consolidate({ network, address }: ConsolidateProps) {
+export default function Consolidate({ network, address, balance }: ConsolidateProps) {
 	const { consolidateValidators, callStatusData } = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
+
+	const { setDepositData } = useDeposit(network, address);
 	const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
 
 	const { validators, loading } = useBeaconValidators(network, address);
@@ -76,6 +86,8 @@ export default function Consolidate({ network, address }: ConsolidateProps) {
 						network={network}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
 						computeWithdrawals={computeWithdrawals}
+						balance={balance}
+						setDepositData={setDepositData}	
 					/>
 				);
 			case Steps.SUMMARY:

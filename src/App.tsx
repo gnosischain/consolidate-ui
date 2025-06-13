@@ -10,7 +10,7 @@ import { DisclaimerBanner } from './components/Disclaimer';
 
 function App() {
 	const { disconnect } = useDisconnect();
-	const { account, chainId, network, isWrongNetwork } = useContractConfig();
+	const { account, chainId, network, isWrongNetwork, balance } = useContractConfig();
 	if (account.isConnected && isWrongNetwork) {
 		return <WrongNetwork />;
 	}
@@ -60,8 +60,8 @@ function App() {
 			{/* Main content */}
 			<div className="flex h-full w-full items-center justify-center bg-base-100">
 				<div className="flex max-w-4xl w-full bg-slate-800 rounded-lg shadow-sm items-center justify-center p-8">
-					{account.isConnected && account.address && network && chainId ? (
-						<Consolidate network={network} address={account.address} />
+					{account.isConnected && account.address && network && chainId && balance ? (
+						<Consolidate network={network} address={account.address} balance={balance} />
 					) : (
 						<h1 className="text-xl font-bold">Please connect your wallet to continue</h1>
 					)}

@@ -12,6 +12,7 @@ import WithdrawBatch from './WithdrawBatch';
 import { formatEther, parseEther } from 'viem';
 import Deposit from './Deposit';
 import { NetworkConfig } from '../types/network';
+import { CredentialType } from '../types/validators';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -20,6 +21,14 @@ interface ConsolidateSelectProps {
 	network: NetworkConfig;
 	goToStep: () => void;
 	computeWithdrawals: (validators: ValidatorInfo[], amountToWithdraw: bigint, totalValidatorBalance: bigint, preventExit: boolean) => { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: bigint };
+	balance: {
+		balance: bigint;
+		claimBalance: bigint;
+		refetchBalance: () => void;
+		refetchClaimBalance: () => void;
+		claim: () => void;
+	};
+	setDepositData: (file: File) => Promise<CredentialType | undefined>;
 }
 
 export function ConsolidateAggregate({
@@ -28,6 +37,8 @@ export function ConsolidateAggregate({
 	withdrawalValidators,
 	computeWithdrawals,
 	network,
+	balance,
+	setDepositData,
 }: ConsolidateSelectProps) {
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
@@ -128,7 +139,7 @@ export function ConsolidateAggregate({
 						Upgrade all
 					</button>
 				)}
-				<Deposit />
+				{(network.chainId === 100 || network.chainId === 10200) && <Deposit balance={balance} setDepositData={setDepositData} />}
 			</div>
 			<div className="overflow-auto h-72">
 				<table className="table">

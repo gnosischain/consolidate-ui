@@ -25,6 +25,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 		clEndpoint: 'https://' + QUICKNODE_ENDPOINT + '.quiknode.pro/' + QUICKNODE_TOKEN,
 		chainId: mainnet.id,
 		cl: ETHEREUM_CL,
+		forkVersion: "0x00000000",
 	},
 	[sepolia.id]: {
 		explorerUrl: sepolia.blockExplorers.default.url,
@@ -34,6 +35,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 			'https://' + QUICKNODE_ENDPOINT + '.ethereum-sepolia.quiknode.pro/' + QUICKNODE_TOKEN,
 		chainId: sepolia.id,
 		cl: ETHEREUM_CL,
+		forkVersion: "0x90000069",
 	},
 	[gnosis.id]: {
 		explorerUrl: gnosis.blockExplorers.default.url,
@@ -46,6 +48,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 		clEndpoint: 'https://rpc-gbc.gnosischain.com',
 		beaconchainApi: 'https://gnosischa.in',
 		chainId: gnosis.id,
+		forkVersion: "00000064",
 		cl: GNOSIS_CL,
 	},
 	[gnosisChiado.id]: {
@@ -57,6 +60,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 		claimRegistryAddress: "0x28f1ba1f2Db9Aa0ca4b3B7cD9Ae327f6E872867D",
 		clEndpoint: 'https://rpc-gbc.chiadochain.net',
 		chainId: gnosisChiado.id,
+		forkVersion: "0000006f",
 		cl: GNOSIS_CL,
 	},
 };

@@ -1,15 +1,29 @@
 import { useMemo, useRef, useState } from "react";
-import { formatEther, parseEther } from "viem";
+import { formatEther } from "viem";
+import { CredentialType } from "../types/validators";
 
 
-interface DepositProps {}
-
-export default function Deposit({}: DepositProps) {
+interface DepositProps {
+  balance: {
+    balance: bigint;
+    claimBalance: bigint;
+    refetchBalance: () => void;
+    refetchClaimBalance: () => void;
+    claim: () => void;
+  };
+  setDepositData: (file: File) => Promise<CredentialType | undefined>;
+}
+export default function Deposit({ balance, setDepositData }: DepositProps) {
 
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [amount, setAmount] = useState(0);
-  const GNOBalance = 0n
+  const [file, setFile] = useState<File | null>(null);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setDepositData(file);
+    }
+  };
   // const { withdrawals, exits, withdrawalsAmount } = useMemo(() => computeWithdrawals(validators, parseEther(amount.toString()), totalBalance, preventExit), [validators, amount, totalBalance, preventExit]);
   return (
     <>
@@ -22,24 +36,15 @@ export default function Deposit({}: DepositProps) {
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Add new validator</h3>
-          <p className="text-sm text-gray-500">Balance: {formatEther(GNOBalance)} GNO</p>
-          <fieldset className="fieldset mt-2 w-full gap-y-2">
-            <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(Number(formatEther(GNOBalance)))}>Max</button></legend>
-            <input
-              type="number"
-              placeholder="Type here"
-              className="input input-primary input-sm w-full"
-              name="amount"
-              max={formatEther(GNOBalance)}
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
-
+          <p className="text-sm text-gray-500">Balance: {Number(formatEther(balance.balance)).toFixed(2)} GNO</p>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Upload deposit data file</legend>
+            <input type="file" className="file-input" onChange={handleFileChange} />
+            <label className="label">{file?.name}</label>
           </fieldset>
           <div className="mt-8 flex w-full justify-end">
-            <button className="btn btn-primary" disabled={amount === 0} onClick={() =>
-              console.log(amount)}>
-              {'Deposit ' + amount.toFixed(2) + ' GNO'}
+            <button className="btn btn-primary" disabled={0 === 0} onClick={() => { }}>
+              {'Deposit ' + 0 + ' GNO'}
             </button>
           </div>
         </div>
