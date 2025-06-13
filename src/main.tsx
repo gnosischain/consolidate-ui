@@ -11,10 +11,16 @@ import './index.css';
 
 const queryClient = new QueryClient();
 
+import { cacheExchange, dedupExchange, createClient, fetchExchange, Provider } from "urql";
+
+const graphqlUrl = import.meta.env.VITE_GRAPHQL_URL;
+if (!graphqlUrl)
+	throw new Error('Environment variable VITE_GRAPHQL_URL is not defined');
+
 const client = createClient({
-	url: import.meta.env.VITE_GRAPHQL_URL || "",
-	exchanges: [cacheExchange, fetchExchange],
-})
+	url: graphqlUrl,
+	exchanges: [dedupExchange, cacheExchange, fetchExchange],
+});
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<React.StrictMode>
