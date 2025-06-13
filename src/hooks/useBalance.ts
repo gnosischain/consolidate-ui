@@ -5,7 +5,7 @@ import { NetworkConfig } from "../types/network";
 import ERC677ABI from "../utils/abis/erc677";
 import depositABI from "../utils/abis/deposit";
 
-function useBalance(contractConfig: NetworkConfig, address: `0x${string}`) {
+function useBalance(contractConfig: NetworkConfig | undefined, address: `0x${string}` | undefined) {
   const queryClient = useQueryClient();
   const { data: claimHash, writeContract } = useWriteContract();
   const { isSuccess: claimSuccess } = useWaitForTransactionReceipt({
@@ -13,27 +13,33 @@ function useBalance(contractConfig: NetworkConfig, address: `0x${string}`) {
   });
   const { data: balance, queryKey } = useReadContract({
     abi: ERC677ABI,
-    address: contractConfig.tokenAddress,
+    address: contractConfig?.tokenAddress,
     functionName: "balanceOf",
-    args: [address],
+    args: [address || "0x0000000000000000000000000000000000000000"],
+    query: {
+      enabled: !!contractConfig?.tokenAddress && !!address,
+    },
   });
 
   const { data: claimBalance, queryKey: claimQueryKey } = useReadContract({
     abi: depositABI,
-    address: contractConfig.depositAddress,
+    address: contractConfig?.depositAddress,
     functionName: "withdrawableAmount",
-    args: [address],
+    args: [address || "0x0000000000000000000000000000000000000000"],
+    query: {
+      enabled: !!contractConfig?.depositAddress && !!address,
+    },
   });
 
   const claim = useCallback(async () => {
-    if (!contractConfig.depositAddress) {
-      throw new Error("Deposit address is not set for network " + contractConfig.chainId);
+    if (!contractConfig?.depositAddress) {
+      throw new Error("Deposit address is not set for network " + contractConfig?.chainId);
     }
     writeContract({
       address: contractConfig.depositAddress,
       abi: depositABI,
       functionName: "claimWithdrawal",
-      args: [address],
+      args: [address || "0x0000000000000000000000000000000000000000"],
     });
   }, [address, contractConfig, writeContract]);
 

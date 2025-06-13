@@ -7,7 +7,7 @@ const useContractConfig = () => {
 	const chainId = account?.chainId;
 	const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
 	const isWrongNetwork = !network;
-	const balance = network && account.address ? useBalance(network, account.address) : undefined;
+	const balance = useBalance(network, account.address);
 
 	return { chainId, account, network, isWrongNetwork, balance };
 };
