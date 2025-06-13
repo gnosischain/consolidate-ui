@@ -40,10 +40,18 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
       }
 
       const pubkeys = deposits.map((d) => `0x${d.pubkey}`);
-      const { data } = await client.query(GET_DEPOSIT_EVENTS, {
+      const { data, error } = await client.query(GET_DEPOSIT_EVENTS, {
         pubkeys: pubkeys,
         chainId: contractConfig.chainId,
       });
+      
+      if (error) {
+        throw Error(`Failed to fetch existing deposits: ${error.message}`);
+      }
+      
+      if (!data || !data.SBCDepositContract_DepositEvent) {
+        throw Error("Invalid response from deposit query");
+      }
 
       const existingDeposits = new Set(
         data.SBCDepositContract_DepositEvent.map((d: { pubkey: string }) => d.pubkey)
