@@ -1,12 +1,10 @@
 import { useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
 import { NetworkConfig } from "../types/network";
 import ERC677ABI from "../utils/abis/erc677";
 import depositABI from "../utils/abis/deposit";
 
 function useBalance(contractConfig: NetworkConfig | undefined, address: `0x${string}` | undefined) {
-  const queryClient = useQueryClient();
   const { data: claimHash, writeContract } = useWriteContract();
   const { isSuccess: claimSuccess } = useWaitForTransactionReceipt({
     hash: claimHash,
