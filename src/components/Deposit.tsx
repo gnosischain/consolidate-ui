@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { formatEther } from "viem";
 import { CredentialType } from "../types/validators";
 
@@ -21,6 +21,7 @@ export default function Deposit({ balance, setDepositData }: DepositProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setFile(file);
       setDepositData(file);
     }
   };
