@@ -28,7 +28,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const account = useAccount();
   const chainId = account?.chainId;
   const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
-  const isWrongNetwork = !network;
+  const isWrongNetwork = Boolean(account.isConnected && !network);
   const balance = useBalance(network, account.address);
 
   const value = {
