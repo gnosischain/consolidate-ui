@@ -4,6 +4,7 @@ import Consolidate from './components/Consolidate';
 import { DisclaimerBanner } from './components/Disclaimer';
 import { useWallet } from './context/WalletContext';
 import Navbar from './components/Navbar';
+import { Balance } from './components/Balance';
 
 function App() {	
 	const { account, chainId, network, isWrongNetwork, balance } = useWallet();
@@ -17,9 +18,12 @@ function App() {
 			<Navbar />
 			{/* Main content */}
 			<div className="flex h-full w-full items-center justify-center bg-base-100">
-				<div className="flex max-w-4xl w-full bg-slate-800 rounded-lg shadow-sm items-center justify-center p-8">
+				<div className="flex flex-col gap-y-4 max-w-4xl w-full bg-slate-800 rounded-lg shadow-sm p-8">
 					{account.isConnected && account.address && network && chainId && balance ? (
-						<Consolidate />
+						<>
+							<Balance />
+							<Consolidate />
+						</>
 					) : (
 						<h1 className="text-xl font-bold">Please connect your wallet to continue</h1>
 					)}
