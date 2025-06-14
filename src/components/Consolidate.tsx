@@ -7,7 +7,6 @@ import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address } from 'viem';
 import { FilterStatus } from '../types/validators';
 import { useWithdraw } from '../hooks/useWithdraw';
-import useDeposit from '../hooks/useDeposit';
 import { useWallet } from '../context/WalletContext';
 
 enum Steps {
@@ -17,7 +16,7 @@ enum Steps {
 }
 
 export default function Consolidate() {
-	const { account, network, balance } = useWallet();
+	const { account, network } = useWallet();
 	if (!network || !account.address) {
 		throw new Error('Network or account not found');
 	}
@@ -25,7 +24,6 @@ export default function Consolidate() {
 		network.consolidateAddress,
 	);
 
-	const { setDepositData } = useDeposit(network, account.address);
 	const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
 
 	const { validators, loading } = useBeaconValidators(network, account.address);
@@ -78,8 +76,6 @@ export default function Consolidate() {
 						network={network}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
 						computeWithdrawals={computeWithdrawals}
-						balance={balance}
-						setDepositData={setDepositData}	
 					/>
 				);
 			case Steps.SUMMARY:

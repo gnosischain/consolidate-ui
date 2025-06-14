@@ -1,23 +1,17 @@
 import { useRef, useState } from "react";
 import { formatEther } from "viem";
-import { CredentialType } from "../types/validators";
+import { useWallet } from "../context/WalletContext";
+import useDeposit from "../hooks/useDeposit";
 
-
-interface DepositProps {
-  balance: {
-    balance: bigint;
-    claimBalance: bigint;
-    refetchBalance: () => void;
-    refetchClaimBalance: () => void;
-    claim: () => void;
-  };
-  setDepositData: (file: File) => Promise<CredentialType | undefined>;
-}
-export default function Deposit({ balance, setDepositData }: DepositProps) {
+export default function Deposit() {
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [file, setFile] = useState<File | null>(null);
-
+  const { balance, network, account } = useWallet();
+  if (!network || !account.address) {
+    throw new Error('Network or account not found');
+  }
+	const { setDepositData } = useDeposit(network, account.address);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
