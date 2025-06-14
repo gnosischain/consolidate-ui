@@ -5,12 +5,13 @@ import { SelectWallet } from './components/SelectWallet';
 import { SelectNetwork } from './components/SelectNetwork';
 import { truncateAddress } from './utils/address';
 import Consolidate from './components/Consolidate';
-import useContractConfig from './hooks/useContractConfig';
 import { DisclaimerBanner } from './components/Disclaimer';
+import { useWallet } from './context/WalletContext';
 
 function App() {
 	const { disconnect } = useDisconnect();
-	const { account, chainId, network, isWrongNetwork, balance } = useContractConfig();
+	const { account, chainId, network, isWrongNetwork, balance } = useWallet();
+
 	if (account.isConnected && isWrongNetwork) {
 		return <WrongNetwork />;
 	}
@@ -61,7 +62,7 @@ function App() {
 			<div className="flex h-full w-full items-center justify-center bg-base-100">
 				<div className="flex max-w-4xl w-full bg-slate-800 rounded-lg shadow-sm items-center justify-center p-8">
 					{account.isConnected && account.address && network && chainId && balance ? (
-						<Consolidate network={network} address={account.address} balance={balance} />
+						<Consolidate />
 					) : (
 						<h1 className="text-xl font-bold">Please connect your wallet to continue</h1>
 					)}

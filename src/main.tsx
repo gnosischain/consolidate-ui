@@ -8,6 +8,7 @@ import App from './App.tsx';
 import { config } from './wagmi.ts';
 
 import './index.css';
+import { WalletProvider } from './context/WalletContext.tsx';
 
 const queryClient = new QueryClient();
 
@@ -26,7 +27,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 		<WagmiProvider config={config}>
 			<QueryClientProvider client={queryClient}>
 				<Provider value={client}>
-					<App />
+					<WalletProvider>
+						<App />
+					</WalletProvider>
 				</Provider>
 			</QueryClientProvider>
 		</WagmiProvider>

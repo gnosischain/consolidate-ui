@@ -7,20 +7,8 @@ import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address } from 'viem';
 import { FilterStatus } from '../types/validators';
 import { useWithdraw } from '../hooks/useWithdraw';
-import { NetworkConfig } from '../types/network';
 import useDeposit from '../hooks/useDeposit';
-
-interface ConsolidateProps {
-	address: Address;
-	network: NetworkConfig;
-	balance: {
-		balance: bigint;
-		claimBalance: bigint;
-		refetchBalance: () => void;
-		refetchClaimBalance: () => void;
-		claim: () => void;
-	};
-}
+import { useWallet } from '../context/WalletContext';
 
 enum Steps {
 	INFO = 'info',
@@ -28,15 +16,19 @@ enum Steps {
 	SUMMARY = 'summary',
 }
 
-export default function Consolidate({ network, address, balance }: ConsolidateProps) {
+export default function Consolidate() {
+	const { account, network, balance } = useWallet();
+	if (!network || !account.address) {
+		throw new Error('Network or account not found');
+	}
 	const { consolidateValidators, callStatusData } = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
 
-	const { setDepositData } = useDeposit(network, address);
+	const { setDepositData } = useDeposit(network, account.address);
 	const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
 
-	const { validators, loading } = useBeaconValidators(network, address);
+	const { validators, loading } = useBeaconValidators(network, account.address);
 
 	const [state, setState] = useState<{
 		step: Steps;
