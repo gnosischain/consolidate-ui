@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
-import { Address, encodePacked, parseEther, parseGwei } from 'viem';
+import { Address, encodePacked, formatUnits, parseEther } from 'viem';
 import { ValidatorInfo, Withdrawal } from '../types/validators';
 import { NetworkConfig } from '../constants/networks';
 
@@ -75,7 +75,7 @@ export function useWithdraw(network: NetworkConfig) {
 						["bytes", "uint64"],
 						[
 							pubkey,
-							parseGwei(amount.toString()),
+							BigInt(formatUnits(amount, 9)),
 						],
 					),
 					value: parseEther('0.000001'),
@@ -96,7 +96,7 @@ export function useWithdraw(network: NetworkConfig) {
 					["bytes", "uint64"],
 					[
 						pubkey,
-						parseGwei(amount.toString()),
+						BigInt(formatUnits(amount, 9)),
 					],
 				),
 				value: parseEther('0.000001'),
