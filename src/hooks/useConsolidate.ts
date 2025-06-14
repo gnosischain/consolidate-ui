@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
-import { Consolidation, ValidatorInfo } from '../types/validators';
+import { Consolidation, ValidatorInfo, CredentialType } from '../types/validators';
 
 interface ComputedConsolidation {
 	consolidations: Consolidation[];
@@ -19,8 +19,8 @@ export function computeConsolidations(
 	const targets = new Set<number>()
 
 	const remaining = [
-		...compounding.map((v) => ({ ...v, type: 2 })),
-		...type1.map((v) => ({ ...v, type: 1 })),
+		...compounding.map((v) => ({ ...v, type: 2 as CredentialType })),
+		...type1.map((v) => ({ ...v, type: 1 as CredentialType })),
 	]
 
 	while (remaining.length > 0) {

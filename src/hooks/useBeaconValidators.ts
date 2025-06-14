@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Address, parseGwei } from 'viem';
-import { NetworkConfig } from '../constants/networks';
 import { APIValidatorDetailsResponse, APIValidatorsResponse } from '../types/api';
 import { ValidatorIndex, ValidatorInfo } from '../types/validators';
 import { STATUS_TO_FILTER } from '../utils/status';
 import { BeaconChainResponse } from '../types/beacon';
+import { NetworkConfig } from '../types/network';
 
 const LIMIT = 200;
 
