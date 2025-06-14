@@ -11,7 +11,6 @@ import './index.css';
 
 const queryClient = new QueryClient();
 
-import { cacheExchange, dedupExchange, createClient, fetchExchange, Provider } from "urql";
 
 const graphqlUrl = import.meta.env.VITE_GRAPHQL_URL;
 if (!graphqlUrl)
@@ -19,7 +18,7 @@ if (!graphqlUrl)
 
 const client = createClient({
 	url: graphqlUrl,
-	exchanges: [dedupExchange, cacheExchange, fetchExchange],
+	exchanges: [cacheExchange, fetchExchange],
 });
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
