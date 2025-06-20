@@ -3,29 +3,27 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
 import { DepositDataJson } from "../types/deposit";
 import { CredentialType } from "../types/validators";
 import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
-import { DEPOSIT_TOKEN_AMOUNT_OLD, MAX_BATCH_DEPOSIT } from "../constants/constants";
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
-
-export const depositAmountBN = parseUnits("1", 18);
 
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
+  const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
   const { balance, refetchBalance } = useBalance(contractConfig, address);
   const { data: depositHash, error: contractError, writeContract } = useWriteContract();
   const { isSuccess: depositSuccess, error: txError } = useWaitForTransactionReceipt({
     hash: depositHash,
   });
   const client = useClient();
-
+  const [isApproved, setIsApproved] = useState(false);
   const validate = useCallback(
     async (deposits: DepositDataJson[], balance: bigint) => {
       let _credentialType: CredentialType | undefined;
@@ -44,11 +42,11 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         pubkeys: pubkeys,
         chainId: contractConfig.chainId,
       });
-      
+
       if (error) {
         throw Error(`Failed to fetch existing deposits: ${error.message}`);
       }
-      
+
       if (!data || !data.SBCDepositContract_DepositEvent) {
         throw Error("Invalid response from deposit query");
       }
@@ -82,23 +80,14 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         throw Error(`All validators in the file must have the same withdrawal credentials of type ${_credentialType}`);
       }
 
-      if (validDeposits.length > MAX_BATCH_DEPOSIT) {
-        throw Error(`Number of validators exceeds the maximum batch size of ${MAX_BATCH_DEPOSIT}. Please upload a file with ${MAX_BATCH_DEPOSIT} or fewer validators.`);
-      }
+      const _totalDepositAmount = validDeposits.reduce((acc, deposit) => acc + BigInt(deposit.amount), 0n);
 
-      if ((!_credentialType || _credentialType === 1) && !validDeposits.every((d) => BigInt(d.amount) === BigInt(DEPOSIT_TOKEN_AMOUNT_OLD))) {
-        console.log(validDeposits.every((d) => BigInt(d.amount) === BigInt(DEPOSIT_TOKEN_AMOUNT_OLD)));
-        throw Error("Amount should be exactly 32 tokens for deposits.");
-      }
-
-      const _totalDepositAmountBN = validDeposits.reduce((sum, d) => sum + BigInt(d.amount), BigInt(0)) * depositAmountBN / BigInt(DEPOSIT_TOKEN_AMOUNT_OLD);
-
-      if (balance < _totalDepositAmountBN) {
-        throw Error(`Unsufficient balance. ${Number(formatUnits(_totalDepositAmountBN, 18))} GNO is required.
+      if (balance < _totalDepositAmount) {
+        throw Error(`Unsufficient balance. ${Number(formatUnits(_totalDepositAmount, 9))} GNO is required.
       `);
       }
 
-      return { deposits: validDeposits, _credentialType, _totalDepositAmountBN };
+      return { deposits: validDeposits, _credentialType, _totalDepositAmount };
     },
     [contractConfig, client]
   );
@@ -117,13 +106,13 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         if (balance === undefined) {
           throw Error("Balance not loaded correctly.");
         }
-        const { deposits, _credentialType, _totalDepositAmountBN } = await validate(
+        const { deposits, _credentialType, _totalDepositAmount } = await validate(
           data,
           balance
         );
         setDeposits(deposits);
         setCredentialType(_credentialType);
-        return _credentialType;
+        setTotalDepositAmount(_totalDepositAmount);
       }
     },
     [validate, balance]
@@ -158,7 +147,8 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         abi: ERC677ABI,
         functionName: "approve",
         args: [contractConfig.depositAddress, amount],
-      });
+      }); 
+      setIsApproved(true);
     }
   }, [contractConfig, writeContract]);
 
@@ -174,9 +164,10 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
     contractError,
     txError,
     depositHash,
-    depositData: { deposits, credentialType },
+    depositData: { deposits, credentialType, totalDepositAmount },
     setDepositData,
     approve,
+    isApproved,
   };
 }
 

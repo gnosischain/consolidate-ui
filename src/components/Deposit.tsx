@@ -11,8 +11,7 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-	const { setDepositData, depositData, approve, deposit } = useDeposit(network, account.address);
-  const [isApproved, setIsApproved] = useState(false);
+	const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -20,8 +19,7 @@ export default function Deposit() {
       setDepositData(file);
     }
   };
-  const totalDepositAmount = depositData.deposits.reduce((acc, deposit) => acc + BigInt(deposit.amount), 0n);
-  // const { withdrawals, exits, withdrawalsAmount } = useMemo(() => computeWithdrawals(validators, parseEther(amount.toString()), totalBalance, preventExit), [validators, amount, totalBalance, preventExit]);
+
   return (
     <>
       <button
@@ -40,8 +38,8 @@ export default function Deposit() {
             <label className="label">{file?.name}</label>
           </fieldset>
           <div className="mt-8 flex w-full justify-end">
-            <button className="btn btn-primary" disabled={totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(parseGwei(totalDepositAmount.toString()) / 32n)}>
-              {'Deposit ' + formatGwei(totalDepositAmount / 32n) + ' GNO'}
+            <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(parseGwei(depositData.totalDepositAmount.toString()) / 32n)}>
+              {isApproved ? 'Deposit ' : 'Approve ' + formatGwei(depositData.totalDepositAmount / 32n) + ' GNO'}
             </button>
           </div>
         </div>
