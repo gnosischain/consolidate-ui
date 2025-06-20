@@ -3,7 +3,6 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import ERC677ABI from "../utils/abis/erc677";
 import { formatUnits, parseUnits } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
@@ -12,13 +11,14 @@ import { DepositDataJson } from "../types/deposit";
 import { CredentialType } from "../types/validators";
 import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
 import { DEPOSIT_TOKEN_AMOUNT_OLD, MAX_BATCH_DEPOSIT } from "../constants/constants";
+import DEPOSIT_ABI from "../utils/abis/deposit";
+import ERC677ABI from "../utils/abis/erc677";
 
 export const depositAmountBN = parseUnits("1", 18);
 
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
-  const [totalDepositAmountBN, setTotalDepositAmountBN] = useState(BigInt(0));
   const { balance, refetchBalance } = useBalance(contractConfig, address);
   const { data: depositHash, error: contractError, writeContract } = useWriteContract();
   const { isSuccess: depositSuccess, error: txError } = useWaitForTransactionReceipt({
@@ -78,7 +78,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         throw Error("Invalid withdrawal credential type.");
       }
 
-      if (!validDeposits.every((d) => d.withdrawal_credentials.startsWith(_credentialType.toString()))) {
+      if (!validDeposits.every((d) => getCredentialType(d.withdrawal_credentials) === _credentialType)) {
         throw Error(`All validators in the file must have the same withdrawal credentials of type ${_credentialType}`);
       }
 
@@ -123,7 +123,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         );
         setDeposits(deposits);
         setCredentialType(_credentialType);
-        setTotalDepositAmountBN(_totalDepositAmountBN);
         return _credentialType;
       }
     },
@@ -132,22 +131,36 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
 
   const deposit = useCallback(async () => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      const data = generateDepositData(deposits, credentialType === 1 || credentialType === 2);
+      const data = generateDepositData(deposits);
+      console.log(data);
       writeContract({
-        address: contractConfig.tokenAddress,
-        abi: ERC677ABI,
-        functionName: "transferAndCall",
+        address: contractConfig.depositAddress,
+        abi: DEPOSIT_ABI,
+        functionName: "batchDeposit",
         args: [
-          contractConfig.depositAddress,
-          credentialType === 2 || credentialType === 1 ? totalDepositAmountBN : depositAmountBN,
-          `0x${data}`,
+          data.pubkeys,
+          data.withdrawal_credentials,
+          data.signatures,
+          data.deposit_data_roots,
+          data.amounts,
         ],
       });
 
       // should move refetchBalance to onDeposit function ?
       refetchBalance();
     }
-  }, [contractConfig, credentialType, deposits, refetchBalance, totalDepositAmountBN, writeContract]);
+  }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
+
+  const approve = useCallback(async (amount: bigint) => {
+    if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
+      writeContract({
+        address: contractConfig.tokenAddress,
+        abi: ERC677ABI,
+        functionName: "approve",
+        args: [contractConfig.depositAddress, amount],
+      });
+    }
+  }, [contractConfig, writeContract]);
 
   useEffect(() => {
     if (depositSuccess) {
@@ -161,8 +174,9 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
     contractError,
     txError,
     depositHash,
-    depositData: { deposits, credentialType, totalDepositAmountBN },
+    depositData: { deposits, credentialType },
     setDepositData,
+    approve,
   };
 }
 

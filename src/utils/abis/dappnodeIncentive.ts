@@ -1,4 +1,4 @@
-const dappnodeIncentiveABI = [
+const DAPPNODE_INCENTIVE_ABI = [
   {
     inputs: [
       {
@@ -264,4 +264,4 @@ const dappnodeIncentiveABI = [
   },
 ];
 
-export default dappnodeIncentiveABI;
+export default DAPPNODE_INCENTIVE_ABI;

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { formatEther } from "viem";
+import { formatEther, formatGwei, parseGwei } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 
@@ -11,7 +11,8 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-	const { setDepositData } = useDeposit(network, account.address);
+	const { setDepositData, depositData, approve, deposit } = useDeposit(network, account.address);
+  const [isApproved, setIsApproved] = useState(false);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -19,6 +20,7 @@ export default function Deposit() {
       setDepositData(file);
     }
   };
+  const totalDepositAmount = depositData.deposits.reduce((acc, deposit) => acc + BigInt(deposit.amount), 0n);
   // const { withdrawals, exits, withdrawalsAmount } = useMemo(() => computeWithdrawals(validators, parseEther(amount.toString()), totalBalance, preventExit), [validators, amount, totalBalance, preventExit]);
   return (
     <>
@@ -38,8 +40,8 @@ export default function Deposit() {
             <label className="label">{file?.name}</label>
           </fieldset>
           <div className="mt-8 flex w-full justify-end">
-            <button className="btn btn-primary" disabled={0 === 0} onClick={() => { }}>
-              {'Deposit ' + 0 + ' GNO'}
+            <button className="btn btn-primary" disabled={totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(parseGwei(totalDepositAmount.toString()) / 32n)}>
+              {'Deposit ' + formatGwei(totalDepositAmount / 32n) + ' GNO'}
             </button>
           </div>
         </div>

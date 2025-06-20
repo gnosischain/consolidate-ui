@@ -1,27 +1,26 @@
-import { DepositDataJson } from "../types/deposit";
+import { parseGwei } from "viem";
+import { BatchDepositData, DepositDataJson } from "../types/deposit";
 import { CredentialType } from "../types/validators";
 
-export const generateDepositData = (deposits: DepositDataJson[], isBatch: boolean): string => {
-  let data = "";
-  if (isBatch) {
-    data += deposits[0].withdrawal_credentials;
-    deposits.forEach((deposit) => {
-      data += deposit.pubkey;
-      data += deposit.signature;
-      data += deposit.deposit_data_root;
-    });
-  } else {
-    deposits.forEach((deposit) => {
-      data += deposit.withdrawal_credentials;
-      data += deposit.pubkey;
-      data += deposit.signature;
-      data += deposit.deposit_data_root;
-    });
-  }
-  return data;
+export const generateDepositData = (deposits: DepositDataJson[]): BatchDepositData => {
+  console.log(deposits);
+  const pubkeys = `0x${deposits.map(d => d.pubkey).join("")}` as `0x${string}`;
+  const withdrawal_credentials = `0x${deposits[0].withdrawal_credentials}` as `0x${string}`;
+  const signatures = `0x${deposits.map(d => d.signature).join("")}` as `0x${string}`;
+  const deposit_data_roots = deposits.map(d => `0x${d.deposit_data_root}` as `0x${string}`);
+  const amounts = deposits.map(d => parseGwei(d.amount.toString()) / 32n);
+
+  return {
+    pubkeys,
+    withdrawal_credentials,
+    signatures,
+    deposit_data_roots,
+    amounts
+  };
 };
 
 export const getCredentialType = (withdrawalCredential: string): CredentialType | undefined => {
+  
   if (withdrawalCredential.startsWith("00")) {
     return 0;
   }

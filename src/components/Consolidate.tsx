@@ -33,7 +33,7 @@ export default function Consolidate() {
 		loading: boolean;
 		tx: Address;
 	}>({
-		step: Steps.INFO,
+		step: Steps.SELECT,
 		loading: false,
 		tx: '0x0',
 	});
