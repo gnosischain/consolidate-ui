@@ -43,7 +43,7 @@ export default function Withdraw({ validator, withdrawalValidators }: WithdrawPr
               withdrawalValidators([
                 {
                   pubkey: validator.pubkey,
-                  amount: parseEther(amount.toString()),
+                  amount: parseEther(amount === Number(formatEther(validator.balanceEth)) ? '0' : amount.toString()), // an exit is triggered by setting amount to 0
                 },
               ])}>
               {amount === Number(formatEther(validator.balanceEth)) ? 'Exit validator'  : 'Withdraw ' + amount + ' GNO'}
