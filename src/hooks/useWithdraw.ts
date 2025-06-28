@@ -46,7 +46,7 @@ export function useWithdraw(network: NetworkConfig) {
 				}
 
 				if (rawAmount > 0) {
-					withdrawals.push({ pubkey: v.pubkey, amount: rawAmount });
+					withdrawals.push({ pubkey: v.pubkey, amount: !preventExit && rawAmount === v.balanceEth ? 0n : rawAmount }); // an exit is triggered by setting amount to 0
 
 					if (!preventExit && rawAmount === v.balanceEth) {
 						exits.push(v);
