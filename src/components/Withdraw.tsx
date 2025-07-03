@@ -11,7 +11,7 @@ interface WithdrawProps {
 export default function Withdraw({ validator, withdrawalValidators }: WithdrawProps) {
 
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState(0n);
 
   return (
     <>
@@ -26,15 +26,15 @@ export default function Withdraw({ validator, withdrawalValidators }: WithdrawPr
           <h3 className="text-lg font-bold">Validator {validator.index}</h3>
           <p className="text-sm text-gray-500">Balance: {formatEther(validator.balanceEth)} GNO</p>
           <fieldset className="fieldset mt-2 w-full gap-y-2">
-            <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(Number(formatEther(validator.balanceEth)))}>Max</button></legend>
+            <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(validator.balanceEth)}>Max</button></legend>
             <input
               type="number"
               placeholder="Type here"
               className="input input-primary input-sm w-full"
               name="amount"
               max={formatEther(validator.balanceEth)}
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              value={formatEther(amount)}
+              onChange={(e) => setAmount(parseEther(e.target.value))}
             />
 
           </fieldset>
@@ -43,10 +43,10 @@ export default function Withdraw({ validator, withdrawalValidators }: WithdrawPr
               withdrawalValidators([
                 {
                   pubkey: validator.pubkey,
-                  amount: parseEther(amount.toString()),
+                  amount: amount,
                 },
               ])}>
-              {amount === Number(formatEther(validator.balanceEth)) ? 'Exit validator'  : 'Withdraw ' + amount + ' GNO'}
+              {amount === validator.balanceEth ? 'Exit validator'  : 'Withdraw ' + amount + ' GNO'}
             </button>
           </div>
         </div>
