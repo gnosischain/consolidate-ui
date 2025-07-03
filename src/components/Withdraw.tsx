@@ -43,7 +43,7 @@ export default function Withdraw({ validator, withdrawalValidators }: WithdrawPr
               withdrawalValidators([
                 {
                   pubkey: validator.pubkey,
-                  amount: amount,
+                  amount: amount === validator.balanceEth ? 0n : amount,
                 },
               ])}>
               {amount === validator.balanceEth ? 'Exit validator'  : 'Withdraw ' + amount + ' GNO'}
