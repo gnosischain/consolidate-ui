@@ -26,7 +26,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const [isApproved, setIsApproved] = useState(false);
   const validate = useCallback(
     async (deposits: DepositDataJson[], balance: bigint) => {
-      let _credentialType: CredentialType | undefined;
 
       const isValidJson = deposits.every((d) =>
         ["pubkey", "withdrawal_credentials", "amount", "signature", "deposit_message_root", "deposit_data_root", "fork_version"].every((key) => key in d)
@@ -70,14 +69,11 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         throw Error("Duplicated public keys detected in the deposit file.");
       }
 
-      _credentialType = getCredentialType(deposits[0].withdrawal_credentials);
-      if (!_credentialType) {
-        console.log(deposits[0].withdrawal_credentials);
-        throw Error("Invalid withdrawal credential type.");
-      }
+      const credentials = deposits[0].withdrawal_credentials;
+      const credentialType = getCredentialType(credentials);
 
-      if (!validDeposits.every((d) => getCredentialType(d.withdrawal_credentials) === _credentialType)) {
-        throw Error(`All validators in the file must have the same withdrawal credentials of type ${_credentialType}`);
+      if(!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
+        throw Error("All validators in the file must have the same withdrawal credentials.");
       }
 
       const _totalDepositAmount = validDeposits.reduce((acc, deposit) => acc + BigInt(deposit.amount), 0n);
@@ -87,7 +83,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
       `);
       }
 
-      return { deposits: validDeposits, _credentialType, _totalDepositAmount };
+      return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
     [contractConfig, client]
   );
@@ -106,12 +102,12 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         if (balance === undefined) {
           throw Error("Balance not loaded correctly.");
         }
-        const { deposits, _credentialType, _totalDepositAmount } = await validate(
+        const { deposits, credentialType, _totalDepositAmount } = await validate(
           data,
           balance
         );
         setDeposits(deposits);
-        setCredentialType(_credentialType);
+        setCredentialType(credentialType);
         setTotalDepositAmount(_totalDepositAmount);
       }
     },
