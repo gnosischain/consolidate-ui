@@ -25,7 +25,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 		clEndpoint: 'https://' + QUICKNODE_ENDPOINT + '.quiknode.pro/' + QUICKNODE_TOKEN,
 		chainId: mainnet.id,
 		cl: ETHEREUM_CL,
-		forkVersion: "0x00000000",
+		forkVersion: "00000000",
 	},
 	[sepolia.id]: {
 		explorerUrl: sepolia.blockExplorers.default.url,
@@ -35,7 +35,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 			'https://' + QUICKNODE_ENDPOINT + '.ethereum-sepolia.quiknode.pro/' + QUICKNODE_TOKEN,
 		chainId: sepolia.id,
 		cl: ETHEREUM_CL,
-		forkVersion: "0x90000069",
+		forkVersion: "90000069",
 	},
 	[gnosis.id]: {
 		explorerUrl: gnosis.blockExplorers.default.url,
