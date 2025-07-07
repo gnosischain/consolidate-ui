@@ -20,7 +20,7 @@ export function Balance() {
           <p className='text-2xl font-bold'>
             {Number(formatEther(balance.claimBalance)).toFixed(2)}
           </p>
-          <button className="btn btn-primary btn-xs" onClick={balance.claim}>Claim</button>
+          <button className="btn btn-primary btn-xs" onClick={balance.claim} disabled={balance.claimBalance === 0n}>Claim</button>
         </div>
       </div>
     </div>
