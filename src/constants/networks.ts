@@ -56,7 +56,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
 		withdrawalAddress: '0x00000961Ef480Eb55e80D19ad83579A64c007002',		
 		tokenAddress: "0x19C653Da7c37c66208fbfbE8908A5051B57b4C70",
-		depositAddress: "0x49dE1aced385334F1a66d86Db363264eB5b6A708",
+		depositAddress: "0xb97036A26259B7147018913bD58a774cf91acf25",
 		claimRegistryAddress: "0x28f1ba1f2Db9Aa0ca4b3B7cD9Ae327f6E872867D",
 		clEndpoint: 'https://rpc-gbc.chiadochain.net',
 		chainId: gnosisChiado.id,
