@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Address, parseGwei } from 'viem';
-import { NetworkConfig } from '../constants/networks';
 import { APIValidatorDetailsResponse, APIValidatorsResponse } from '../types/api';
 import { ValidatorIndex, ValidatorInfo } from '../types/validators';
 import { STATUS_TO_FILTER } from '../utils/status';
 import { BeaconChainResponse } from '../types/beacon';
+import { NetworkConfig } from '../types/network';
 
 const LIMIT = 200;
 
@@ -47,7 +47,7 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 						return ({
 							index: Number(v.index),
 							pubkey: v.validator.pubkey,
-							balanceEth: parseGwei(v.validator.effective_balance.toString()) / BigInt(network.cl.multiplier),
+							balanceEth: parseGwei(v.validator.effective_balance.toString()) / network.cl.multiplier,
 							withdrawal_credentials: address,
 							type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
 							filterStatus: filterStatus,
@@ -147,7 +147,7 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 		return {
 			index: d.validatorindex,
 			pubkey: d.pubkey as Address,
-			balanceEth: parseGwei(d.effectivebalance.toString()) / BigInt(network.cl.multiplier),
+			balanceEth: parseGwei(d.effectivebalance.toString()) / network.cl.multiplier,
 			withdrawal_credentials: address,
 			type: creds.startsWith('0x02') ? 2 : 1,
 			filterStatus: filterStatus,

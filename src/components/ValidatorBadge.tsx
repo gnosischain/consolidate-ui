@@ -1,9 +1,10 @@
-import { ValidatorStatus } from '../types/api';
+import { ValidatorStatus } from '../types/beacon';
 import { FilterStatus } from '../types/validators';
 
 const STATUS_TO_BADGE: Record<ValidatorStatus, [string, string]> = {
 	pending_initialized: ['info', 'Pending Initialized'],
 	pending_queued: ['info', 'Pending Queued'],
+	deposited: ['info', 'Deposited'],
 	active_ongoing: ['info', 'Active Ongoing'],
 	active_online: ['success', 'Active Online'],
 	active_slashed: ['error', 'Active Slashed'],

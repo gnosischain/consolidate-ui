@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, encodePacked, formatUnits, parseEther } from 'viem';
 import { ValidatorInfo, Withdrawal } from '../types/validators';
-import { NetworkConfig } from '../constants/networks';
+import { NetworkConfig } from '../types/network';
 
 export function useWithdraw(network: NetworkConfig) {
 	const { data: hash, sendCalls, status } = useSendCalls();
@@ -41,9 +41,9 @@ export function useWithdraw(network: NetworkConfig) {
 				if (!preventExit) {
 					const leftover = v.balanceEth - rawAmount;
 					if (leftover > 0 && leftover < parseEther(network.cl.minBalance.toString())) {
-					  rawAmount = v.balanceEth;
+						rawAmount = v.balanceEth;
 					}
-				  }
+				}
 
 				if (rawAmount > 0) {
 					withdrawals.push({ pubkey: v.pubkey, amount: !preventExit && rawAmount === v.balanceEth ? 0n : rawAmount }); // an exit is triggered by setting amount to 0
