@@ -1,5 +1,23 @@
 import { Address } from "viem";
-import { ValidatorStatus } from "./api";
+
+export const VALIDATOR_STATUS = [
+    'pending_initialized',
+    'pending_queued',
+    'deposited',
+    'active_ongoing',
+    'active_online',
+    'active_offline',
+    'active_exiting',
+    'active_slashed',
+    'exited_unslashed',
+    'exited',
+    'exited_slashed',
+    'withdrawal_possible',
+    'withdrawal_done',
+] as const
+
+export type ValidatorStatus =
+    typeof VALIDATOR_STATUS[number]
 
 export interface BeaconChainResponse {
     balance: number;

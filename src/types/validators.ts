@@ -1,5 +1,5 @@
 import { Address } from "viem";
-import { ValidatorStatus } from "./api";
+import { ValidatorStatus } from "./beacon";
 
 export enum FilterStatus {
     ACTIVE = "active",
