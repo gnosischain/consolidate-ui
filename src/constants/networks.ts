@@ -7,13 +7,13 @@ const QUICKNODE_TOKEN = import.meta.env.VITE_QUICKNODE_TOKEN;
 const GNOSIS_CL = {
 	minBalance: 1,
 	maxBalance: 64,
-	multiplier: 32,
+	multiplier: 32n,
 };
 
 const ETHEREUM_CL = {
 	minBalance: 32,
 	maxBalance: 2048,
-	multiplier: 1,
+	multiplier: 1n,
 };
 
 export const NETWORK_CONFIG: Record<number, NetworkConfig> = {

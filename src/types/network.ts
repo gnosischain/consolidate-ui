@@ -14,7 +14,7 @@ export interface NetworkConfig {
 	cl: {
 		minBalance: number;
 		maxBalance: number;
-		multiplier: number;
+		multiplier: bigint;
 	};
 	forkVersion: string;
 }

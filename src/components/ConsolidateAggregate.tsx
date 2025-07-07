@@ -152,7 +152,7 @@ export function ConsolidateAggregate({
 								}}
 								withdrawalValidators={async (withdrawal) => {
 									withdrawal.forEach((w) => {
-										w.amount = w.amount * BigInt(network.cl.multiplier);
+										w.amount = w.amount * network.cl.multiplier;
 									});
 									await withdrawalValidators(withdrawal);
 								}}
