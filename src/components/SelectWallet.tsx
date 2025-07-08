@@ -1,10 +1,17 @@
-import { useRef } from 'react';
+'use client';
+
+import { useRef, useEffect, useState } from 'react';
 import { gnosis } from 'viem/chains';
 import { Connector, useConnect } from 'wagmi';
 
 export function SelectWallet() {
+	const [isMounted, setIsMounted] = useState(false);
 	const { connectors, connect } = useConnect();
 	const dialogRef = useRef<HTMLDialogElement>(null);
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
 	const uniqueConnectors = connectors.reduce<Connector[]>((acc, connector) => {
 		const names = acc.map((c) => c.name);
@@ -28,7 +35,7 @@ export function SelectWallet() {
 						We recommand to use a wallet supporting batch transaction before proceeding.
 					</p>
 					<div className="list gap-y-2">
-						{uniqueConnectors.map((connector) => {
+						{isMounted ? uniqueConnectors.map((connector) => {
 							return (
 								<button
 									className="list-row flex w-full justify-between items-center text-white btn"
@@ -48,7 +55,12 @@ export function SelectWallet() {
 									) : null}
 								</button>
 							);
-						})}
+						}) : (
+							<div className="flex justify-center p-4">
+								<div className="loading loading-spinner loading-sm"></div>
+								<span className="ml-2">Loading wallets...</span>
+							</div>
+						)}
 					</div>
 				</div>
 				<form method="dialog" className="modal-backdrop">

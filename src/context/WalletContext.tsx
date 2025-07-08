@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { NETWORK_CONFIG } from '../constants/networks';
 import useBalance from '../hooks/useBalance';
@@ -20,23 +20,33 @@ interface WalletContextType {
     refetchClaimBalance: () => void;
     claim: () => void;
   };
+  isMounted: boolean;
 }
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
+  const [isMounted, setIsMounted] = useState(false);
   const account = useAccount();
   const chainId = account?.chainId;
   const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
   const isWrongNetwork = Boolean(account.isConnected && !network);
   const balance = useBalance(network, account.address);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const value = {
-    account,
+    account: {
+      isConnected: isMounted && account.isConnected,
+      address: account.address,
+    },
     chainId,
     network,
-    isWrongNetwork,
+    isWrongNetwork: isMounted && isWrongNetwork,
     balance,
+    isMounted,
   };
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;

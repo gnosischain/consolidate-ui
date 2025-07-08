@@ -95,9 +95,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         try {
           data = JSON.parse(await file.text());
         } catch (error) {
-          throw Error(
-            "Oops, something went wrong while parsing your json file. Please check the file and try again."
-          );
+          throw new Error(`Oops, something went wrong while parsing your json file. Please check the file and try again. ${error}`);
         }
         if (balance === undefined) {
           throw Error("Balance not loaded correctly.");
