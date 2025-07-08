@@ -1,10 +1,11 @@
-import './App.css';
-import { WrongNetwork } from './components/WrongNetwork';
-import Consolidate from './components/Consolidate';
-import { DisclaimerBanner } from './components/Disclaimer';
-import { useWallet } from './context/WalletContext';
-import Navbar from './components/Navbar';
-import { Balance } from './components/Balance';
+'use client';
+
+import { WrongNetwork } from '../components/WrongNetwork';
+import Consolidate from '../components/Consolidate';
+import { DisclaimerBanner } from '../components/Disclaimer';
+import { useWallet } from '../context/WalletContext';
+import Navbar from '../components/Navbar';
+import { Balance } from '../components/Balance';
 
 function App() {	
 	const { account, chainId, network, isWrongNetwork, balance } = useWallet();
