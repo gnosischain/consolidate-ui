@@ -1,4 +1,5 @@
 import { ValidatorStatus } from "./beacon";
+import { FilterStatus } from "./validators";
 
 // API Response types (for JSON serialization)
 export interface APIValidatorInfo {
@@ -8,5 +9,5 @@ export interface APIValidatorInfo {
     withdrawal_credentials: string;
     type: number;
     status: ValidatorStatus;
-    filterStatus: string;
+    filterStatus: FilterStatus;
 }

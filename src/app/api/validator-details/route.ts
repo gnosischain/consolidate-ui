@@ -19,20 +19,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'BeaconchainApiUrl parameter is required' }, { status: 400 });
     }
 
-    // Get API key from environment variables
     const apiKey = process.env.BEACONCHAIN_API_KEY;
     
     const url = `${beaconchainApiUrl}/api/v1/validator/${pubkeys}`;
 
-    // Add API key to headers if available
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
     
     if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
-      // Some APIs use different header formats, adjust as needed:
-      // headers['X-API-Key'] = apiKey;
+      headers['apikey'] = apiKey;
     }
 
     const resp = await fetch(url, { headers });
@@ -62,7 +58,7 @@ export async function GET(request: NextRequest) {
         balanceEth: (parseGwei(d.effectivebalance.toString()) / multiplier).toString(),
         withdrawal_credentials: address,
         type: creds.startsWith('0x02') ? 2 : 1,
-        filterStatus: filterStatus as any,
+        filterStatus: filterStatus,
         status: d.status,
       };
     });

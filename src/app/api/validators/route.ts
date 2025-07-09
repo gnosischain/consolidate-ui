@@ -18,22 +18,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'BeaconchainApiUrl parameter is required' }, { status: 400 });
     }
 
-    // Get API key from environment variables
     const apiKey = process.env.BEACONCHAIN_API_KEY;
     
     const url = new URL(`/api/v1/validator/withdrawalCredentials/${address}`, beaconchainApiUrl);
     url.searchParams.set('limit', String(LIMIT));
     url.searchParams.set('offset', String(offset));
 
-    // Add API key to headers if available
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
     
     if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
-      // Some APIs use different header formats, adjust as needed:
-      // headers['X-API-Key'] = apiKey;
+      headers['apikey'] = apiKey;
     }
 
     const resp = await fetch(url.toString(), { headers });

@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
           balanceEth: (parseGwei(v.validator.effective_balance.toString()) / multiplier).toString(),
           withdrawal_credentials: address,
           type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
-          filterStatus: filterStatus as any,
+          filterStatus: filterStatus,
           status: v.status,
         };
       });
