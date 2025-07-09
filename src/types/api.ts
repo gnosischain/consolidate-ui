@@ -1,24 +1,12 @@
 import { ValidatorStatus } from "./beacon";
 
-export interface APIValidatorDetailsResponse {
-    activationeligibilityepoch: number;
-    activationepoch: number;
-    balance: number;
-    // in gwei
-    effectivebalance: number;
-    exitepoch: number;
-    lastattestationslot: number;
-    name: string;
+// API Response types (for JSON serialization)
+export interface APIValidatorInfo {
+    index: number;
     pubkey: string;
-    slashed: boolean;
+    balanceEth: string; // String for JSON serialization
+    withdrawal_credentials: string;
+    type: number;
     status: ValidatorStatus;
-    total_withdrawals: number;
-    validatorindex: number;
-    withdrawalepoch: number;
-    withdrawalcredentials: string;
-}
-
-export interface APIValidatorsResponse {
-    publickey: string;
-    validatorindex: number;
+    filterStatus: string;
 }
