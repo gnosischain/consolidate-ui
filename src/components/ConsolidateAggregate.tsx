@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import {
 	computeConsolidations,
 	computeSelfConsolidations,
+	useConsolidateValidatorsBatch,
 } from '../hooks/useConsolidate';
-import { Consolidation, ValidatorInfo } from '../types/validators';
+import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
-import { Withdrawal } from '../types/validators';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import WithdrawBatch from './WithdrawBatch';
 import { formatEther, parseEther } from 'viem';
@@ -15,20 +15,15 @@ import { NetworkConfig } from '../types/network';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
-	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
-	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
 	network: NetworkConfig;
 	goToStep: () => void;
-	computeWithdrawals: (validators: ValidatorInfo[], amountToWithdraw: bigint, totalValidatorBalance: bigint, preventExit: boolean) => { withdrawals: Withdrawal[], exits: ValidatorInfo[], withdrawalsAmount: bigint };
 }
 
 export function ConsolidateAggregate({
 	validators,
-	consolidateValidators,
-	withdrawalValidators,
-	computeWithdrawals,
 	network,
 }: ConsolidateSelectProps) {
+	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
@@ -90,7 +85,7 @@ export function ConsolidateAggregate({
 			<p className="font-bold">Your validators</p>
 			<div className="flex items-center  w-full">
 				<p className="text-sm text-gray-500 mr-2">Balance: {formatEther(totalBalance)} GNO</p>
-				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} withdrawalValidators={withdrawalValidators} computeWithdrawals={computeWithdrawals} />
+				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} />
 			</div>
 
 			{/* FILTER */}
@@ -147,15 +142,6 @@ export function ConsolidateAggregate({
 							<ValidatorItem
 								key={v.index}
 								validator={v}
-								consolidateValidators={async (consolidations) => {
-									await consolidateValidators(consolidations);
-								}}
-								withdrawalValidators={async (withdrawal) => {
-									withdrawal.forEach((w) => {
-										w.amount = w.amount * network.cl.multiplier;
-									});
-									await withdrawalValidators(withdrawal);
-								}}
 							/>
 						))}
 					</tbody>
@@ -194,7 +180,7 @@ export function ConsolidateAggregate({
 						</div>
 					)}
 				</div>
-				<ConsolidationSummary consolidations={consolidations} consolidateValidators={consolidateValidators} />
+				<ConsolidationSummary consolidations={consolidations} />
 			</div>
 		</div>
 	);
