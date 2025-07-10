@@ -28,8 +28,8 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Partial deposit {validator?.index}</h3>
-          <p className="text-sm text-gray-500">Pubkey: {validator?.pubkey}</p>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(balance.balance)).toFixed(2)} GNO</p>
+          <p className="text-xs text-gray-500">Pubkey: {validator?.pubkey}</p>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Upload deposit data file</legend>
             <input type="file" className="file-input" onChange={handleFileChange} />

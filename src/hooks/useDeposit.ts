@@ -64,18 +64,16 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       let validDeposits: DepositDataJson[];
 
       if (isPartialDeposit) {
-        // For partial deposits, we need the validator to already exist
-        const hasExistingDeposit = existingDeposits.has(deposits[0].pubkey);
-        if (pubkey && pubkey !== deposits[0].pubkey) {
-          throw Error(`Validator ${pubkey} does not match the one in the file.`);
+        const hasExistingDeposit = existingDeposits.has('0x' + deposits[0].pubkey);
+        if (pubkey && pubkey.replace(/^0x/, '') !== deposits[0].pubkey) {
+          throw Error(`Validator ${pubkey.replace(/^0x/, '')} does not match ${deposits[0].pubkey}.`);
         }
         if (!hasExistingDeposit) {
           throw Error("Cannot make partial deposit: No existing deposit found for this validator. Use regular deposit for new validators.");
         }
-        validDeposits = deposits; // All deposits are valid for partial deposits if they exist
+        validDeposits = deposits;
       } else {
-        // For regular deposits, filter out validators that already exist
-        validDeposits = deposits.filter((d) => !existingDeposits.has(d.pubkey));
+        validDeposits = deposits.filter((d) => !existingDeposits.has('0x' + d.pubkey));
 
         if (validDeposits.length === 0) throw Error("Deposits have already been made to all validators in this file.");
 
