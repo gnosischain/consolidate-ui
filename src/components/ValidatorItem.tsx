@@ -38,9 +38,7 @@ export function ValidatorItem({
 						</button>
 						{showActions && (
 							<>
-								<div className="tooltip" data-tip="Deposit">
-									<PartialDeposit validator={validator} />
-								</div>
+
 								{validator.type === 1 && (
 									<div className="tooltip" data-tip="Upgrade">
 										<button
@@ -53,9 +51,14 @@ export function ValidatorItem({
 								)}
 
 								{validator.type === 2 && (
-									<div className="tooltip" data-tip="Withdraw">
-										<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
-									</div>
+									<>
+										<div className="tooltip" data-tip="Deposit">
+											<PartialDeposit validator={validator} />
+										</div>
+										<div className="tooltip" data-tip="Withdraw">
+											<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
+										</div>
+									</>
 								)}
 							</>
 						)} </div>)}
