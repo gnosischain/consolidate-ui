@@ -13,7 +13,7 @@ import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../u
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
 
-function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
+function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false, pubkey?: string) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
   const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
@@ -36,6 +36,13 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         throw Error(`File is for the wrong network. Expected: ${contractConfig.chainId}`);
       }
 
+      // Partial deposit specific validation
+      if (isPartialDeposit) {
+        if (deposits.length !== 1) {
+          throw Error("Partial deposit files must contain exactly one validator.");
+        }
+      }
+
       const pubkeys = deposits.map((d) => `0x${d.pubkey}`);
       const { data, error } = await client.query(GET_DEPOSIT_EVENTS, {
         pubkeys: pubkeys,
@@ -54,14 +61,29 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         data.SBCDepositContract_DepositEvent.map((d: { pubkey: string }) => d.pubkey)
       );
 
-      const validDeposits = deposits.filter((d) => !existingDeposits.has(d.pubkey));
+      let validDeposits: DepositDataJson[];
 
-      if (validDeposits.length === 0) throw Error("Deposits have already been made to all validators in this file.");
+      if (isPartialDeposit) {
+        // For partial deposits, we need the validator to already exist
+        const hasExistingDeposit = existingDeposits.has(deposits[0].pubkey);
+        if (pubkey && pubkey !== deposits[0].pubkey) {
+          throw Error(`Validator ${pubkey} does not match the one in the file.`);
+        }
+        if (!hasExistingDeposit) {
+          throw Error("Cannot make partial deposit: No existing deposit found for this validator. Use regular deposit for new validators.");
+        }
+        validDeposits = deposits; // All deposits are valid for partial deposits if they exist
+      } else {
+        // For regular deposits, filter out validators that already exist
+        validDeposits = deposits.filter((d) => !existingDeposits.has(d.pubkey));
 
-      if (validDeposits.length !== deposits.length) {
-        throw Error(
-          "Some of the deposits have already been made to the validators in this file."
-        );
+        if (validDeposits.length === 0) throw Error("Deposits have already been made to all validators in this file.");
+
+        if (validDeposits.length !== deposits.length) {
+          throw Error(
+            "Some of the deposits have already been made to the validators in this file."
+          );
+        }
       }
 
       const uniquePubkeys = new Set(validDeposits.map((d) => d.pubkey));
@@ -85,7 +107,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client]
+    [contractConfig, client, isPartialDeposit]
   );
 
   const setDepositData = useCallback(
