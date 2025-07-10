@@ -2,8 +2,9 @@ import { useRef, useState } from "react";
 import { formatEther, formatGwei, parseGwei } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
+import { ValidatorInfo } from "../types/validators";
 
-export default function Deposit() {
+export default function PartialDeposit({ validator }: { validator: ValidatorInfo | undefined }) {
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -11,7 +12,7 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-	const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address, false);
+  const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address, true, validator?.pubkey);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -22,16 +23,13 @@ export default function Deposit() {
 
   return (
     <>
-      <button
-        className="btn btn-xs btn-primary"
-        onClick={() => dialogRef.current?.showModal()}
-      >
-        Add new
-      </button>
+      <button className="btn btn-ghost btn-circle btn-sm"
+        onClick={() => dialogRef.current?.showModal()}><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Add new validator</h3>
+          <h3 className="text-lg font-bold">Partial deposit {validator?.index}</h3>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(balance.balance)).toFixed(2)} GNO</p>
+          <p className="text-xs text-gray-500">Pubkey: {validator?.pubkey}</p>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Upload deposit data file</legend>
             <input type="file" className="file-input" onChange={handleFileChange} />
@@ -39,7 +37,7 @@ export default function Deposit() {
           </fieldset>
           <div className="mt-8 flex w-full justify-end">
             <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(parseGwei(depositData.totalDepositAmount.toString()) / network.cl.multiplier)}>
-                {isApproved ? 'Deposit ' : 'Approve ' + formatGwei(depositData.totalDepositAmount / network.cl.multiplier) + ' GNO'}
+              {isApproved ? 'Deposit ' : 'Approve ' + formatGwei(depositData.totalDepositAmount / network.cl.multiplier) + ' GNO'}
             </button>
           </div>
         </div>

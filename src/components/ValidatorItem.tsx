@@ -4,6 +4,7 @@ import { Consolidation, ValidatorInfo, Withdrawal } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther } from 'viem';
+import PartialDeposit from './PartialDeposit';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -37,9 +38,7 @@ export function ValidatorItem({
 						</button>
 						{showActions && (
 							<>
-								{/* <div className="tooltip" data-tip="Deposit">
-									<button disabled={true} className="btn btn-ghost btn-circle btn-sm"><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
-								</div> */}
+
 								{validator.type === 1 && (
 									<div className="tooltip" data-tip="Upgrade">
 										<button
@@ -52,9 +51,14 @@ export function ValidatorItem({
 								)}
 
 								{validator.type === 2 && (
-									<div className="tooltip" data-tip="Withdraw">
-										<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
-									</div>
+									<>
+										<div className="tooltip" data-tip="Deposit">
+											<PartialDeposit validator={validator} />
+										</div>
+										<div className="tooltip" data-tip="Withdraw">
+											<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
+										</div>
+									</>
 								)}
 							</>
 						)} </div>)}
