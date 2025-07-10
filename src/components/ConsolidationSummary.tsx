@@ -1,15 +1,22 @@
 import { useState, useMemo, useRef } from 'react';
 import { Consolidation } from '../types/validators';
 import { formatEther } from 'viem';
+import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
+import { useWallet } from '../context/WalletContext';
 
 interface ConsolidationSummaryProps {
     consolidations: Consolidation[];
-    consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
 }
 
 const BATCH_SIZE = 200;
 
-export function ConsolidationSummary({ consolidations, consolidateValidators }: ConsolidationSummaryProps) {
+export function ConsolidationSummary({ consolidations }: ConsolidationSummaryProps) {
+    const { network } = useWallet();
+    if (!network) {
+        throw new Error('Network not found');
+    }
+    
+    const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
     const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
 
 

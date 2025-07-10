@@ -1,22 +1,26 @@
 import { useState } from 'react';
 import { computeSelfConsolidations } from '../hooks/useConsolidate';
-import { Consolidation, ValidatorInfo, Withdrawal } from '../types/validators';
+import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
+import { ValidatorInfo } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
+import { useWallet } from '../context/WalletContext';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
-	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
-	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
 }
 
 export function ValidatorItem({
 	validator,
-	consolidateValidators,
-	withdrawalValidators,
 }: ValidatorItemProps) {
+	const { network } = useWallet();
+	if (!network) {
+		throw new Error('Network not found');
+	}
+	
+	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
 	const [showActions, setShowActions] = useState(false);
 	return (
 		<tr key={validator.index}>
@@ -56,7 +60,7 @@ export function ValidatorItem({
 											<PartialDeposit validator={validator} />
 										</div>
 										<div className="tooltip" data-tip="Withdraw">
-											<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
+											<Withdraw validator={validator} />
 										</div>
 									</>
 								)}

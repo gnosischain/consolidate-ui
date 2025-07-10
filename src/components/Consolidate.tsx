@@ -6,7 +6,6 @@ import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address } from 'viem';
 import { FilterStatus } from '../types/validators';
-import { useWithdraw } from '../hooks/useWithdraw';
 import { useWallet } from '../context/WalletContext';
 
 enum Steps {
@@ -20,11 +19,9 @@ export default function Consolidate() {
 	if (!network || !account.address) {
 		throw new Error('Network or account not found');
 	}
-	const { consolidateValidators, callStatusData } = useConsolidateValidatorsBatch(
+	const { callStatusData } = useConsolidateValidatorsBatch(
 		network.consolidateAddress,
 	);
-
-	const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
 
 	const { validators, loading } = useBeaconValidators(network, account.address);
 
@@ -67,15 +64,8 @@ export default function Consolidate() {
 				return (
 					<ConsolidateAggregate
 						validators={validators}
-						consolidateValidators={async (consolidations) => {
-							consolidateValidators(consolidations);
-						}}
-						withdrawalValidators={async (withdrawal) => {
-							withdrawalValidators(withdrawal);
-						}}
 						network={network}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
-						computeWithdrawals={computeWithdrawals}
 					/>
 				);
 			case Steps.SUMMARY:
