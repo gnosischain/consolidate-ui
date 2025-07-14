@@ -2,7 +2,9 @@ import { http, createConfig, mock } from 'wagmi';
 import { gnosis, gnosisChiado } from 'wagmi/chains';
 import { safe } from 'wagmi/connectors';
 
-export const isTestEnv = process.env.NODE_ENV === 'test';
+export const isTestEnv = process.env.NEXT_PUBLIC_E2E_TEST === 'true';
+
+console.log('isTestEnv', isTestEnv, process.env.NEXT_PUBLIC_E2E_TEST);
 
 export const config = createConfig({
 	chains: [gnosis, gnosisChiado],
