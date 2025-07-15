@@ -1,4 +1,7 @@
 import { test, expect } from '@playwright/test';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 test('has title', async ({ page }) => {
   await page.goto('/');
@@ -7,7 +10,7 @@ test('has title', async ({ page }) => {
   await expect(page).toHaveTitle(/Gnosis Launchpad/);
 });
 
-test('get connect wallet', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await page.goto('/');
 
   // Click the get started link.
@@ -15,6 +18,41 @@ test('get connect wallet', async ({ page }) => {
 
   // Expects page to have a heading with the name of Select Wallet
   await expect(page.getByRole('heading', { name: 'Select Wallet' })).toBeVisible();
-  
+
   await expect(page.getByRole('button', { name: 'Mock Connector' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Mock Connector' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Select Wallet' })).toBeHidden();
+
+  await expect(page.getByText('Your validators')).toBeVisible();
+});
+
+test.describe('Depost', () => {
+  test('should allow me to deposit', async ({ page }) => {
+
+    await page.getByRole('button', { name: 'Add new' }).click();
+
+    await expect(page.getByRole('heading', { name: 'Deposit' })).toBeVisible();
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(__dirname, "./", "deposit_data-1752613063.json");
+
+    if (fs.existsSync(filePath)) {
+      console.log("File exists");
+    } else {
+      console.log("File does not exist");
+      throw new Error("File not found");
+    }
+
+    const input = page.getByRole('button', { name: 'Choose file' })
+    await input.setInputFiles(filePath);
+    await expect(page.getByText('deposit_data-1752613063.json')).toBeVisible();
+
+    // await page.click("#depositButton");
+
+    // const confirmationText = await page.locator("#confirmation").textContent();
+    // expect(confirmationText).toContain("Your transaction is completed ! View it");
+  });
 });
