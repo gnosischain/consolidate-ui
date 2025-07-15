@@ -36,9 +36,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
   const isWrongNetwork = Boolean(account.isConnected && !network);
   const balance = useBalance(network, account.address);
-  console.log('isTestEnv', isTestEnv, process.env.TEST_PRIVATE_KEY);
   const testAccount = isTestEnv
-    ? privateKeyToAccount(process.env.TEST_PRIVATE_KEY as `0x${string}`)
+    ? privateKeyToAccount(process.env.NEXT_PUBLIC_TEST_PRIVATE_KEY as `0x${string}`)
     : undefined;
 
   useEffect(() => {

@@ -75,8 +75,5 @@ export default defineConfig({
     command: 'pnpm run start',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    env: {
-      NEXT_PUBLIC_E2E_TEST: 'true',
-    },
   },
 });
