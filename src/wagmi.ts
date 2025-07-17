@@ -4,8 +4,6 @@ import { safe } from 'wagmi/connectors';
 
 export const isTestEnv = process.env.NEXT_PUBLIC_E2E_TEST === 'true';
 
-console.log('isTestEnv', isTestEnv, process.env.NEXT_PUBLIC_E2E_TEST);
-
 export const config = createConfig({
 	chains: [gnosis, gnosisChiado],
 	connectors: [safe(), ...(isTestEnv ? [mock({
@@ -15,7 +13,7 @@ export const config = createConfig({
 	transports: {
 		// [mainnet.id]: http(),
 		// [sepolia.id]: http(),
-		[gnosis.id]: http('https://rpc.gnosischain.com/'),
+		[gnosis.id]: http(isTestEnv ? process.env.NEXT_PUBLIC_VIRTUAL_TESTNET_RPC : 'https://rpc.gnosischain.com/'),
 		[gnosisChiado.id]: http('https://rpc.chiadochain.net'),
 	},
 });

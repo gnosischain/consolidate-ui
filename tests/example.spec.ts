@@ -47,12 +47,16 @@ test.describe('Depost', () => {
     }
 
     const input = page.getByRole('button', { name: 'Choose file' })
+    const button = page.getByRole('button', { name: /^(?:Approve \d+ GNO|Deposit)$/i });
     await input.setInputFiles(filePath);
     await expect(page.getByText('deposit_data-1752613063.json')).toBeVisible();
 
-    // await page.click("#depositButton");
+    await expect(button).toHaveText('Approve 1 GNO');
 
-    // const confirmationText = await page.locator("#confirmation").textContent();
-    // expect(confirmationText).toContain("Your transaction is completed ! View it");
+    await button.click();
+
+    await expect(button).toHaveText('Deposit');
+
+    await button.click();
   });
 });
