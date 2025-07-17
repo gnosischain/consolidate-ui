@@ -12,7 +12,6 @@ interface WarningModalProps {
 
 export function WarningModal({ 
 	totalBalance,
-	isOpen = false,
 	onClose,
 	network
 }: WarningModalProps) {
