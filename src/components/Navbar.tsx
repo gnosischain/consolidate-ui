@@ -32,7 +32,7 @@ export default function Navbar() {
 				<div className="flex gap-x-2">
 					<a
 						href="https://discord.gg/gnosis"
-						target="_blank"
+						target="_blank" rel="noopener noreferrer"
 						className="underline text-sm flex items-center"
 					>
 						Get Help
@@ -40,7 +40,7 @@ export default function Navbar() {
 					</a>
 					<a
 						href="https://www.gnosis.io/"
-						target="_blank"
+						target="_blank" rel="noopener noreferrer"
 						className="underline text-sm flex items-center"
 					>
 						Explore

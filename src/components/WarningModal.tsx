@@ -33,8 +33,8 @@ export function WarningModal({
 				</p>
 				<ul className="text-sm text-gray-500 list-disc list-inside">
 					<li>Review all your transactions before accepting them.</li>
-					<li>Monitor your tx on the Beacon Chain: <a href={network.beaconchainApi ?? ''} target="_blank" className="underline ml-1">{network.beaconchainApi ?? ''}</a></li>
-					<li>Get help on our Discord: <a href="https://discord.gg/gnosis" target="_blank" className="underline ml-1">https://discord.gg/gnosis</a></li>
+					<li>Monitor your tx on the Beacon Chain: <a href={network.beaconchainApi ?? ''} target="_blank" rel="noopener noreferrer" className="underline ml-1">{network.beaconchainApi ?? ''}</a></li>
+					<li>Get help on our Discord: <a href="https://discord.gg/gnosis" target="_blank" rel="noopener noreferrer" className="underline ml-1">https://discord.gg/gnosis</a></li>
 				</ul>
 				<div className="modal-action">
 					<button 

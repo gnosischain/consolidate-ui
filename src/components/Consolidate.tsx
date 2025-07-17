@@ -76,7 +76,7 @@ export default function Consolidate() {
 						<a
 							href={`${network.explorerUrl}/tx/${state.tx}`}
 							target="_blank"
-							rel="noreferrer"
+							rel="noopener noreferrer"
 							className="text-primary"
 						>
 							{state.tx}
