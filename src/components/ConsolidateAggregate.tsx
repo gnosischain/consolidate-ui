@@ -12,6 +12,7 @@ import WithdrawBatch from './WithdrawBatch';
 import { formatEther, parseEther } from 'viem';
 import Deposit from './Deposit';
 import { NetworkConfig } from '../types/network';
+import { WarningModal } from './WarningModal';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -82,6 +83,8 @@ export function ConsolidateAggregate({
 
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
+			<WarningModal totalBalance={totalBalance} network={network} />
+			
 			<p className="font-bold">Your validators</p>
 			<div className="flex items-center  w-full">
 				<p className="text-sm text-gray-500 mr-2">Balance: {formatEther(totalBalance)} GNO</p>
