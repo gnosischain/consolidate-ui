@@ -1,21 +1,26 @@
 import { useState } from 'react';
 import { computeSelfConsolidations } from '../hooks/useConsolidate';
-import { Consolidation, ValidatorInfo, Withdrawal } from '../types/validators';
+import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
+import { ValidatorInfo } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther } from 'viem';
+import PartialDeposit from './PartialDeposit';
+import { useWallet } from '../context/WalletContext';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
-	consolidateValidators: (consolidations: Consolidation[]) => Promise<void>;
-	withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
 }
 
 export function ValidatorItem({
 	validator,
-	consolidateValidators,
-	withdrawalValidators,
 }: ValidatorItemProps) {
+	const { network } = useWallet();
+	if (!network) {
+		throw new Error('Network not found');
+	}
+	
+	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
 	const [showActions, setShowActions] = useState(false);
 	return (
 		<tr key={validator.index}>
@@ -37,9 +42,7 @@ export function ValidatorItem({
 						</button>
 						{showActions && (
 							<>
-								{/* <div className="tooltip" data-tip="Deposit">
-									<button disabled={true} className="btn btn-ghost btn-circle btn-sm"><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
-								</div> */}
+
 								{validator.type === 1 && (
 									<div className="tooltip" data-tip="Upgrade">
 										<button
@@ -52,9 +55,14 @@ export function ValidatorItem({
 								)}
 
 								{validator.type === 2 && (
-									<div className="tooltip" data-tip="Withdraw">
-										<Withdraw validator={validator} withdrawalValidators={withdrawalValidators} />
-									</div>
+									<>
+										<div className="tooltip" data-tip="Deposit">
+											<PartialDeposit validator={validator} />
+										</div>
+										<div className="tooltip" data-tip="Withdraw">
+											<Withdraw validator={validator} />
+										</div>
+									</>
 								)}
 							</>
 						)} </div>)}

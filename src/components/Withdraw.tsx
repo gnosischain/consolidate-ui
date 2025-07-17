@@ -1,15 +1,20 @@
 import { useRef, useState } from "react";
-import { ValidatorInfo, Withdrawal } from "../types/validators";
+import { ValidatorInfo } from "../types/validators";
 import { formatEther, parseEther } from "viem";
-
+import { useWithdraw } from "../hooks/useWithdraw";
+import { useWallet } from "../context/WalletContext";
 
 interface WithdrawProps {
   validator: ValidatorInfo;
-  withdrawalValidators: (withdrawal: Withdrawal[]) => Promise<void>;
 }
 
-export default function Withdraw({ validator, withdrawalValidators }: WithdrawProps) {
-
+export default function Withdraw({ validator }: WithdrawProps) {
+  const { network } = useWallet();
+  if (!network) {
+    throw new Error('Network not found');
+  }
+  
+  const { withdrawalValidators } = useWithdraw(network);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [amount, setAmount] = useState(0n);
 

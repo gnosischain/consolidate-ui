@@ -1,8 +1,8 @@
 import { mainnet, gnosis, gnosisChiado, sepolia } from 'wagmi/chains';
 import { NetworkConfig } from '../types/network';
 
-const QUICKNODE_ENDPOINT = import.meta.env.VITE_QUICKNODE_ENDPOINT;
-const QUICKNODE_TOKEN = import.meta.env.VITE_QUICKNODE_TOKEN;
+const QUICKNODE_ENDPOINT = process.env.NEXT_PUBLIC_QUICKNODE_ENDPOINT;
+const QUICKNODE_TOKEN = process.env.NEXT_PUBLIC_QUICKNODE_TOKEN;
 
 const GNOSIS_CL = {
 	minBalance: 1,

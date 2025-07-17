@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Address, parseGwei } from 'viem';
-import { APIValidatorDetailsResponse, APIValidatorsResponse } from '../types/api';
+import { Address } from 'viem';
+import { APIValidatorInfo } from '../types/api';
 import { ValidatorIndex, ValidatorInfo } from '../types/validators';
-import { STATUS_TO_FILTER } from '../utils/status';
-import { BeaconChainResponse } from '../types/beacon';
 import { NetworkConfig } from '../types/network';
+import { apiToValidatorInfo } from '../utils/apiConverters';
+import { BeaconApiValidatorsResponse } from '../types/beaconApi';
 
 const LIMIT = 200;
 
@@ -18,44 +18,21 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 			setLoading(true);
 
 			try {
-				// Normalize the address: remove 0x prefix and lowercase
-				const addrHex = address.toLowerCase().replace(/^0x/, '');
+				const params = new URLSearchParams({
+					address: address,
+					clEndpoint: network.clEndpoint,
+					clMultiplier: network.cl.multiplier.toString(),
+				});
 
-				const res = await fetch(
-					network.clEndpoint + '/eth/v1/beacon/states/finalized/validators',
-				);
+				const res = await fetch(`/api/beacon-states?${params}`);
 				if (!res.ok) {
-					throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+					const errorData = await res.json();
+					throw new Error(errorData.error || `HTTP ${res.status} - ${res.statusText}`);
 				}
 
-				const json = await res.json();
-				const data: BeaconChainResponse[] = json.data;
-
-				const filtered: ValidatorInfo[] = data
-					.filter((v: { validator: { withdrawal_credentials: string }; index: number }) => {
-						const creds: string = v.validator.withdrawal_credentials;
-						return (
-							(creds.startsWith('0x01') || creds.startsWith('0x02')) && creds.endsWith(addrHex)
-						);
-					})
-					.map((v) => {
-
-						const creds = v.validator.withdrawal_credentials;
-						const address = `0x${creds.slice(-40)}` as Address;
-
-						const filterStatus = STATUS_TO_FILTER[v.status];
-						return ({
-							index: Number(v.index),
-							pubkey: v.validator.pubkey,
-							balanceEth: parseGwei(v.validator.effective_balance.toString()) / network.cl.multiplier,
-							withdrawal_credentials: address,
-							type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
-							filterStatus: filterStatus,
-							status: v.status,
-						})
-					});
-
-				setValidators(filtered);
+				const json: { data: APIValidatorInfo[] } = await res.json();
+				const validators = json.data.map(apiToValidatorInfo);
+				setValidators(validators);
 			} catch (err) {
 				setError(err);
 			} finally {
@@ -127,57 +104,45 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 }
 
 const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: string[]): Promise<ValidatorInfo[]> => {
-	const url = `${network.beaconchainApi}/api/v1/validator/${pubkeys.join(',')}`;
-	const resp = await fetch(url);
+	const params = new URLSearchParams({
+		pubkeys: pubkeys.join(','),
+		beaconchainApiUrl: network.beaconchainApi || '',
+		clMultiplier: network.cl.multiplier.toString(),
+	});
+
+	const resp = await fetch(`/api/validator-details?${params}`);
 	if (!resp.ok) {
-		throw new Error(`Erreur ${resp.status} sur GET ${url}`);
+		const errorData = await resp.json();
+		throw new Error(errorData.error || `Error ${resp.status} on GET /api/validator-details`);
 	}
-	const body: {
-		data: APIValidatorDetailsResponse[] | APIValidatorDetailsResponse;
-	} = await resp.json();
-
-	const rows = Array.isArray(body.data) ? body.data : [body.data];
-
-	return rows.map(d => {
-		const creds = d.withdrawalcredentials;
-		const address = `0x${creds.slice(-40)}` as Address;
-
-		const filterStatus = STATUS_TO_FILTER[d.status];
-
-		return {
-			index: d.validatorindex,
-			pubkey: d.pubkey as Address,
-			balanceEth: parseGwei(d.effectivebalance.toString()) / network.cl.multiplier,
-			withdrawal_credentials: address,
-			type: creds.startsWith('0x02') ? 2 : 1,
-			filterStatus: filterStatus,
-			status: d.status,
-		}
-	})
+	
+	const body: { data: APIValidatorInfo[] } = await resp.json();
+	return body.data.map(apiToValidatorInfo);
 };
 
 const fetchValidatorsByAddress = async (network: NetworkConfig, address: string, offset: number): Promise<ValidatorIndex[]> => {
-	const url = new URL(
-		`/api/v1/validator/withdrawalCredentials/${address}`,
-		network.beaconchainApi
-	);
-	url.searchParams.set('limit', String(LIMIT));
-	url.searchParams.set('offset', String(offset));
+	const params = new URLSearchParams({
+		address: address,
+		offset: String(offset),
+		beaconchainApiUrl: network.beaconchainApi || '',
+	});
 
-	const resp = await fetch(url.toString());
+	const resp = await fetch(`/api/validators?${params}`);
 	if (!resp.ok) {
+		const errorData = await resp.json();
 		throw new Error(
-			`Failed to fetch from ${url.toString()} – status ${resp.status}`
+			errorData.error || `Failed to fetch from /api/validators – status ${resp.status}`
 		);
 	}
+
 	const body: {
-		data: APIValidatorsResponse[] | APIValidatorsResponse;
+		data: BeaconApiValidatorsResponse[] | BeaconApiValidatorsResponse;
 	} = await resp.json();
 
 	const rows = Array.isArray(body.data) ? body.data : [body.data];
 
 	return rows.map((d) => ({
-		pubkey: d.publickey as Address,
+		pubkey: d.publickey,
 		index: d.validatorindex,
 	}));
 };

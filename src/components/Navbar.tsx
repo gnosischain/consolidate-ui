@@ -24,12 +24,23 @@ export default function Navbar() {
 								BEACON CHAIN CONSOLIDATION
 							</p>
 						</div>
+						<p className="text-sm font-semibold text-red-500">
+							BETA
+						</p>
 					</div>
 				</div>
 				<div className="flex gap-x-2">
 					<a
+						href="https://discord.gg/gnosis"
+						target="_blank" rel="noopener noreferrer"
+						className="underline text-sm flex items-center"
+					>
+						Get Help
+						<img src="/external.svg" alt="External Link" className="w-3 h-3 ml-1" />
+					</a>
+					<a
 						href="https://www.gnosis.io/"
-						target="_blank"
+						target="_blank" rel="noopener noreferrer"
 						className="underline text-sm flex items-center"
 					>
 						Explore
