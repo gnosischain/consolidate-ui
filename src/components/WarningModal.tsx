@@ -4,15 +4,11 @@ import { NetworkConfig } from '../types/network';
 
 interface WarningModalProps {
 	totalBalance: bigint;
-	threshold?: number;
-	isOpen?: boolean;
-	onClose?: () => void;
 	network: NetworkConfig;
 }
 
 export function WarningModal({ 
 	totalBalance,
-	onClose,
 	network
 }: WarningModalProps) {
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -25,9 +21,6 @@ export function WarningModal({
 	}, [totalBalance]);
 
 	const handleClose = () => {
-		if (onClose) {
-			onClose();
-		}
 		dialogRef.current?.close();
 	};
 
