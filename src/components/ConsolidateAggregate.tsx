@@ -13,6 +13,7 @@ import { formatEther, parseEther } from 'viem';
 import Deposit from './Deposit';
 import { NetworkConfig } from '../types/network';
 import { WarningModal } from './WarningModal';
+import { useWithdraw } from '../hooks/useWithdraw';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -25,6 +26,7 @@ export function ConsolidateAggregate({
 	network,
 }: ConsolidateSelectProps) {
 	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
+	const { withdrawalValidators, computeExits } = useWithdraw(network);
 	const targetBalance = network.cl.maxBalance * 0.625;
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
@@ -79,6 +81,11 @@ export function ConsolidateAggregate({
 		await consolidateValidators(consolidations);
 	};
 
+	const handleExitAll = async () => {
+		const withdrawals = computeExits(type1ValidatorsActive);
+		await withdrawalValidators(withdrawals);
+	};
+
 	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
 	return (
@@ -122,9 +129,14 @@ export function ConsolidateAggregate({
 					/>
 				</div>
 				{filterVersion === '1' && (
-					<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
-						Upgrade all
-					</button>
+					<>
+						<button className="btn btn-sm btn-ghost text-primary" onClick={handleExitAll}>
+							Exit all
+						</button>
+						<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
+							Upgrade all
+						</button>
+					</>
 				)}
 				{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
 			</div>

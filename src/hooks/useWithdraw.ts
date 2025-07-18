@@ -85,6 +85,16 @@ export function useWithdraw(network: NetworkConfig) {
 		[network, sendCalls],
 	)
 
+	const computeExits = useCallback(
+		(validators: ValidatorInfo[]) => {
+			const exits: Withdrawal[] = [];
+			for (const v of validators) {
+				exits.push({ pubkey: v.pubkey, amount: 0n });
+			}
+			return exits;
+		},
+		[network],
+	)
 
 	useEffect(() => {
 		if (status === 'error' && lastBatchRef.current) {
@@ -118,5 +128,6 @@ export function useWithdraw(network: NetworkConfig) {
 		}
 	}, [status, network, sendTransaction])
 
-	return { withdrawalValidators, callStatusData, isConfirming, isConfirmed, computeWithdrawals };
+	return { withdrawalValidators, callStatusData, isConfirming, isConfirmed, computeWithdrawals, computeExits };
 }
+
