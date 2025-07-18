@@ -1,8 +1,13 @@
+import { privateKeyToAccount } from 'viem/accounts';
 import { http, createConfig, mock } from 'wagmi';
 import { gnosis, gnosisChiado } from 'wagmi/chains';
 import { safe } from 'wagmi/connectors';
 
 export const isTestEnv = process.env.NEXT_PUBLIC_E2E_TEST === 'true';
+
+export const testAccount = isTestEnv
+? privateKeyToAccount(process.env.NEXT_PUBLIC_TEST_PRIVATE_KEY as `0x${string}`)
+: undefined;
 
 export const config = createConfig({
 	chains: [gnosis, gnosisChiado],

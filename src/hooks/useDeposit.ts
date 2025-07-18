@@ -12,6 +12,7 @@ import { CredentialType } from "../types/validators";
 import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
+import { testAccount } from "../wagmi";
 
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false, pubkey?: string) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
@@ -161,7 +162,8 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         abi: ERC677ABI,
         functionName: "approve",
         args: [contractConfig.depositAddress, amount],
-      }); 
+        ...(testAccount && { account: testAccount }),
+      });
       setIsApproved(true);
     }
   }, [contractConfig, writeContract]);
