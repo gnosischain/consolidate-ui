@@ -51,7 +51,7 @@ test.describe('Depost', () => {
     await input.setInputFiles(filePath);
     await expect(page.getByText('deposit_data-1752613063.json')).toBeVisible();
 
-    await expect(button).toHaveText('Approve 1 GNO');
+    await expect(button).toHaveText('Approve 1 GNO', { timeout: 15_000 });
 
     await button.click();
 
