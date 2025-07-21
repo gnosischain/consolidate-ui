@@ -87,7 +87,7 @@ export function ConsolidateAggregate({
 			
 			<p className="font-bold">Your validators</p>
 			<div className="flex items-center  w-full">
-				<p className="text-sm text-gray-500 mr-2">Balance: {formatEther(totalBalance)} GNO</p>
+				<p className="text-sm text-gray-500 mr-2">Balance: {Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} />
 			</div>
 
