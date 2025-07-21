@@ -75,7 +75,7 @@ export function useWithdraw(network: NetworkConfig) {
 						["bytes", "uint64"],
 						[
 							pubkey,
-							BigInt(formatUnits(amount, 9)),
+							BigInt(formatUnits(amount * network.cl.multiplier, 9)),
 						],
 					),
 					value: parseEther('0.000001'),
@@ -96,7 +96,7 @@ export function useWithdraw(network: NetworkConfig) {
 					["bytes", "uint64"],
 					[
 						pubkey,
-						BigInt(formatUnits(amount, 9)),
+						BigInt(formatUnits(amount * network.cl.multiplier, 9)),
 					],
 				),
 				value: parseEther('0.000001'),
