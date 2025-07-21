@@ -32,7 +32,7 @@ export function ValidatorItem({
 			<td>
 				<ValidatorBadge filterStatus={validator.filterStatus} status={validator.status} />
 			</td>
-			<td>{formatEther(validator.balanceEth)} GNO</td>
+			<td>{Number(formatEther(validator.balanceEth)).toFixed(2)} GNO</td>
 
 			<td className="min-w-24">
 				{validator.filterStatus === 'active' && (

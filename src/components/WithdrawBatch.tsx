@@ -33,7 +33,7 @@ export default function WithdrawBatch({ validators, totalBalance }: WithdrawProp
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Batch withdraw</h3>
-          <p className="text-sm text-gray-500">Balance: {formatEther(totalBalance)} GNO</p>
+          <p className="text-sm text-gray-500">Balance: {Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
           <fieldset className="fieldset mt-2 w-full gap-y-2">
             <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(Number(formatEther(totalBalance)))}>Max</button></legend>
             <div className="flex items-center gap-x-2">
