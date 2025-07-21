@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       return {
         index: d.validatorindex,
         pubkey: d.pubkey as Address,
-        balanceEth: (parseGwei(d.effectivebalance.toString()) / multiplier).toString(),
+        balanceEth: (parseGwei(d.balance.toString()) / multiplier).toString(),
         withdrawal_credentials: address,
         type: creds.startsWith('0x02') ? 2 : 1,
         filterStatus: filterStatus,

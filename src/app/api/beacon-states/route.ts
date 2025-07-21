@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         return {
           index: Number(v.index),
           pubkey: v.validator.pubkey,
-          balanceEth: (parseGwei(v.validator.effective_balance.toString()) / multiplier).toString(),
+          balanceEth: (parseGwei(v.balance.toString()) / multiplier).toString(),
           withdrawal_credentials: address,
           type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
           filterStatus: filterStatus,
