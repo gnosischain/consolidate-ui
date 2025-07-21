@@ -164,6 +164,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         args: [contractConfig.depositAddress, amount],
         ...(testAccount && { account: testAccount }),
       });
+      console.log(testAccount, contractError, txError, depositHash, depositSuccess);
       setIsApproved(true);
     }
   }, [contractConfig, writeContract]);
