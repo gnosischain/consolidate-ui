@@ -29,7 +29,7 @@ export function WarningModal({
 			<div className="modal-box">
 				<h3 className="text-lg font-bold text-warning">⚠️ Warning</h3>
 				<p className="py-4">
-					You're holding {formatEther(totalBalance)} GNO in the Consensus Layer, this application is in beta and you should proceed with caution.
+					You're holding {Number(formatEther(totalBalance)).toFixed(2)} GNO in the Consensus Layer, this application is in beta and you should proceed with caution.
 				</p>
 				<ul className="text-sm text-gray-500 list-disc list-inside">
 					<li>Review all your transactions before accepting them.</li>
