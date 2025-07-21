@@ -51,7 +51,7 @@ export default function Withdraw({ validator }: WithdrawProps) {
                   amount: amount === validator.balanceEth ? 0n : amount,
                 },
               ])}>
-              {amount === validator.balanceEth ? 'Exit validator'  : 'Withdraw ' + amount + ' GNO'}
+              {amount === validator.balanceEth ? 'Exit validator'  : 'Withdraw ' + formatEther(amount) + ' GNO'}
             </button>
           </div>
         </div>
