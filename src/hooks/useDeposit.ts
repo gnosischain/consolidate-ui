@@ -136,7 +136,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   const deposit = useCallback(async () => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
       const data = generateDepositData(deposits);
-      console.log(data);
       writeContract({
         address: contractConfig.depositAddress,
         abi: DEPOSIT_ABI,
@@ -158,13 +157,13 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
       writeContract({
+        ...(testAccount && { account: testAccount }),
         address: contractConfig.tokenAddress,
         abi: ERC677ABI,
         functionName: "approve",
         args: [contractConfig.depositAddress, amount],
-        ...(testAccount && { account: testAccount }),
       });
-      console.log(testAccount, contractError, txError, depositHash, depositSuccess);
+      console.log("Approval", testAccount?.address, contractError, txError, depositHash, depositSuccess);
       setIsApproved(true);
     }
   }, [contractConfig, writeContract]);

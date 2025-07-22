@@ -1,3 +1,4 @@
+import { createWalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { http, createConfig, mock } from 'wagmi';
 import { gnosis, gnosisChiado } from 'wagmi/chains';
@@ -9,11 +10,17 @@ export const testAccount = isTestEnv
 ? privateKeyToAccount(process.env.NEXT_PUBLIC_TEST_PRIVATE_KEY as `0x${string}`)
 : undefined;
 
+const walletClient = isTestEnv
+  ? createWalletClient({
+      account: testAccount,
+      transport: http(process.env.NEXT_PUBLIC_VIRTUAL_TESTNET_RPC!),
+    })
+  : undefined
+
 export const config = createConfig({
 	chains: [gnosis, gnosisChiado],
 	connectors: [safe(), ...(isTestEnv ? [mock({
-		accounts: ['0xd9a43e13258C57a8407aE0DAf6033C12EeDF2aF9'
-		]
+		accounts: [testAccount?.address as `0x${string}`]
 	})] : [])],
 	transports: {
 		// [mainnet.id]: http(),
@@ -21,4 +28,5 @@ export const config = createConfig({
 		[gnosis.id]: http(isTestEnv ? process.env.NEXT_PUBLIC_VIRTUAL_TESTNET_RPC : 'https://rpc.gnosischain.com/'),
 		[gnosisChiado.id]: http('https://rpc.chiadochain.net'),
 	},
+	...(walletClient ? { walletClient } : {}),
 });

@@ -28,6 +28,19 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByText('Your validators')).toBeVisible();
 });
 
+test.beforeEach(async ({ page }) => {
+  page.on('console', msg => {
+    console.log(`BROWSER ${msg.type()}: ${msg.text()}`);
+  });
+  page.on('request', request => {
+    console.log(`➡️ REQUEST ${request.method()} ${request.url()}`);
+    if (request.postData())  console.log(`   payload: ${request.postData()}`);
+  });
+  page.on('response', response => {
+    console.log(`⬅️ RESPONSE ${response.status()} ${response.url()}`);
+  });
+});
+
 test.describe('Depost', () => {
   test('should allow me to deposit', async ({ page }) => {
 
