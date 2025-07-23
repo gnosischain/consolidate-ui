@@ -68,7 +68,7 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
                                     <tr key={i}>
                                         <td>{c.sourceIndex}</td>
                                         <td>{c.targetIndex}</td>
-                                        <td>{formatEther(c.sourceBalance + c.targetBalance)} GNO</td>
+                                        <td>{Number(formatEther(c.sourceBalance + c.targetBalance)).toFixed(2)} GNO</td>
                                         <td>{c.sourceIndex === c.targetIndex && (
                                             <p className="text-warning text-xs">Self consolidation</p>
                                         )}</td>
