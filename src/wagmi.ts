@@ -3,19 +3,23 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { http, createConfig, mock } from 'wagmi';
 import { gnosis, gnosisChiado } from 'wagmi/chains';
 import { safe } from 'wagmi/connectors';
+import { virtualTestnet } from './constants/virtualTestnet';
 
-export const isTestEnv = process.env.NEXT_PUBLIC_E2E_TEST === 'true';
+export const isTestEnv = process.env.NEXT_PUBLIC_E2E_TEST === 'true'
+const TEST_RPC = process.env.NEXT_PUBLIC_VIRTUAL_TESTNET_RPC_HTTP!
+const TEST_KEY = process.env.NEXT_PUBLIC_TEST_PRIVATE_KEY!
 
 export const testAccount = isTestEnv
-? privateKeyToAccount(process.env.NEXT_PUBLIC_TEST_PRIVATE_KEY as `0x${string}`)
-: undefined;
+	? privateKeyToAccount(TEST_KEY as `0x${string}`)
+	: undefined;
 
-const walletClient = isTestEnv
-  ? createWalletClient({
-      account: testAccount,
-      transport: http(process.env.NEXT_PUBLIC_VIRTUAL_TESTNET_RPC!),
-    })
-  : undefined
+export const walletClient = isTestEnv
+	? createWalletClient({
+		account: testAccount,
+		chain: virtualTestnet,
+		transport: http(TEST_RPC),
+	})
+	: undefined
 
 export const config = createConfig({
 	chains: [gnosis, gnosisChiado],
@@ -25,8 +29,7 @@ export const config = createConfig({
 	transports: {
 		// [mainnet.id]: http(),
 		// [sepolia.id]: http(),
-		[gnosis.id]: http(isTestEnv ? process.env.NEXT_PUBLIC_VIRTUAL_TESTNET_RPC : 'https://rpc.gnosischain.com/'),
+		[gnosis.id]: http(isTestEnv ? TEST_RPC : 'https://rpc.gnosischain.com/'),
 		[gnosisChiado.id]: http('https://rpc.chiadochain.net'),
 	},
-	...(walletClient ? { walletClient } : {}),
 });

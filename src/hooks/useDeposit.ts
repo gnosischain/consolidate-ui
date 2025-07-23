@@ -12,7 +12,8 @@ import { CredentialType } from "../types/validators";
 import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
-import { testAccount } from "../wagmi";
+import { isTestEnv, testAccount, walletClient } from "../wagmi";
+import { virtualTestnet } from "../constants/virtualTestnet";
 
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false, pubkey?: string) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
@@ -93,7 +94,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       const credentials = deposits[0].withdrawal_credentials;
       const credentialType = getCredentialType(credentials);
 
-      if(!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
+      if (!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
         throw Error("All validators in the file must have the same withdrawal credentials.");
       }
 
@@ -156,14 +157,24 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      writeContract({
-        ...(testAccount && { account: testAccount }),
-        address: contractConfig.tokenAddress,
-        abi: ERC677ABI,
-        functionName: "approve",
-        args: [contractConfig.depositAddress, amount],
-      });
-      console.log("Approval", testAccount?.address, contractError, txError, depositHash, depositSuccess);
+      if (isTestEnv && testAccount) {
+        console.log("Approval", JSON.stringify(walletClient), JSON.stringify(testAccount));
+        walletClient?.writeContract({
+          account: testAccount,
+          chain: virtualTestnet,
+          address: contractConfig.tokenAddress,
+          abi: ERC677ABI,
+          functionName: "approve",
+          args: [contractConfig.depositAddress, amount],
+        });
+      } else {
+        writeContract({
+          address: contractConfig.tokenAddress,
+          abi: ERC677ABI,
+          functionName: "approve",
+          args: [contractConfig.depositAddress, amount],
+        });
+      }
       setIsApproved(true);
     }
   }, [contractConfig, writeContract]);
