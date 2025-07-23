@@ -12,6 +12,8 @@ import { CredentialType } from "../types/validators";
 import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
+import { isTestEnv, testAccount, walletClient } from "../wagmi";
+import { virtualTestnet } from "../constants/virtualTestnet";
 
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false, pubkey?: string) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
@@ -92,7 +94,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       const credentials = deposits[0].withdrawal_credentials;
       const credentialType = getCredentialType(credentials);
 
-      if(!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
+      if (!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
         throw Error("All validators in the file must have the same withdrawal credentials.");
       }
 
@@ -105,7 +107,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client, isPartialDeposit]
+    [contractConfig, client, isPartialDeposit, pubkey]
   );
 
   const setDepositData = useCallback(
@@ -135,7 +137,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   const deposit = useCallback(async () => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
       const data = generateDepositData(deposits);
-      console.log(data);
       writeContract({
         address: contractConfig.depositAddress,
         abi: DEPOSIT_ABI,
@@ -152,16 +153,28 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       // should move refetchBalance to onDeposit function ?
       refetchBalance();
     }
-  }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
+  }, [contractConfig, deposits, refetchBalance, writeContract]);
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      writeContract({
-        address: contractConfig.tokenAddress,
-        abi: ERC677ABI,
-        functionName: "approve",
-        args: [contractConfig.depositAddress, amount],
-      }); 
+      if (isTestEnv && testAccount) {
+        console.log("Approval", JSON.stringify(walletClient), JSON.stringify(testAccount));
+        walletClient?.writeContract({
+          account: testAccount,
+          chain: virtualTestnet,
+          address: contractConfig.tokenAddress,
+          abi: ERC677ABI,
+          functionName: "approve",
+          args: [contractConfig.depositAddress, amount],
+        });
+      } else {
+        writeContract({
+          address: contractConfig.tokenAddress,
+          abi: ERC677ABI,
+          functionName: "approve",
+          args: [contractConfig.depositAddress, amount],
+        });
+      }
       setIsApproved(true);
     }
   }, [contractConfig, writeContract]);

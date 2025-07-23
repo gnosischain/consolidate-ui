@@ -4,6 +4,7 @@ import { NETWORK_CONFIG } from '../constants/networks';
 import useBalance from '../hooks/useBalance';
 import { NetworkConfig } from '../types/network';
 import { Address } from 'viem';
+import { isTestEnv } from '../wagmi';
 
 interface WalletContextType {
   account: {
@@ -21,6 +22,7 @@ interface WalletContextType {
     claim: () => void;
   };
   isMounted: boolean;
+  isTestEnv: boolean;
 }
 
 const WalletContext = createContext<WalletContextType | null>(null);
@@ -47,6 +49,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     isWrongNetwork: isMounted && isWrongNetwork,
     balance,
     isMounted,
+    isTestEnv,
   };
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
