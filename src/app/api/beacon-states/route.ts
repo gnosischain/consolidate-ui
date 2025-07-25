@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
       })
       .map((v) => {
         const creds = v.validator.withdrawal_credentials;
+        //TODO : verify it not break the fetch of validators
         const address = `0x${creds.slice(-40)}` as Address;
         const filterStatus = STATUS_TO_FILTER[v.status];
         
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
           index: Number(v.index),
           pubkey: v.validator.pubkey,
           balanceEth: (parseGwei(v.balance.toString()) / multiplier).toString(),
-          withdrawal_credentials: address,
+          withdrawal_credentials: v.validator.withdrawal_credentials,
           type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
           filterStatus: filterStatus,
           status: v.status,

@@ -3,13 +3,13 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { formatUnits } from "viem";
+import { formatUnits, parseEther } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
-import { DepositDataJson } from "../types/deposit";
-import { CredentialType } from "../types/validators";
-import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
+import { DepositRequest, DepositDataJson } from "../types/deposit";
+import { CredentialType, ValidatorInfo } from "../types/validators";
+import { formatDepositDataRoot, generateDepositData, generateSignature, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
 
@@ -92,7 +92,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       const credentials = deposits[0].withdrawal_credentials;
       const credentialType = getCredentialType(credentials);
 
-      if(!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
+      if (!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
         throw Error("All validators in the file must have the same withdrawal credentials.");
       }
 
@@ -154,6 +154,46 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
     }
   }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
 
+  const partialDeposit = useCallback(async (amounts: bigint[], validators: ValidatorInfo[]) => {
+    if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
+      const deposits = validators.map((validator, index) => {
+        const deposit: DepositRequest = {
+          pubkey: validator.pubkey as `0x${string}`,
+          withdrawal_credentials: validator.withdrawal_credentials as `0x${string}`,
+          signature: generateSignature(96),
+          amount: amounts[index] * contractConfig.cl.multiplier,
+        }
+
+        const deposit_data_root = formatDepositDataRoot(deposit)
+
+        return {
+          ...deposit,
+          pubkey: validator.pubkey.replace("0x", ""),
+          signature: deposit.signature.replace("0x", ""),
+          deposit_data_root: deposit_data_root.replace("0x", ""),
+          withdrawal_credentials: validator.withdrawal_credentials.replace("0x", ""),
+          deposit_message_root: "0x0000000000000000000000000000000000000000000000000000000000000000",
+          fork_version: contractConfig.forkVersion,
+        }
+      })
+
+      const data = generateDepositData(deposits);
+
+      writeContract({
+        address: contractConfig.depositAddress,
+        abi: DEPOSIT_ABI,
+        functionName: "batchDeposit",
+        args: [
+          data.pubkeys,
+          data.withdrawal_credentials,
+          data.signatures,
+          data.deposit_data_roots,
+          data.amounts,
+        ],
+      });
+    }
+  }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
+
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
       writeContract({
@@ -161,10 +201,14 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         abi: ERC677ABI,
         functionName: "approve",
         args: [contractConfig.depositAddress, amount],
-      }); 
+      });
       setIsApproved(true);
     }
   }, [contractConfig, writeContract]);
+
+  useEffect(() => {
+    console.log(depositHash, contractError, txError);
+  }, [depositHash, contractError, txError]);
 
   useEffect(() => {
     if (depositSuccess) {
@@ -174,6 +218,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
   return {
     deposit,
+    partialDeposit,
     depositSuccess,
     contractError,
     txError,

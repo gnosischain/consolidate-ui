@@ -15,5 +15,13 @@ export interface BatchDepositData {
     signatures: `0x${string}`;
     deposit_data_roots: `0x${string}`[];
     amounts: bigint[];
-  }
+}
+
+
+export interface DepositRequest {
+    pubkey: `0x${string}`;
+    amount: bigint;
+    signature: `0x${string}`;
+    withdrawal_credentials: `0x${string}`;
+}
 
