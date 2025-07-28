@@ -2,8 +2,9 @@ import { useCallback, useState, useEffect } from "react";
 import {
   useWriteContract,
   useWaitForTransactionReceipt,
+  useReadContract,
 } from "wagmi";
-import { formatUnits } from "viem";
+import { formatEther, parseGwei } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
@@ -24,6 +25,24 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   });
   const client = useClient();
   const [isApproved, setIsApproved] = useState(false);
+
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+    address: contractConfig?.tokenAddress,
+    abi: ERC677ABI,
+    functionName: "allowance",
+    args: contractConfig?.tokenAddress && contractConfig?.depositAddress ? [address, contractConfig.depositAddress] : undefined,
+  });
+
+  useEffect(() => {
+    if (allowance && totalDepositAmount > 0n && contractConfig?.cl?.multiplier) {
+      const requiredAmount = totalDepositAmount;
+      console.log(allowance, requiredAmount, totalDepositAmount);
+      setIsApproved(allowance >= requiredAmount);
+    } else {
+      setIsApproved(false);
+    }
+  }, [allowance, totalDepositAmount, contractConfig?.cl?.multiplier]);
+
   const validate = useCallback(
     async (deposits: DepositDataJson[], balance: bigint) => {
 
@@ -92,20 +111,20 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       const credentials = deposits[0].withdrawal_credentials;
       const credentialType = getCredentialType(credentials);
 
-      if(!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
+      if (!validDeposits.every((d) => d.withdrawal_credentials === credentials)) {
         throw Error("All validators in the file must have the same withdrawal credentials.");
       }
 
-      const _totalDepositAmount = validDeposits.reduce((acc, deposit) => acc + BigInt(deposit.amount), 0n);
+      const _totalDepositAmount = validDeposits.reduce((acc, deposit) => acc + parseGwei(deposit.amount.toString()) / 32n, 0n);
 
       if (balance < _totalDepositAmount) {
-        throw Error(`Unsufficient balance. ${Number(formatUnits(_totalDepositAmount, 9))} GNO is required.
+        throw Error(`Unsufficient balance. ${formatEther(_totalDepositAmount)} GNO is required.
       `);
       }
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client, isPartialDeposit]
+    [contractConfig, client, isPartialDeposit, pubkey]
   );
 
   const setDepositData = useCallback(
@@ -152,7 +171,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       // should move refetchBalance to onDeposit function ?
       refetchBalance();
     }
-  }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
+  }, [contractConfig, deposits, refetchBalance, writeContract]);
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
@@ -161,16 +180,16 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         abi: ERC677ABI,
         functionName: "approve",
         args: [contractConfig.depositAddress, amount],
-      }); 
-      setIsApproved(true);
+      });
     }
   }, [contractConfig, writeContract]);
 
   useEffect(() => {
     if (depositSuccess) {
       refetchBalance();
+      refetchAllowance();
     }
-  }, [depositSuccess, refetchBalance]);
+  }, [depositSuccess, refetchBalance, refetchAllowance]);
 
   return {
     deposit,
