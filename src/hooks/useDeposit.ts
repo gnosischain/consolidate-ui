@@ -2,8 +2,9 @@ import { useCallback, useState, useEffect } from "react";
 import {
   useWriteContract,
   useWaitForTransactionReceipt,
+  useReadContract,
 } from "wagmi";
-import { formatUnits } from "viem";
+import { formatUnits, parseGwei } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
@@ -24,6 +25,23 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   });
   const client = useClient();
   const [isApproved, setIsApproved] = useState(false);
+  
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+    address: contractConfig?.tokenAddress,
+    abi: ERC677ABI,
+    functionName: "allowance",
+    args: contractConfig?.tokenAddress && contractConfig?.depositAddress ? [address, contractConfig.depositAddress] : undefined,
+  });
+  
+  useEffect(() => {
+    if (allowance && totalDepositAmount > 0n && contractConfig?.cl?.multiplier) {
+      const requiredAmount = parseGwei(totalDepositAmount.toString()) / BigInt(contractConfig.cl.multiplier);
+      setIsApproved(allowance >= requiredAmount);
+    } else {
+      setIsApproved(false);
+    }
+  }, [allowance, totalDepositAmount, contractConfig?.cl?.multiplier]);
+
   const validate = useCallback(
     async (deposits: DepositDataJson[], balance: bigint) => {
 
@@ -161,16 +179,16 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         abi: ERC677ABI,
         functionName: "approve",
         args: [contractConfig.depositAddress, amount],
-      }); 
-      setIsApproved(true);
+      });
     }
   }, [contractConfig, writeContract]);
 
   useEffect(() => {
     if (depositSuccess) {
       refetchBalance();
+      refetchAllowance();
     }
-  }, [depositSuccess, refetchBalance]);
+  }, [depositSuccess, refetchBalance, refetchAllowance]);
 
   return {
     deposit,
