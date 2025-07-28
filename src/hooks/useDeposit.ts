@@ -4,7 +4,7 @@ import {
   useWaitForTransactionReceipt,
   useReadContract,
 } from "wagmi";
-import { formatEther, formatUnits, parseGwei } from "viem";
+import { formatEther, parseGwei } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
@@ -124,7 +124,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client, isPartialDeposit]
+    [contractConfig, client, isPartialDeposit, pubkey]
   );
 
   const setDepositData = useCallback(
@@ -171,7 +171,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       // should move refetchBalance to onDeposit function ?
       refetchBalance();
     }
-  }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
+  }, [contractConfig, deposits, refetchBalance, writeContract]);
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {

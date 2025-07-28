@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { formatEther, formatGwei, parseGwei } from "viem";
+import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 import { ValidatorInfo } from "../types/validators";
