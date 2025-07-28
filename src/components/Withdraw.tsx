@@ -29,7 +29,7 @@ export default function Withdraw({ validator }: WithdrawProps) {
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Validator {validator.index}</h3>
-          <p className="text-sm text-gray-500">Balance: {formatEther(validator.balanceEth)} GNO</p>
+          <p className="text-sm text-gray-500">Balance: {Number(formatEther(validator.balanceEth)).toFixed(2)} GNO</p>
           <fieldset className="fieldset mt-2 w-full gap-y-2">
             <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(validator.balanceEth)}>Max</button></legend>
             <input

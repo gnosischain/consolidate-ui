@@ -176,7 +176,7 @@ export function ConsolidateAggregate({
 							<ul className="list-disc list-inside text-xs mt-1">
 								{skippedValidators.map((v) => (
 									<li key={v.index}>
-										{v.index} ({formatEther(v.balanceEth)} GNO)
+										{v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
 									</li>
 								))}
 							</ul>
