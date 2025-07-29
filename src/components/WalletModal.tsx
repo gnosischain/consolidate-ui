@@ -35,12 +35,13 @@ export default function WalletModal() {
 				<div className="flex items-center gap-x-3">
 					{/* Wallet Button */}
 					<button
-						className="btn btn-ghost btn-sm flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-base-300 transition-all duration-200"
+						className="btn btn-ghost flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-base-300 transition-all duration-200"
 						popoverTarget="wallet-popover"
 						style={{ anchorName: "--wallet-anchor" } as React.CSSProperties}
+						onClick={() => handleViewChange('main')}
 					>
 						<span className="font-medium">{truncateAddress(account.address)}</span>
-						<img src="/bars3.svg" alt="Menu" className="w-4 h-4 opacity-70" />
+						<img src="/bars3.svg" alt="Menu" className="w-5 h-5 opacity-70" />
 					</button>
 
 					{/* Wallet Popover */}
