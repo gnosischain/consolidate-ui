@@ -11,6 +11,7 @@ interface WalletContextType {
     address?: Address;
   };
   chainId?: number;
+  chainName?: string;
   network?: NetworkConfig;
   isWrongNetwork: boolean;
   balance: {
@@ -29,6 +30,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
   const account = useAccount();
   const chainId = account?.chainId;
+  const chainName = account?.chain?.name;
   const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
   const isWrongNetwork = Boolean(account.isConnected && !network);
   const balance = useBalance(network, account.address);
@@ -43,6 +45,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       address: account.address,
     },
     chainId,
+    chainName,
     network,
     isWrongNetwork: isMounted && isWrongNetwork,
     balance,

@@ -5,7 +5,6 @@ import Consolidate from '../components/Consolidate';
 import { DisclaimerBanner } from '../components/Disclaimer';
 import { useWallet } from '../context/WalletContext';
 import Navbar from '../components/Navbar';
-import { Balance } from '../components/Balance';
 
 function App() {
 	const { account, chainId, network, isWrongNetwork, balance } = useWallet();
@@ -21,7 +20,6 @@ function App() {
 			<div className="flex px-8 flex-col h-full w-full items-center justify-center bg-base-100">
 				{account.isConnected && account.address && network && chainId && balance ? (
 					<>
-						<Balance />
 						<Consolidate />
 					</>
 				) : (
