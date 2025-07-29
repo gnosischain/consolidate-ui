@@ -15,10 +15,9 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
     if (!network) {
         throw new Error('Network not found');
     }
-    
+
     const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
     const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
-
 
     const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -38,10 +37,6 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
         }
     };
 
-    if (consolidations.length === 0) {
-        return null;
-    }
-
     return (
         <>
             <button
@@ -50,22 +45,36 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
             >
                 Summary
             </button>
+
             <dialog ref={dialogRef} className="modal">
-                <div className="modal-box">
-                    <div className="overflow-auto h-72">
-                        <table className="table">
-                            {/* head */}
+                <div className="modal-box max-w-4xl">
+                    <div className="flex w-full items-center justify-between mb-6">
+                        <div>
+                            <h3 className="font-bold text-2xl">Consolidation Details</h3>
+                            <p className="text-sm text-base-content opacity-70 mt-1">
+                                Review all consolidation operations before executing
+                            </p>
+                        </div>
+                        <p className="text-sm text-base-content opacity-70 text-right">
+                            {consolidations.length} operations
+                        </p>
+                    </div>
+
+                    <div className="max-h-96 overflow-y-auto border border-base-300 rounded-lg">
+                        <table className="table table-pin-rows table-zebra">
                             <thead>
-                                <tr>
-                                    <th>Source</th>
-                                    <th>Target</th>
-                                    <th>Balance</th>
+                                <tr className="bg-base-200">
+                                    <th>#</th>
+                                    <th>Source Index</th>
+                                    <th>Target Index</th>
+                                    <th>Combined Balance</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {consolidations.map((c, i) => (
-                                    <tr key={i}>
+                                    <tr key={i} className="text-sm">
+                                        <td>{i + 1}</td>
                                         <td>{c.sourceIndex}</td>
                                         <td>{c.targetIndex}</td>
                                         <td>{Number(formatEther(c.sourceBalance + c.targetBalance)).toFixed(2)} GNO</td>
@@ -80,7 +89,7 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
 
                     <button
                         onClick={handleConsolidate}
-                        className="btn btn-primary"
+                        className="btn btn-primary mt-6"
                         disabled={currentBatchIndex >= batches.length}
                     >
                         {currentBatchIndex >= batches.length
@@ -89,7 +98,7 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
                         }
                     </button>
                     {batches.length > 1 && (
-                        <p className="text-xs text-center">
+                        <p className="text-xs mt-2">
                             Processing in batches of {BATCH_SIZE} consolidations
                         </p>
                     )}
