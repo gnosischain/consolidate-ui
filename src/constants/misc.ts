@@ -1,0 +1,1 @@
+export const SECOND_IN_DAY = 86400;

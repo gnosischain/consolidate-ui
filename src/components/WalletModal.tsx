@@ -6,8 +6,9 @@ import { SelectWallet } from "./SelectWallet";
 import { AccountView } from "./AccountView";
 import { AutoclaimView } from "./AutoclaimView";
 import { NetworkView } from "./NetworkView";
+import { AutoclaimConfigView } from "./AutoclaimConfigView";
 
-type ModalView = 'main' | 'autoclaim' | 'network';
+export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config' | 'autoclaim-success';
 
 export default function WalletModal() {
 	const { account, chainId, chainName, network } = useWallet();
@@ -63,7 +64,7 @@ export default function WalletModal() {
 						{currentView === 'autoclaim' && (
 							<AutoclaimView
 								network={network}
-								onBackToMain={() => handleViewChange('main')}
+								handleViewChange={handleViewChange}
 							/>
 						)}
 						{currentView === 'network' && (
@@ -72,6 +73,13 @@ export default function WalletModal() {
 								currentChainId={chainId}
 								handleNetworkChange={handleNetworkChange}
 								onBackToMain={() => handleViewChange('main')}
+							/>
+						)}
+						{currentView === 'autoclaim-config' && (
+							<AutoclaimConfigView
+								network={network}
+								address={account.address}
+								handleViewChange={handleViewChange}
 							/>
 						)}
 					</div>
