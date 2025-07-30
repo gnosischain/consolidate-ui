@@ -34,6 +34,11 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         setAmountValue(inputVal);
     };
 
+    const handleTimeValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const inputVal = event.target.value;
+        setTimeValue(parseInt(inputVal));
+    };
+
     const handleTimeUnitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setTimeUnit(event.target.value);
     };
@@ -122,20 +127,21 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                     </label>
                 </div>
 
-                <div className="flex flex-col p-2 bg-base-200/50 rounded-box mt-8">
+                <div className="flex flex-col p-2 bg-base-200/40 rounded-box mt-8">
                     {/* Time Threshold Section */}
                     <fieldset className="fieldset rounded-box">
                         <legend className="fieldset-legend">Frequency</legend>
-                        <div className="flex w-full items-center gap-2">
+                        <div className="flex w-full items-center join">
                             <input
                                 type="number"
-                                className="input input-sm validator w-16"
+                                className="input input-sm join-item validator w-16"
                                 required
                                 min="1"
                                 max="100"
                                 value={timeValue.toString()}
+                                onChange={handleTimeValueChange}
                             />
-                            <select defaultValue={timeUnit} className="select select-sm w-24" onChange={handleTimeUnitChange}>
+                            <select defaultValue={timeUnit} className="select select-sm w-24 join-item" onChange={handleTimeUnitChange}>
                                 <option>days</option>
                                 <option>weeks</option>
                                 <option>months</option>
@@ -146,20 +152,18 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                     {/* Amount Threshold Section */}
                     <fieldset className="fieldset rounded-box">
                         <legend className="fieldset-legend">Amount Threshold</legend>
-                        <div className="flex w-full items-center join">
+                        <label className="input input-sm w-24 validator">
                             <input
                                 type="number"
-                                className="input input-sm join-item validator w-16"
                                 required
                                 min="1"
                                 max="100"
                                 title="Must be between be 1 to 100"
                                 value={amountValue.toString()}
                                 onChange={handleInputChange}
-                            />
+                            />GNO
 
-                            <span className="text-sm text-base-content font-medium bg-base-200 px-3 py-[6px] rounded join-item">GNO</span>
-                        </div>
+                        </label>
                     </fieldset>
                 </div>
 
@@ -167,7 +171,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                     className="btn btn-primary btn-sm mt-8"
                     onClick={onAutoclaim}
                 >
-                    {loading ? 'Processing...' : (isRegister ? "Update Configuration" : "Register for Autoclaim")}
+                    {loading ? 'Processing...' : (isRegister ? "Save changes" : "Register for Autoclaim")}
                 </button>
                 {isRegister && (
                     <div>
