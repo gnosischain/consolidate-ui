@@ -53,7 +53,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
             {/* <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(parseGwei(depositData.totalDepositAmount.toString()) / network.cl.multiplier)}>
               {isApproved ? 'Deposit ' : 'Approve ' + formatGwei(depositData.totalDepositAmount / network.cl.multiplier) + ' GNO'}
             </button> */}
-            <button className="btn btn-primary" disabled={amount === 0n} onClick={() => isApproved ? partialDeposit([amount], [validator]) : approve(amount)}>
+            <button className="btn btn-primary" disabled={amount === 0n} onClick={() => isApproved ? partialDeposit([amount / 10n ** 9n], [validator]) : approve(amount)}>
               {isApproved ? 'Deposit ' : 'Approve ' + formatEther(amount) + ' GNO'}
             </button>
           </div>

@@ -3,13 +3,13 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { formatUnits, parseEther } from "viem";
+import { formatUnits } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
 import { DepositRequest, DepositDataJson } from "../types/deposit";
 import { CredentialType, ValidatorInfo } from "../types/validators";
-import { formatDepositDataRoot, generateDepositData, generateSignature, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
+import { buildDepositRoot, generateDepositData, generateSignature, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
 
@@ -161,13 +161,16 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
           pubkey: validator.pubkey as `0x${string}`,
           withdrawal_credentials: validator.withdrawal_credentials as `0x${string}`,
           signature: generateSignature(96),
-          amount: amounts[index] * contractConfig.cl.multiplier,
+          amount: amounts[index] * 32n / 10n ** 9n,
         }
 
-        const deposit_data_root = formatDepositDataRoot(deposit)
+        const deposit_data_root = buildDepositRoot(deposit.pubkey, deposit.withdrawal_credentials, deposit.signature, deposit.amount);
+
+        console.log(deposit_data_root, deposit);
 
         return {
           ...deposit,
+          amount: deposit.amount * 32n,
           pubkey: validator.pubkey.replace("0x", ""),
           signature: deposit.signature.replace("0x", ""),
           deposit_data_root: deposit_data_root.replace("0x", ""),
@@ -205,10 +208,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       setIsApproved(true);
     }
   }, [contractConfig, writeContract]);
-
-  useEffect(() => {
-    console.log(depositHash, contractError, txError);
-  }, [depositHash, contractError, txError]);
 
   useEffect(() => {
     if (depositSuccess) {

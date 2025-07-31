@@ -1,4 +1,4 @@
-import { concat, parseGwei, sha256, toBytes, toHex } from "viem";
+import { concat, parseGwei, sha256, toHex } from "viem";
 import { BatchDepositData, DepositDataJson, DepositRequest } from "../types/deposit";
 import { CredentialType } from "../types/validators";
 
@@ -36,47 +36,28 @@ function toLittleEndian64(value: bigint): Uint8Array {
   return buf;
 }
 
-export function formatDepositDataRoot(deposit: DepositRequest): `0x${string}` {
-  // 1) amount in gwei, as 8‐byte LE
-  const amountGwei = deposit.amount / BigInt(1e9);
-  const amountLe = toLittleEndian64(amountGwei);
-  const amountLeHex = toHex(amountLe);
+export function buildDepositRoot(
+  pubkey: `0x${string}`,
+  withdrawalCreds: `0x${string}`,
+  signature: `0x${string}`,
+  stakeAmountWei: bigint               // the value you pass to the contract
+): `0x${string}` {
 
-  // pre‐compute some zero pads
-  const zeros16Hex = toHex(new Uint8Array(16)); // 16 zero bytes
-  const zeros24Hex = toHex(new Uint8Array(24)); // 24 zero bytes
-  const zeros32Hex = toHex(new Uint8Array(32)); // 32 zero bytes
+  const amountGwei = stakeAmountWei * 32n;
+  const amountLE = toLittleEndian64(amountGwei);
 
-  // 2) pubKeyRoot = SHA256(pubkey || 16 zero bytes)
-  const pubKeyRootHex = sha256(
-    concat([ deposit.pubkey, zeros16Hex ])
-  );
+  const pubkeyRoot = sha256(concat([pubkey, `0x${"00".repeat(16)}`]));
+  const sigPart1 = signature.slice(0, 2 + 64 * 2);        // 64 bytes
+  const sigPart2 = signature.slice(2 + 64 * 2);           // 32 bytes
 
-  // 3) signatureRoot =
-  //    SHA256(
-  //      SHA256(sig[0:64]) ||
-  //      SHA256(sig[64:96] || 32 zero bytes)
-  //    )
-  const sig = deposit.signature;
-  const sigPart1 = `0x${sig.slice(2, 2 + 64 * 2)}`;    // first 64 bytes
-  const sigPart2 = `0x${sig.slice(2 + 64 * 2)}`;        // last 32 bytes
-  const sigHash1Hex = sha256(sigPart1 as `0x${string}`);
-  const sigHash2Hex = sha256(concat([ sigPart2 as `0x${string}`, zeros32Hex ]));
-  const signatureRootHex = sha256(concat([ sigHash1Hex, sigHash2Hex ]));
+  const sigHash1 = sha256(sigPart1 as `0x${string}`);
+  const sigHash2 = sha256(concat([`0x${sigPart2}`, `0x${"00".repeat(32)}`]));
+  const signatureRoot = sha256(concat([sigHash1, sigHash2]));
 
-  // 4a) subtreeA = SHA256(pubKeyRoot || withdrawal_credentials)
-  const subtreeAHex = sha256(
-    concat([ pubKeyRootHex, deposit.withdrawal_credentials ])
-  );
+  const subtreeA = sha256(concat([pubkeyRoot, withdrawalCreds]));
+  const subtreeB = sha256(concat([`0x${Buffer.from(amountLE).toString("hex")}`, `0x${"00".repeat(24)}`, signatureRoot]));
 
-  // 4b) subtreeB = SHA256(amountLE || 24 zero bytes || signatureRoot)
-  const subtreeBHex = sha256(
-    concat([ amountLeHex, zeros24Hex, signatureRootHex ])
-  );
-
-  // 5) final root = SHA256(subtreeA || subtreeB)
-  const rootHex = sha256(concat([ subtreeAHex, subtreeBHex ]));
-  return rootHex;
+  return sha256(concat([subtreeA, subtreeB]));
 }
 
 export const getCredentialType = (withdrawalCredential: string): CredentialType | undefined => {
