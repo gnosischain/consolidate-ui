@@ -4,6 +4,7 @@ import { NetworkConfig } from "../types/network";
 import claimRegistryABI from "../utils/abis/claimRegistry";
 import { parseUnits } from "viem";
 import { SECOND_IN_DAY } from "../constants/misc";
+import payClaimActionABI from "../utils/abis/payClaimAction";
 
 function useAutoclaim(
     contractConfig: NetworkConfig,
@@ -23,11 +24,40 @@ function useAutoclaim(
         }
     );
 
+    const { data: actionContract } = useReadContract(
+        {
+            address: contractConfig.claimRegistryAddress,
+            abi: claimRegistryABI,
+            functionName: 'actionContract',
+            args: [address as `0x${string}`],
+        }
+    );
+
+    const { data: forwardingAddress } = useReadContract(
+        {
+            address: contractConfig.payClaimActionAddress,
+            abi: payClaimActionABI,
+            functionName: 'forwardingAddresses',
+            args: [address as `0x${string}`],
+        }
+    );
+
+    console.log(userConfig, actionContract, forwardingAddress);
+
     const register = useCallback(
         async (days: number, amount: number, claimAction: `0x${string}`) => {
             if (contractConfig && contractConfig.claimRegistryAddress) {
                 const timeStamp = BigInt(days * SECOND_IN_DAY);
                 writeContract({ address: contractConfig.claimRegistryAddress, abi: claimRegistryABI, functionName: "register", args: [address, timeStamp, parseUnits(amount.toString(), 18), claimAction] });
+            }
+        },
+        [address, contractConfig, writeContract]
+    );
+
+    const setActionContract = useCallback(
+        async (actionContract: `0x${string}`) => {
+            if (contractConfig && contractConfig.claimRegistryAddress) {
+                writeContract({ address: contractConfig.claimRegistryAddress, abi: claimRegistryABI, functionName: "setActionContract", args: [address, actionContract] });
             }
         },
         [address, contractConfig, writeContract]
@@ -54,11 +84,21 @@ function useAutoclaim(
         }
     }, [address, contractConfig, writeContract]);
 
+    const setForwardingAddress = useCallback(async (forwardingAddress: `0x${string}`) => {
+        if (contractConfig && contractConfig.payClaimActionAddress) {
+            writeContract({ address: contractConfig.payClaimActionAddress, abi: payClaimActionABI, functionName: "setForwardingAddress", args: [forwardingAddress] });
+        }
+    }, [address, contractConfig, writeContract]);
+
     return {
         register,
+        setActionContract,
         updateConfig,
         unregister,
-        isRegister: userConfig?.[4] === 1 ? true : false,
+        setForwardingAddress,
+        userConfig,
+        actionContract,
+        forwardingAddress,
         autoclaimSuccess,
         autoclaimHash,
     };

@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useAutoclaim from "../hooks/useAutoclaim";
 import { NetworkConfig } from "../types/network";
 import { ModalView } from "./WalletModal";
+import { SECOND_IN_DAY, ZERO_ADDRESS } from "../constants/misc";
+import { formatEther } from "viem";
 
 interface AutoclaimViewProps {
     network: NetworkConfig;
@@ -12,48 +14,110 @@ interface AutoclaimViewProps {
 export function AutoclaimConfigView({ network, address, handleViewChange }: AutoclaimViewProps) {
     const {
         register,
+        setActionContract,
         updateConfig,
         unregister,
-        isRegister,
+        setForwardingAddress,
+        userConfig,
+        forwardingAddress,
+        actionContract,
         autoclaimSuccess,
-        autoclaimHash,
     } = useAutoclaim(network, address);
     const [timeValue, setTimeValue] = useState(1);
-    const [timeUnit, setTimeUnit] = useState("days");
-    const [claimAction, setClaimAction] = useState(network.payClaimActionAddress || "0x0000000000000000000000000000000000000000");
+    const [claimAction, setClaimAction] = useState(actionContract || network.payClaimActionAddress || ZERO_ADDRESS);
     const [amountValue, setAmountValue] = useState("1");
+    const [forwardingAddressValue, setForwardingAddressValue] = useState<`0x${string}`>("0x0");
     const [loading, setLoading] = useState(false);
 
+    const isRegister = userConfig?.[4] === 1 ? true : false;
 
-    const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        if (userConfig) {
+            setTimeValue(userConfig?.[2] ? Number(userConfig[2]) / SECOND_IN_DAY : 1);
+            setAmountValue(userConfig?.[3] ? formatEther(userConfig[3]) : "1");
+            setForwardingAddressValue(forwardingAddress || "0x0");
+        }
+    }, [userConfig]);
+
+
+    const handleClaimActionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setClaimAction(event.target.value as `0x${string}`);
     };
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const inputVal = event.target.value;
         setAmountValue(inputVal);
     };
 
-    const handleTimeValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const inputVal = event.target.value;
         setTimeValue(parseInt(inputVal));
     };
 
-    const handleTimeUnitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setTimeUnit(event.target.value);
-    };
+    const plannedActions = useMemo(() => {
+        const actions: { action: () => Promise<void>, name: string }[] = [];
+        const isGnosisPaySelected = claimAction === network.payClaimActionAddress;
+        const thresholdsChanged = !!(
+            userConfig?.[2] &&
+            userConfig?.[3] &&
+            (timeValue !== Number(userConfig[2]) / SECOND_IN_DAY || amountValue !== formatEther(userConfig[3]))
+        );
+        const actionChanged = actionContract !== claimAction;
+
+        if (!isRegister) {
+            if (isGnosisPaySelected) {
+                const hasOnChainForwarding = forwardingAddress && forwardingAddress !== ZERO_ADDRESS && forwardingAddress !== ("0x0" as `0x${string}`);
+                const hasNewForwardingInput = forwardingAddressValue && forwardingAddressValue !== ZERO_ADDRESS && forwardingAddressValue !== ("0x0" as `0x${string}`);
+                if (!hasOnChainForwarding && hasNewForwardingInput) {
+                    actions.push({ action: () => setForwardingAddress(forwardingAddressValue), name: "Set forwarding address" });
+                }
+            }
+            actions.push({ action: () => register(timeValue, parseFloat(amountValue), claimAction), name: "Register" });
+            return actions;
+        }
+
+        if (actionChanged) {
+            actions.push({ action: () => setActionContract(claimAction), name: "Set action contract" });
+        }
+
+        if (!actionChanged && isGnosisPaySelected && forwardingAddressValue && forwardingAddressValue !== forwardingAddress) {
+            actions.push({ action: () => setForwardingAddress(forwardingAddressValue), name: "Set forwarding address" });
+        }
+
+        if (thresholdsChanged) {
+            actions.push({ action: () => updateConfig(timeValue, parseFloat(amountValue)), name: "Update config" });
+        }
+
+        return actions;
+    }, [
+        isRegister,
+        claimAction,
+        network.payClaimActionAddress,
+        forwardingAddressValue,
+        forwardingAddress,
+        actionContract,
+        userConfig,
+        timeValue,
+        amountValue,
+    ]);
+
+    const buttonText = useMemo(() => {
+        if (loading) return "Processing...";
+        if (plannedActions.length === 0) return "Close";
+        return plannedActions[0]?.name;
+    }, [loading, plannedActions, isRegister]);
 
     const onAutoclaim = useCallback(async () => {
-        const parsedValue = parseFloat(amountValue.replace(/,/, "."));
-        if (!isNaN(parsedValue) && parsedValue > 0) {
-            setLoading(true);
-            if (isRegister) {
-                await updateConfig(timeValue, parsedValue);
-            } else {
-                await register(timeValue, parsedValue, claimAction);
-            }
+        setLoading(true);
+        try {
+            await plannedActions[0].action();
+            plannedActions.shift();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
-    }, [timeValue, amountValue, isRegister, register, updateConfig]);
+    }, [plannedActions]);
 
     const onUnregister = useCallback(async () => {
         setLoading(true);
@@ -66,6 +130,10 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
             handleViewChange('autoclaim-success');
         }
     }, [autoclaimSuccess]);
+
+    const handleForwardingAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setForwardingAddressValue(event.target.value as `0x${string}`);
+    };
 
     return (
         <>
@@ -99,7 +167,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                 <div className="grid grid-cols-2 gap-3 mt-8">
                     <label className="cursor-pointer">
                         <input
-                            onChange={handleRadioChange}
+                            onChange={handleClaimActionChange}
                             defaultChecked
                             type="radio"
                             value={network.payClaimActionAddress}
@@ -114,9 +182,9 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
 
                     <label className="cursor-pointer">
                         <input
-                            onChange={handleRadioChange}
+                            onChange={handleClaimActionChange}
                             type="radio"
-                            value={"0x0000000000000000000000000000000000000000"}
+                            value={ZERO_ADDRESS}
                             name="time-threshold"
                             className="sr-only peer"
                         />
@@ -127,26 +195,24 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                     </label>
                 </div>
 
-                <div className="flex flex-col p-2 bg-base-200/40 rounded-box mt-8">
+                {claimAction === network.payClaimActionAddress && (
+                    <input type="text" className="input input-sm w-full validator mt-3" placeholder="Enter your Gnosis Pay address" value={forwardingAddressValue} onChange={handleForwardingAddressChange} />
+                )}
+
+                <div className="flex flex-col p-2 rounded-box mt-4">
                     {/* Time Threshold Section */}
                     <fieldset className="fieldset rounded-box">
                         <legend className="fieldset-legend">Frequency</legend>
-                        <div className="flex w-full items-center join">
+                        <label className="input input-sm w-24 validator">
                             <input
                                 type="number"
-                                className="input input-sm join-item validator w-16"
                                 required
                                 min="1"
                                 max="100"
                                 value={timeValue.toString()}
-                                onChange={handleTimeValueChange}
-                            />
-                            <select defaultValue={timeUnit} className="select select-sm w-24 join-item" onChange={handleTimeUnitChange}>
-                                <option>days</option>
-                                <option>weeks</option>
-                                <option>months</option>
-                            </select>
-                        </div>
+                                onChange={handleTimeChange}
+                            />days
+                        </label>
                     </fieldset>
 
                     {/* Amount Threshold Section */}
@@ -160,7 +226,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                                 max="100"
                                 title="Must be between be 1 to 100"
                                 value={amountValue.toString()}
-                                onChange={handleInputChange}
+                                onChange={handleAmountChange}
                             />GNO
 
                         </label>
@@ -171,7 +237,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                     className="btn btn-primary btn-sm mt-8"
                     onClick={onAutoclaim}
                 >
-                    {loading ? 'Processing...' : (isRegister ? "Save changes" : "Register for Autoclaim")}
+                    {buttonText}
                 </button>
                 {isRegister && (
                     <div>
