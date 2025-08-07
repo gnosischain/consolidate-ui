@@ -24,10 +24,10 @@ function useAutoclaim(
     );
 
     const register = useCallback(
-        async (days: number, amount: number) => {
+        async (days: number, amount: number, claimAction: `0x${string}`) => {
             if (contractConfig && contractConfig.claimRegistryAddress) {
                 const timeStamp = BigInt(days * SECOND_IN_DAY);
-                writeContract({ address: contractConfig.claimRegistryAddress, abi: claimRegistryABI, functionName: "register", args: [address, timeStamp, parseUnits(amount.toString(), 18)] });
+                writeContract({ address: contractConfig.claimRegistryAddress, abi: claimRegistryABI, functionName: "register", args: [address, timeStamp, parseUnits(amount.toString(), 18), claimAction] });
             }
         },
         [address, contractConfig, writeContract]

@@ -20,13 +20,13 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
     } = useAutoclaim(network, address);
     const [timeValue, setTimeValue] = useState(1);
     const [timeUnit, setTimeUnit] = useState("days");
-    const [claimAction, setClaimAction] = useState("pay");
+    const [claimAction, setClaimAction] = useState(network.payClaimActionAddress || "0x0000000000000000000000000000000000000000");
     const [amountValue, setAmountValue] = useState("1");
     const [loading, setLoading] = useState(false);
 
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setClaimAction(event.target.value);
+        setClaimAction(event.target.value as `0x${string}`);
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +50,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
             if (isRegister) {
                 await updateConfig(timeValue, parsedValue);
             } else {
-                await register(timeValue, parsedValue);
+                await register(timeValue, parsedValue, claimAction);
             }
         }
     }, [timeValue, amountValue, isRegister, register, updateConfig]);
@@ -102,7 +102,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                             onChange={handleRadioChange}
                             defaultChecked
                             type="radio"
-                            value={1}
+                            value={network.payClaimActionAddress}
                             name="time-threshold"
                             className="sr-only peer"
                         />
@@ -116,7 +116,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                         <input
                             onChange={handleRadioChange}
                             type="radio"
-                            value={7}
+                            value={"0x0000000000000000000000000000000000000000"}
                             name="time-threshold"
                             className="sr-only peer"
                         />
