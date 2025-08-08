@@ -42,8 +42,6 @@ function useAutoclaim(
         }
     );
 
-    console.log(userConfig, actionContract, forwardingAddress);
-
     const register = useCallback(
         async (days: number, amount: number, claimAction: `0x${string}`) => {
             if (contractConfig && contractConfig.claimRegistryAddress) {
@@ -88,7 +86,7 @@ function useAutoclaim(
         if (contractConfig && contractConfig.payClaimActionAddress) {
             writeContract({ address: contractConfig.payClaimActionAddress, abi: payClaimActionABI, functionName: "setForwardingAddress", args: [forwardingAddress] });
         }
-    }, [address, contractConfig, writeContract]);
+    }, [contractConfig, writeContract]);
 
     return {
         register,
