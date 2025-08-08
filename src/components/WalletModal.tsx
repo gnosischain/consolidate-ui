@@ -8,7 +8,7 @@ import { AutoclaimView } from "./AutoclaimView";
 import { NetworkView } from "./NetworkView";
 import { AutoclaimConfigView } from "./AutoclaimConfigView";
 
-export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config' | 'autoclaim-success';
+export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config';
 
 export default function WalletModal() {
 	const { account, chainId, chainName, network } = useWallet();

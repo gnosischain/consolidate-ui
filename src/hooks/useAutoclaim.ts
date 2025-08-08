@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { NetworkConfig } from "../types/network";
 import claimRegistryABI from "../utils/abis/claimRegistry";
@@ -10,12 +10,12 @@ function useAutoclaim(
     contractConfig: NetworkConfig,
     address: `0x${string}`,
 ) {
-    const { data: autoclaimHash, writeContract } = useWriteContract();
-    const { isSuccess: autoclaimSuccess } = useWaitForTransactionReceipt({
-        hash: autoclaimHash,
+    const { data: transactionHash, writeContract } = useWriteContract();
+    const { isSuccess: transactionSuccess, isLoading: transactionLoading } = useWaitForTransactionReceipt({
+        hash: transactionHash,
     });
 
-    const { data: userConfig } = useReadContract(
+    const { data: userConfig, refetch: refetchUserConfig } = useReadContract(
         {
             address: contractConfig.claimRegistryAddress,
             abi: claimRegistryABI,
@@ -24,7 +24,7 @@ function useAutoclaim(
         }
     );
 
-    const { data: actionContract } = useReadContract(
+    const { data: actionContract, refetch: refetchActionContract } = useReadContract(
         {
             address: contractConfig.claimRegistryAddress,
             abi: claimRegistryABI,
@@ -33,7 +33,7 @@ function useAutoclaim(
         }
     );
 
-    const { data: forwardingAddress } = useReadContract(
+    const { data: forwardingAddress, refetch: refetchForwardingAddress } = useReadContract(
         {
             address: contractConfig.payClaimActionAddress,
             abi: payClaimActionABI,
@@ -88,6 +88,15 @@ function useAutoclaim(
         }
     }, [contractConfig, writeContract]);
 
+    useEffect(() => {
+        if (transactionSuccess) {
+            console.log('Transaction successful, refetching all data');
+            refetchUserConfig();
+            refetchActionContract();
+            refetchForwardingAddress();
+        }
+    }, [transactionSuccess, refetchUserConfig, refetchActionContract, refetchForwardingAddress]);
+
     return {
         register,
         setActionContract,
@@ -97,8 +106,9 @@ function useAutoclaim(
         userConfig,
         actionContract,
         forwardingAddress,
-        autoclaimSuccess,
-        autoclaimHash,
+        transactionSuccess,
+        transactionLoading,
+        transactionHash,
     };
 }
 

@@ -21,13 +21,13 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         userConfig,
         forwardingAddress,
         actionContract,
-        autoclaimSuccess,
+        transactionSuccess,
+        transactionLoading,
     } = useAutoclaim(network, address);
     const [timeValue, setTimeValue] = useState(1);
     const [claimAction, setClaimAction] = useState<`0x${string}`>(ZERO_ADDRESS);
     const [amountValue, setAmountValue] = useState("1");
     const [forwardingAddressValue, setForwardingAddressValue] = useState<string>("");
-    const [loading, setLoading] = useState(false);
 
     const isRegister = userConfig?.[4] === 1 ? true : false;
 
@@ -137,35 +137,24 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         amountValue,
     ]);
 
-    const buttonText = useMemo(() => {
-        if (loading) return "Processing...";
+        const buttonText = useMemo(() => {
+        if (transactionLoading) return "Processing...";
         if (plannedActions.length === 0) return "Save";
         return plannedActions[0]?.name;
-    }, [loading, plannedActions, isRegister]);
+    }, [transactionLoading, plannedActions, isRegister]);
 
     const onAutoclaim = useCallback(async () => {
-        setLoading(true);
         try {
             await plannedActions[0].action();
             plannedActions.shift();
         } catch (error) {
             console.error(error);
-        } finally {
-            setLoading(false);
         }
     }, [plannedActions]);
 
     const onUnregister = useCallback(async () => {
-        setLoading(true);
         await unregister();
     }, [unregister]);
-
-    useEffect(() => {
-        if (autoclaimSuccess) {
-            setLoading(false);
-            handleViewChange('autoclaim-success');
-        }
-    }, [autoclaimSuccess]);
 
     return (
         <>
@@ -277,7 +266,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
 
                 <button
                     className="btn btn-primary btn-sm mt-8"
-                    disabled={plannedActions.length === 0 || loading}
+                    disabled={plannedActions.length === 0 || transactionLoading}
                     onClick={onAutoclaim}
                 >
                     {buttonText}
@@ -288,7 +277,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                             className="btn btn-ghost btn-xs mt-4"
                             onClick={onUnregister}
                         >
-                            {loading ? 'Processing...' : 'Unsubscribe'}
+                            {transactionLoading ? 'Processing...' : 'Unsubscribe'}
                         </button>
                     </div>
                 )}
