@@ -5,13 +5,13 @@ import type { ModalView } from "./WalletModal";
 import { SECOND_IN_DAY, ZERO_ADDRESS } from "../constants/misc";
 import { formatEther, isAddress } from "viem";
 
-interface AutoclaimViewProps {
+interface AutoclaimConfigViewProps {
     network: NetworkConfig;
     address: `0x${string}`;
     handleViewChange: (view: ModalView) => void;
 }
 
-export function AutoclaimConfigView({ network, address, handleViewChange }: AutoclaimViewProps) {
+export function AutoclaimConfigView({ network, address, handleViewChange }: AutoclaimConfigViewProps) {
     const {
         register,
         setActionContract,
@@ -50,7 +50,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         if (forwardingAddress && forwardingAddress !== ZERO_ADDRESS && isRegister) {
             setForwardingAddressValue(forwardingAddress);
         }
-    }, [forwardingAddress]);
+    }, [forwardingAddress, isRegister]);
 
 
     const handleClaimActionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,13 +137,18 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         userConfig,
         timeValue,
         amountValue,
+        setForwardingAddress,
+        approve,
+        updateConfig,
+        setActionContract,
+        register,
     ]);
 
         const buttonText = useMemo(() => {
         if (transactionLoading) return "Processing...";
         if (plannedActions.length === 0) return "Save";
         return plannedActions[0]?.name;
-    }, [transactionLoading, plannedActions, isRegister]);
+    }, [transactionLoading, plannedActions]);
 
     const onAutoclaim = useCallback(async () => {
         try {

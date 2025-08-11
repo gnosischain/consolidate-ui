@@ -1,8 +1,7 @@
 import { useDisconnect } from "wagmi";
 import { truncateAddress } from "../utils/address";
 import { Balance } from "./Balance";
-
-type ModalView = 'main' | 'autoclaim' | 'network';
+import { ModalView } from "./WalletModal";
 
 interface AccountViewProps {
     address: `0x${string}`;
