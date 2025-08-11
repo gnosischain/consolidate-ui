@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useAutoclaim from "../hooks/useAutoclaim";
 import { NetworkConfig } from "../types/network";
-import { ModalView } from "./WalletModal";
+import type { ModalView } from "./WalletModal";
 import { SECOND_IN_DAY, ZERO_ADDRESS } from "../constants/misc";
 import { formatEther, isAddress } from "viem";
 

@@ -22,6 +22,9 @@ function useAutoclaim(
             abi: claimRegistryABI,
             functionName: 'configs',
             args: [address as `0x${string}`],
+            query: {
+                enabled: Boolean(contractConfig.claimRegistryAddress),
+            },
         }
     );
 
@@ -31,6 +34,9 @@ function useAutoclaim(
             abi: claimRegistryABI,
             functionName: 'actionContract',
             args: [address as `0x${string}`],
+            query: {
+                enabled: Boolean(contractConfig.claimRegistryAddress),
+            },
         }
     );
 
@@ -40,13 +46,16 @@ function useAutoclaim(
             abi: payClaimActionABI,
             functionName: 'forwardingAddresses',
             args: [address as `0x${string}`],
+            query: {
+                enabled: Boolean(contractConfig.payClaimActionAddress),
+            },
         }
     );
 
     const register = useCallback(
         async (days: number, amount: number, claimAction: `0x${string}`) => {
             if (contractConfig && contractConfig.claimRegistryAddress) {
-                const timeStamp = BigInt(days * SECOND_IN_DAY);
+                const timeStamp = BigInt(days) * BigInt(SECOND_IN_DAY);
                 writeContract({ address: contractConfig.claimRegistryAddress, abi: claimRegistryABI, functionName: "register", args: [address, timeStamp, parseUnits(amount.toString(), 18), claimAction] });
             }
         },
@@ -65,7 +74,7 @@ function useAutoclaim(
     const updateConfig = useCallback(
         async (days: number, amount: number) => {
             if (contractConfig && contractConfig.claimRegistryAddress) {
-                const timeStamp = BigInt(days * SECOND_IN_DAY);
+                const timeStamp = BigInt(days) * BigInt(SECOND_IN_DAY);
                 writeContract({ address: contractConfig.claimRegistryAddress, abi: claimRegistryABI, functionName: "updateConfig", args: [address, timeStamp, parseUnits(amount.toString(), 18)] });
             }
         },
@@ -91,7 +100,7 @@ function useAutoclaim(
 
     const approve = useCallback(async () => {
         if (contractConfig && contractConfig.tokenAddress && contractConfig.payClaimActionAddress) {
-            writeContract({ address: contractConfig.tokenAddress, abi: ERC677ABI, functionName: "approve", args: [contractConfig.payClaimActionAddress, parseUnits("1000000000000000000000000000000000000000", 18)] });
+            writeContract({ address: contractConfig.tokenAddress, abi: ERC677ABI, functionName: "approve", args: [contractConfig.payClaimActionAddress, parseUnits("100", 18)] });
         }
     }, [contractConfig, writeContract]);
 
