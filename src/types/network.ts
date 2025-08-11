@@ -7,6 +7,7 @@ export interface NetworkConfig {
     tokenAddress?: Address;
     depositAddress?: Address;
     claimRegistryAddress?: Address;
+	payClaimActionAddress?: Address;
     dappnodeIncentiveAddress?: Address;
 	beaconchainApi?: string;
 	clEndpoint: string;
