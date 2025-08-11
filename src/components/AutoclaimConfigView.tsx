@@ -18,6 +18,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         updateConfig,
         unregister,
         setForwardingAddress,
+        approve,
         userConfig,
         forwardingAddress,
         actionContract,
@@ -94,6 +95,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                     return actions;
                 }
                 actions.push({ action: () => setForwardingAddress(forwardingAddressValue as `0x${string}`), name: "Set forwarding address" });
+                actions.push({ action: () => approve(), name: "Approve" });
             }
             actions.push({ action: () => register(timeValue, parseFloat(amountValue), claimAction), name: "Register" });
             return actions;
@@ -109,6 +111,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                 if (needsForwardingAddress()) {
                     actions.push({ action: () => setForwardingAddress(forwardingAddressValue as `0x${string}`), name: "Set forwarding address" });
                 }
+                actions.push({ action: () => approve(), name: "Approve" });
             }
             actions.push({ action: () => setActionContract(claimAction), name: "Set action contract" });
             return actions;

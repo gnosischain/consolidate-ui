@@ -44,7 +44,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 		tokenAddress: "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
 		depositAddress: "0x0B98057eA310F4d31F2a452B414647007d1645d9",
 		claimRegistryAddress: "0xC40Afe50EfB8D18f596211a4AF53fe142CA5DE04",
-		payClaimActionAddress: "0x1E5936E199Ba0C6DeB7B0E52e2A83FAbB5208AD5",
+		payClaimActionAddress: "0x8530D4D6E187861335555B9827400248AB0a07F8",
 		dappnodeIncentiveAddress: "0x485c6Be503D32511c1282b68dD99E85f250572c3",
 		clEndpoint: 'https://rpc-gbc.gnosischain.com',
 		beaconchainApi: 'https://gnosischa.in',

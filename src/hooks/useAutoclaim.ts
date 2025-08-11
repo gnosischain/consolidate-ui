@@ -5,6 +5,7 @@ import claimRegistryABI from "../utils/abis/claimRegistry";
 import { parseUnits } from "viem";
 import { SECOND_IN_DAY } from "../constants/misc";
 import payClaimActionABI from "../utils/abis/payClaimAction";
+import ERC677ABI from "../utils/abis/erc677";
 
 function useAutoclaim(
     contractConfig: NetworkConfig,
@@ -88,6 +89,12 @@ function useAutoclaim(
         }
     }, [contractConfig, writeContract]);
 
+    const approve = useCallback(async () => {
+        if (contractConfig && contractConfig.tokenAddress && contractConfig.payClaimActionAddress) {
+            writeContract({ address: contractConfig.tokenAddress, abi: ERC677ABI, functionName: "approve", args: [contractConfig.payClaimActionAddress, parseUnits("1000000000000000000000000000000000000000", 18)] });
+        }
+    }, [contractConfig, writeContract]);
+
     useEffect(() => {
         if (transactionSuccess) {
             console.log('Transaction successful, refetching all data');
@@ -103,6 +110,7 @@ function useAutoclaim(
         updateConfig,
         unregister,
         setForwardingAddress,
+        approve,
         userConfig,
         actionContract,
         forwardingAddress,
