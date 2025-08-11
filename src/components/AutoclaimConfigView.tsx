@@ -22,7 +22,6 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         userConfig,
         forwardingAddress,
         actionContract,
-        transactionSuccess,
         transactionLoading,
     } = useAutoclaim(network, address);
     const [timeValue, setTimeValue] = useState(1);

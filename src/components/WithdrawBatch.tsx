@@ -20,7 +20,7 @@ export default function WithdrawBatch({ validators, totalBalance }: WithdrawProp
   const [amount, setAmount] = useState(0);
   const [preventExit, setPreventExit] = useState(true);
 
-  const { withdrawals, exits, withdrawalsAmount } = useMemo(() => computeWithdrawals(validators, parseEther(amount.toString()), totalBalance, preventExit), [validators, amount, totalBalance, preventExit]);
+  const { withdrawals, exits, withdrawalsAmount } = useMemo(() => computeWithdrawals(validators, parseEther(amount.toString()), totalBalance, preventExit), [validators, amount, totalBalance, preventExit, computeWithdrawals ]);
   return (
     <>
       <button
