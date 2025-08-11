@@ -1,18 +1,19 @@
 import { NetworkConfig } from "../types/network";
+import { ModalView } from "./WalletModal";
 
 interface AutoclaimViewProps {
     network: NetworkConfig;
-    onBackToMain: () => void;
+    handleViewChange: (view: ModalView) => void;
 }
 
-export function AutoclaimView({ network, onBackToMain }: AutoclaimViewProps) {
+export function AutoclaimView({ network, handleViewChange }: AutoclaimViewProps) {
     return (
         <>
             {/* Header with Back Button */}
             <div className="px-4 py-4 border-b border-base-300">
                 <div className="flex items-center justify-between">
                     <button
-                        onClick={onBackToMain}
+                        onClick={() => handleViewChange('main')}
                         className="btn btn-ghost btn-sm btn-circle"
                         aria-label="Back to wallet"
                     >
@@ -41,17 +42,22 @@ export function AutoclaimView({ network, onBackToMain }: AutoclaimViewProps) {
                                 <p className="text-xs text-base-content/70 mb-1">Registry Address</p>
                                 <p className="font-mono text-sm break-all">{network.claimRegistryAddress}</p>
                             </div>
-                            <button className="btn btn-primary btn-sm w-full">
+                            <button className="btn btn-primary btn-sm w-full mt-4" onClick={() => handleViewChange('autoclaim-config')}>
                                 Configure Autoclaim
                             </button>
                         </div>
                     )}
                     {!network.claimRegistryAddress && (
+                        <>
                         <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
                             <p className="text-sm text-warning">
                                 Autoclaim registry not available for this network.
                             </p>
                         </div>
+                        <button className="btn btn-primary btn-xs mt-4" onClick={() => handleViewChange('network')}>
+                            Switch to Gnosis Chain
+                        </button>
+                        </>
                     )}
                 </div>
             </div>
