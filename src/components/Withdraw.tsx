@@ -16,7 +16,7 @@ export default function Withdraw({ validator }: WithdrawProps) {
   
   const { withdrawalValidators } = useWithdraw(network);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [amount, setAmount] = useState(0n);
+  const [amount, setAmount] = useState(validator.type === 1 ? validator.balanceEth : 0n);
 
   return (
     <>
@@ -40,6 +40,7 @@ export default function Withdraw({ validator }: WithdrawProps) {
               max={formatEther(validator.balanceEth)}
               value={formatEther(amount)}
               onChange={(e) => setAmount(parseEther(e.target.value))}
+              disabled={validator.type === 1}
             />
 
           </fieldset>

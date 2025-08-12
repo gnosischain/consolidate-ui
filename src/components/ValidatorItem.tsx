@@ -55,15 +55,14 @@ export function ValidatorItem({
 								)}
 
 								{validator.type === 2 && (
-									<>
 										<div className="tooltip" data-tip="Deposit">
 											<PartialDeposit validator={validator} />
 										</div>
-										<div className="tooltip" data-tip="Withdraw">
+								)}
+								
+								<div className="tooltip" data-tip="Withdraw">
 											<Withdraw validator={validator} />
 										</div>
-									</>
-								)}
 							</>
 						)} </div>)}
 			</td>
