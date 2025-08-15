@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const validators: APIValidatorInfo[] = rows.map(d => {
       const creds = d.withdrawalcredentials;
       //TODO : verify it not break the fetch of validators
-      const address = `0x${creds.slice(-40)}` as Address;
+      // const address = `0x${creds.slice(-40)}` as Address;
       const filterStatus = STATUS_TO_FILTER[d.status];
 
       return {

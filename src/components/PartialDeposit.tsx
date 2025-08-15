@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { formatEther, formatGwei, parseEther, parseGwei } from "viem";
+import { formatEther, parseEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 import { ValidatorInfo } from "../types/validators";
@@ -14,7 +14,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { setDepositData, depositData, approve, isApproved, deposit, partialDeposit } = useDeposit(network, account.address, true, validator?.pubkey);
+  const { setDepositData, approve, isApproved, deposit, partialDeposit } = useDeposit(network, account.address, true, validator?.pubkey);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {

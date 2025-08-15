@@ -105,7 +105,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client, isPartialDeposit]
+    [contractConfig, client, isPartialDeposit, pubkey]
   );
 
   const setDepositData = useCallback(
@@ -156,7 +156,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       // should move refetchBalance to onDeposit function ?
       refetchBalance();
     }
-  }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
+  }, [contractConfig, deposits, refetchBalance, writeContract]);
 
   const partialDeposit = useCallback(async (amounts: bigint[], validators: ValidatorInfo[]) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
@@ -200,7 +200,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         ],
       });
     }
-  }, [contractConfig, credentialType, deposits, refetchBalance, writeContract]);
+  }, [contractConfig, writeContract]);
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {

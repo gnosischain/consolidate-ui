@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Address, parseGwei } from 'viem';
+import { parseGwei } from 'viem';
 import { BeaconChainResponse } from '../../../types/beacon';
 import { APIValidatorInfo } from '../../../types/api';
 import { STATUS_TO_FILTER } from '../../../utils/status';
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       .map((v) => {
         const creds = v.validator.withdrawal_credentials;
         //TODO : verify it not break the fetch of validators
-        const address = `0x${creds.slice(-40)}` as Address;
+        // const address = `0x${creds.slice(-40)}` as Address;
         const filterStatus = STATUS_TO_FILTER[v.status];
         
         return {
