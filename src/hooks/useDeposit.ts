@@ -4,7 +4,7 @@ import {
   useWaitForTransactionReceipt,
   useReadContract,
 } from "wagmi";
-import { formatUnits, parseGwei } from "viem";
+import { formatEther, parseGwei } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
