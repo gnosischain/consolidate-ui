@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { formatEther, formatGwei, parseGwei } from "viem";
+import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 
@@ -38,8 +38,8 @@ export default function Deposit() {
             <label className="label">{file?.name}</label>
           </fieldset>
           <div className="mt-8 flex w-full justify-end">
-            <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(parseGwei(depositData.totalDepositAmount.toString()) / network.cl.multiplier)}>
-                {isApproved ? 'Deposit ' : 'Approve ' + formatGwei(depositData.totalDepositAmount / network.cl.multiplier) + ' GNO'}
+            <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(depositData.totalDepositAmount)}>
+                {isApproved ? 'Deposit ' : 'Approve ' + formatEther(depositData.totalDepositAmount) + ' GNO'}
             </button>
           </div>
         </div>

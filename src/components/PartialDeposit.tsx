@@ -81,6 +81,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
           <div className="mt-8 flex w-full justify-end">
             <button className="btn btn-primary" disabled={amount === 0n} onClick={() => isApproved ? view === 'click' ? partialDeposit([amount], [validator]) : deposit() : approve(amount)}>
               {isApproved ? 'Deposit ' : 'Approve ' + formatEther(amount) + ' GNO'}
+
             </button>
           </div>
         </div>

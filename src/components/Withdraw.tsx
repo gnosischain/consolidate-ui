@@ -13,10 +13,10 @@ export default function Withdraw({ validator }: WithdrawProps) {
   if (!network) {
     throw new Error('Network not found');
   }
-  
+
   const { withdrawalValidators } = useWithdraw(network);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [amount, setAmount] = useState(0n);
+  const [amount, setAmount] = useState(validator.type === 1 ? validator.balanceEth : 0n);
 
   return (
     <>
@@ -29,9 +29,9 @@ export default function Withdraw({ validator }: WithdrawProps) {
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Validator {validator.index}</h3>
-          <p className="text-sm text-gray-500">Balance: {formatEther(validator.balanceEth)} GNO</p>
+          <p className="text-sm text-gray-500">Balance: {Number(formatEther(validator.balanceEth)).toFixed(2)} GNO</p>
           <fieldset className="fieldset mt-2 w-full gap-y-2">
-            <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(validator.balanceEth)}>Max</button></legend>
+            {validator.type === 2 ? <legend className="fieldset-legend">Withdraw amount <button className="btn btn-xs" onClick={() => setAmount(validator.balanceEth)}>Max</button></legend> : <legend className="fieldset-legend">Exit validator</legend>}
             <input
               type="number"
               placeholder="Type here"
@@ -40,6 +40,7 @@ export default function Withdraw({ validator }: WithdrawProps) {
               max={formatEther(validator.balanceEth)}
               value={formatEther(amount)}
               onChange={(e) => setAmount(parseEther(e.target.value))}
+              disabled={validator.type === 1}
             />
 
           </fieldset>
@@ -50,8 +51,9 @@ export default function Withdraw({ validator }: WithdrawProps) {
                   pubkey: validator.pubkey,
                   amount: amount === validator.balanceEth ? 0n : amount,
                 },
-              ])}>
-              {amount === validator.balanceEth ? 'Exit validator'  : 'Withdraw ' + formatEther(amount) + ' GNO'}
+              ])}
+              disabled={amount === 0n}>
+              {amount === validator.balanceEth ? 'Exit validator' : 'Withdraw ' + formatEther(amount) + ' GNO'}
             </button>
           </div>
         </div>

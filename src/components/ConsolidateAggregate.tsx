@@ -84,7 +84,7 @@ export function ConsolidateAggregate({
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
 			<WarningModal totalBalance={totalBalance} network={network} />
-			
+
 			<p className="font-bold">Your validators</p>
 			<div className="flex items-center  w-full">
 				<p className="text-sm text-gray-500 mr-2">Balance: {Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
@@ -129,15 +129,15 @@ export function ConsolidateAggregate({
 				{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
 			</div>
 			<div className="overflow-auto h-72">
-				<table className="table">
+				<table className="table table-pin-rows table-zebra">
 					{/* head */}
 					<thead>
-						<tr>
-							{/* <th></th> */}
+						<tr className="bg-base-200">
 							<th>Index</th>
 							<th>Type</th>
 							<th>Status</th>
 							<th>Balance</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -176,7 +176,7 @@ export function ConsolidateAggregate({
 							<ul className="list-disc list-inside text-xs mt-1">
 								{skippedValidators.map((v) => (
 									<li key={v.index}>
-										{v.index} ({formatEther(v.balanceEth)} GNO)
+										{v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
 									</li>
 								))}
 							</ul>
