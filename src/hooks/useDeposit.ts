@@ -3,7 +3,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { formatUnits } from "viem";
+import { formatUnits, parseGwei } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
@@ -134,7 +134,11 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
   const deposit = useCallback(async () => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      const data = generateDepositData(deposits);
+      const depositsFormatted = deposits.map(d => ({
+        ...d,
+        amount: BigInt(parseGwei(d.amount.toString()) / contractConfig.cl.multiplier),
+      }));
+      const data = generateDepositData(depositsFormatted);
       console.log(data);
       writeContract({
         address: contractConfig.depositAddress,
@@ -161,7 +165,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
           pubkey: validator.pubkey as `0x${string}`,
           withdrawal_credentials: validator.withdrawal_credentials as `0x${string}`,
           signature: generateSignature(96),
-          amount: amounts[index] * 32n / 10n ** 9n,
+          amount: amounts[index],
         }
 
         const deposit_data_root = buildDepositRoot(deposit.pubkey, deposit.withdrawal_credentials, deposit.signature, deposit.amount);
@@ -170,7 +174,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
         return {
           ...deposit,
-          amount: deposit.amount * 32n,
+          amount: deposit.amount,
           pubkey: validator.pubkey.replace("0x", ""),
           signature: deposit.signature.replace("0x", ""),
           deposit_data_root: deposit_data_root.replace("0x", ""),
@@ -181,6 +185,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
       })
 
       const data = generateDepositData(deposits);
+      console.log(data);
 
       writeContract({
         address: contractConfig.depositAddress,

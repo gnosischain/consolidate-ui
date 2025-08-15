@@ -1,14 +1,13 @@
-import { concat, parseGwei, sha256, toHex } from "viem";
-import { BatchDepositData, DepositDataJson, DepositRequest } from "../types/deposit";
+import { concat, sha256 } from "viem";
+import { BatchDepositData, DepositDataJson } from "../types/deposit";
 import { CredentialType } from "../types/validators";
 
 export const generateDepositData = (deposits: DepositDataJson[]): BatchDepositData => {
-  console.log(deposits);
   const pubkeys = `0x${deposits.map(d => d.pubkey).join("")}` as `0x${string}`;
   const withdrawal_credentials = `0x${deposits[0].withdrawal_credentials}` as `0x${string}`;
   const signatures = `0x${deposits.map(d => d.signature).join("")}` as `0x${string}`;
   const deposit_data_roots = deposits.map(d => `0x${d.deposit_data_root}` as `0x${string}`);
-  const amounts = deposits.map(d => parseGwei(d.amount.toString()) / 32n);
+  const amounts = deposits.map(d => d.amount);
 
   return {
     pubkeys,
@@ -43,7 +42,7 @@ export function buildDepositRoot(
   stakeAmountWei: bigint               // the value you pass to the contract
 ): `0x${string}` {
 
-  const amountGwei = stakeAmountWei * 32n;
+  const amountGwei = stakeAmountWei * 32n / 10n ** 9n;
   const amountLE = toLittleEndian64(amountGwei);
 
   const pubkeyRoot = sha256(concat([pubkey, `0x${"00".repeat(16)}`]));
