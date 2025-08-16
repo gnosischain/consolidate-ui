@@ -14,7 +14,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { setDepositData, approve, isApproved, deposit, partialDeposit } = useDeposit(network, account.address, true, validator?.pubkey);
+  const { setDepositData, depositData, approve, isApproved, deposit, partialDeposit } = useDeposit(network, account.address, true, validator?.pubkey);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -79,7 +79,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
           </fieldset>
 
           <div className="mt-8 flex w-full justify-end">
-            <button className="btn btn-primary" disabled={amount === 0n} onClick={() => isApproved ? view === 'click' ? partialDeposit([amount], [validator]) : deposit() : approve(amount)}>
+            <button className="btn btn-primary" disabled={view === 'click' ? amount === 0n : depositData.totalDepositAmount === 0n} onClick={() => isApproved ? view === 'click' ? partialDeposit([amount], [validator]) : deposit() : approve(view === 'click' ? amount : depositData.totalDepositAmount)}>
               {isApproved ? 'Deposit ' : 'Approve ' + formatEther(amount) + ' GNO'}
 
             </button>
