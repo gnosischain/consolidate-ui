@@ -1,4 +1,4 @@
-import { concat, sha256 } from "viem";
+import { concat, sha256, toHex } from "viem";
 import { BatchDepositData, DepositDataJson } from "../types/deposit";
 import { CredentialType } from "../types/validators";
 
@@ -54,7 +54,7 @@ export function buildDepositRoot(
   const signatureRoot = sha256(concat([sigHash1, sigHash2]));
 
   const subtreeA = sha256(concat([pubkeyRoot, withdrawalCreds]));
-  const subtreeB = sha256(concat([`0x${Buffer.from(amountLE).toString("hex")}`, `0x${"00".repeat(24)}`, signatureRoot]));
+  const subtreeB = sha256(concat([toHex(amountLE), `0x${"00".repeat(24)}`, signatureRoot]));
 
   return sha256(concat([subtreeA, subtreeB]));
 }
