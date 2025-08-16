@@ -79,9 +79,34 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
           </fieldset>
 
           <div className="mt-8 flex w-full justify-end">
-            <button className="btn btn-primary" disabled={view === 'click' ? amount === 0n : depositData.totalDepositAmount === 0n} onClick={() => isApproved ? view === 'click' ? partialDeposit([amount], [validator]) : deposit() : approve(view === 'click' ? amount : depositData.totalDepositAmount)}>
-              {isApproved ? 'Deposit ' : 'Approve ' + formatEther(amount) + ' GNO'}
+            {(() => {
+              const depositAmount = view === 'click'
+                ? amount
+                : depositData.totalDepositAmount;
+              const isDisabled = depositAmount === 0n;
+              const handleClick = () => {
+                if (isApproved) {
+                  return view === 'click'
+                    ? partialDeposit([amount], [validator])
+                    : deposit();
+                } else {
+                  return approve(depositAmount);
+                }
+              };
+              const buttonText = isApproved
+                ? `Deposit ${formatEther(depositAmount)} GNO`
+                : `Approve ${formatEther(depositAmount)} GNO`;
 
+              return (
+                <button
+                  className="btn btn-primary"
+                  disabled={isDisabled}
+                  onClick={handleClick}
+                >
+                  {buttonText}
+                </button>
+              );
+            })()}
             </button>
           </div>
         </div>
