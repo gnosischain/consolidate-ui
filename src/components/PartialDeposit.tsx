@@ -49,7 +49,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
           </div>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(balance.balance)).toFixed(2)} GNO</p>
           {/* <p className="text-[10px] text-gray-500">Pubkey: {validator?.pubkey}</p> */}
-          
+
           <fieldset className="fieldset mt-2 w-full gap-y-2">
             {view === 'click' ? (
               <>
@@ -67,19 +67,14 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
             ) : (
               <>
                 <legend className="fieldset-legend">Upload deposit data file</legend>
-                <input 
+                <input
                   ref={fileInputRef}
-                  type="file" 
-                  className="file-input" 
+                  type="file"
+                  className="file-input"
                   onChange={handleFileChange}
- <input 
-   ref={fileInputRef}
-   type="file" 
-   className="file-input" 
-   onChange={handleFileChange}
- />
                 />
-                <label className="label">{file?.name}</label></>
+                <label className="label">{file?.name}</label>
+              </>
             )}
           </fieldset>
 
@@ -112,7 +107,6 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
                 </button>
               );
             })()}
-            </button>
           </div>
         </div>
         <form method="dialog" className="modal-backdrop">
