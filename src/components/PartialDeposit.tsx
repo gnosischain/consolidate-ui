@@ -71,6 +71,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
                   ref={fileInputRef}
                   type="file"
                   className="file-input"
+                  value=""
                   onChange={handleFileChange}
                 />
                 <label className="label">{file?.name}</label>
