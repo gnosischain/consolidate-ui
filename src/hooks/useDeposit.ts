@@ -8,9 +8,9 @@ import { formatEther, parseGwei } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
 import { useClient } from "urql";
-import { DepositDataJson } from "../types/deposit";
-import { CredentialType } from "../types/validators";
-import { generateDepositData, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
+import { DepositRequest, DepositDataJson } from "../types/deposit";
+import { CredentialType, ValidatorInfo } from "../types/validators";
+import { buildDepositRoot, generateDepositData, generateSignature, GET_DEPOSIT_EVENTS, getCredentialType } from "../utils/deposit";
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
 
@@ -153,7 +153,11 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
   const deposit = useCallback(async () => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      const data = generateDepositData(deposits);
+      const depositsFormatted = deposits.map(d => ({
+        ...d,
+        amount: BigInt(parseGwei(d.amount.toString()) / contractConfig.cl.multiplier),
+      }));
+      const data = generateDepositData(depositsFormatted);
       console.log(data);
       writeContract({
         address: contractConfig.depositAddress,
@@ -173,6 +177,51 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
     }
   }, [contractConfig, deposits, refetchBalance, writeContract]);
 
+  const partialDeposit = useCallback(async (amounts: bigint[], validators: ValidatorInfo[]) => {
+    if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
+      const deposits = validators.map((validator, index) => {
+        const deposit: DepositRequest = {
+          pubkey: validator.pubkey as `0x${string}`,
+          withdrawal_credentials: validator.withdrawal_credentials as `0x${string}`,
+          signature: generateSignature(96),
+          amount: amounts[index],
+        }
+
+        const deposit_data_root = buildDepositRoot(deposit.pubkey, deposit.withdrawal_credentials, deposit.signature, deposit.amount);
+
+        console.log(deposit_data_root, deposit);
+
+        return {
+          ...deposit,
+          amount: deposit.amount,
+          pubkey: validator.pubkey.replace("0x", ""),
+          signature: deposit.signature.replace("0x", ""),
+          deposit_data_root: deposit_data_root.replace("0x", ""),
+          withdrawal_credentials: validator.withdrawal_credentials.replace("0x", ""),
+          deposit_message_root: "0x0000000000000000000000000000000000000000000000000000000000000000",
+          fork_version: contractConfig.forkVersion,
+        }
+      })
+
+      const data = generateDepositData(deposits);
+      console.log(data);
+
+      writeContract({
+        address: contractConfig.depositAddress,
+        abi: DEPOSIT_ABI,
+        functionName: "batchDeposit",
+        args: [
+          data.pubkeys,
+          data.withdrawal_credentials,
+          data.signatures,
+          data.deposit_data_roots,
+          data.amounts,
+        ],
+      });
+    }
+  }, [contractConfig, writeContract]);
+
+
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
       writeContract({
@@ -181,6 +230,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         functionName: "approve",
         args: [contractConfig.depositAddress, amount],
       });
+      setIsApproved(true);
     }
   }, [contractConfig, writeContract]);
 
@@ -193,6 +243,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
   return {
     deposit,
+    partialDeposit,
     depositSuccess,
     contractError,
     txError,
