@@ -23,13 +23,15 @@ pnpm install
 
 ### Running the Development Server
 
+Copy the `.env.example` file to `.env` and fill in the values.
+
 Start the app locally:
 
 ```bash
 pnpm dev
 ```
 
-The app will be available at [http://localhost:5173](http://localhost:5173).
+The app will be available at [http://localhost:3000](http://localhost:3000).
 
 ### Building for Production
 
