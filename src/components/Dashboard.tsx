@@ -63,43 +63,6 @@ export default function Dashboard() {
 		}
 	}, [callStatusData?.id, callStatusData?.status]);
 
-	const renderStep = () => {
-		switch (state.step) {
-			case Steps.SELECT:
-				return (
-					<ConsolidateAggregate
-						validators={validators}
-						network={network}
-						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
-					/>
-				);
-			case Steps.SUMMARY:
-				return (
-					<div className="w-full flex flex-col items-center justify-center gap-y-2 p-2">
-						<p>Transaction sent</p>
-						<p className="text-xs">Transaction hash:</p>
-						<a
-							href={`${network.explorerUrl}/tx/${state.tx}`}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-primary"
-						>
-							{state.tx}
-						</a>
-						<p className="text-xs">Check the transaction on the explorer</p>
-						<button
-							className="btn btn-primary mt-2"
-							onClick={() => {
-								setState((prev) => ({ ...prev, step: Steps.SELECT }));
-							}}
-						>
-							Finish
-						</button>
-					</div>
-				);
-		}
-	};
-
 	return (
 		<>
 			{state.loading || loading ? (
@@ -124,8 +87,11 @@ export default function Dashboard() {
 							{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
 						</div>
 					</div>
-
-					{renderStep()}
+					<ConsolidateAggregate
+						validators={validators}
+						network={network}
+						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
+					/>
 				</div>
 			)}
 		</>
