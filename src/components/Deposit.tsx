@@ -30,7 +30,7 @@ export default function Deposit() {
         <Plus />
         Add new
       </button>
-      <dialog ref={dialogRef} className="modal">
+      <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Add new validator</h3>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(balance.balance)).toFixed(2)} GNO</p>

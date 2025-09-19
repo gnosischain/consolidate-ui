@@ -31,7 +31,7 @@ export default function WithdrawBatch({ validators, totalBalance }: WithdrawProp
         <ArrowUp />
         Withdraw
       </button>
-      <dialog ref={dialogRef} className="modal">
+      <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Batch withdraw</h3>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
