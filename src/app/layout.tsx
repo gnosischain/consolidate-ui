@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Providers } from './providers'
 import '../index.css'
+import Footer from '../components/Footer'
 
 export const metadata: Metadata = {
   title: 'Gnosis Launchpad',
@@ -17,10 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen">
         <Providers>
           {children}
         </Providers>
+        <Footer />
       </body>
     </html>
   )
