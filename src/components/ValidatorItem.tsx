@@ -23,7 +23,7 @@ export function ValidatorItem({
 	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
 	const [showActions, setShowActions] = useState(false);
 	return (
-		<tr key={validator.index}>
+		<tr key={validator.index} className="h-14">
 			{/* <th>
 				<input type="checkbox" />
 			</th> */}

@@ -9,7 +9,7 @@ import { ValidatorItem } from './ValidatorItem';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import { formatEther, parseEther } from 'viem';
 import { NetworkConfig } from '../types/network';
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -26,6 +26,8 @@ export function ConsolidateAggregate({
 	const [chunkSize, setChunkSize] = useState(targetBalance);
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 5;
 	const type1ValidatorsActive = validators.filter(
 		(v) => v.type === 1 && v.filterStatus === 'active'
 	);
@@ -40,6 +42,33 @@ export function ConsolidateAggregate({
 		}
 		return result;
 	}, [validators, filterVersion, filterStatus]);
+
+	const totalPages = Math.ceil(filteredValidators.length / itemsPerPage);
+	const startIndex = (currentPage - 1) * itemsPerPage;
+	const endIndex = startIndex + itemsPerPage;
+	const paginatedValidators = filteredValidators.slice(startIndex, endIndex);
+
+	const getVisiblePages = () => {
+		if (totalPages <= 3) {
+			return Array.from({ length: totalPages }, (_, i) => i + 1);
+		}
+
+		if (currentPage <= 2) {
+			return [1, 2, 3];
+		}
+
+		if (currentPage >= totalPages - 1) {
+			return [totalPages - 2, totalPages - 1, totalPages];
+		}
+
+		return [currentPage - 1, currentPage, currentPage + 1];
+	};
+
+	const emptyRows = Array.from({ length: itemsPerPage - paginatedValidators.length }, (_, i) => i);
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [filterVersion, filterStatus]);
 
 	const filteredActive = useMemo(
 		() => filteredValidators.filter(v => v.filterStatus === 'active'),
@@ -95,28 +124,73 @@ export function ConsolidateAggregate({
 					<input type="search" required placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto h-72">
-				<table className="table table-pin-rows table-zebra">
+			<div className="overflow-auto rounded-box border border-base-content/5 bg-base-100 shadow-xs mt-4">
+				<table className="table table-pin-rows">
 					{/* head */}
 					<thead>
 						<tr className="bg-base-200">
-							<th>Index</th>
-							<th>Type</th>
-							<th>Status</th>
-							<th>Balance</th>
+							{/* TODO: Add sorting */}
+							<th><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Type <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Status <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Balance <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th></th>
 						</tr>
 					</thead>
 					<tbody>
-						{filteredValidators.map((v) => (
+						{paginatedValidators.map((v) => (
 							<ValidatorItem
 								key={v.index}
 								validator={v}
 							/>
 						))}
+						{emptyRows.map((_, index) => (
+							<tr key={`empty-${index}`} className="h-14">
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+						))}
 					</tbody>
 				</table>
 			</div>
+
+			{totalPages > 1 && (
+				<div className="flex items-center justify-between w-full px-2">
+					<div className="text-sm text-base-content/70">
+						Showing {startIndex + 1}-{Math.min(endIndex, filteredValidators.length)} of {filteredValidators.length} validators
+					</div>
+					<div className="flex items-center gap-2">
+						<button
+							className="btn btn-sm btn-ghost"
+							onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+							disabled={currentPage === 1}
+						>
+							<ChevronLeft className="w-4 h-4" />
+						</button>
+						<div className="flex items-center gap-1">
+							{getVisiblePages().map(page => (
+								<button
+									key={page}
+									className={`btn btn-sm ${currentPage === page ? 'btn-primary' : 'btn-ghost'}`}
+									onClick={() => setCurrentPage(page)}
+								>
+									{page}
+								</button>
+							))}
+						</div>
+						<button
+							className="btn btn-sm btn-ghost"
+							onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+							disabled={currentPage === totalPages}
+						>
+							<ChevronRight className="w-4 h-4" />
+						</button>
+					</div>
+				</div>
+			)}
 
 			<div className="flex flex-col w-full items-center mt-4 gap-y-2">
 				<p className="text-xs">Balance min: {chunkSize}</p>
