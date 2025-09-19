@@ -8,11 +8,9 @@ import { ValidatorInfo } from '../types/validators';
 import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
 import { ConsolidationSummary } from './ConsolidationSummary';
-import WithdrawBatch from './WithdrawBatch';
 import { formatEther, parseEther } from 'viem';
-import Deposit from './Deposit';
 import { NetworkConfig } from '../types/network';
-import { WarningModal } from './WarningModal';
+// import { WarningModal } from './WarningModal';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -32,9 +30,6 @@ export function ConsolidateAggregate({
 	const type1ValidatorsActive = validators.filter(
 		(v) => v.type === 1 && v.filterStatus === 'active'
 	);
-	const compoundingValidatorsActive = validators.filter(
-		(v) => v.type === 2 && v.filterStatus === 'active'
-	);
 
 	const filteredValidators = useMemo(() => {
 		let result = validators;
@@ -51,14 +46,6 @@ export function ConsolidateAggregate({
 		() => filteredValidators.filter(v => v.filterStatus === 'active'),
 		[filteredValidators]
 	);
-
-	const totalBalance = useMemo(() => {
-		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0n);
-	}, [validators]);
-
-	const totalCompoundingBalance = useMemo(() => {
-		return compoundingValidatorsActive.reduce((acc, v) => acc + v.balanceEth, 0n);
-	}, [compoundingValidatorsActive]);
 
 	const { consolidations, totalGroups, skippedValidators } = useMemo(() => {
 		const type1Filtered = filteredActive.filter(
@@ -83,13 +70,7 @@ export function ConsolidateAggregate({
 
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
-			<WarningModal totalBalance={totalBalance} network={network} />
-
-			<p className="font-bold">Your validators</p>
-			<div className="flex items-center  w-full">
-				<p className="text-sm text-gray-500 mr-2">Balance: {Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
-				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} />
-			</div>
+			{/* <WarningModal totalBalance={totalBalance} network={network} /> */}
 
 			{/* FILTER */}
 			<div className="flex gap-x-2 items-center w-full mt-4">
@@ -126,7 +107,6 @@ export function ConsolidateAggregate({
 						Upgrade all
 					</button>
 				)}
-				{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
 			</div>
 			<div className="overflow-auto h-72">
 				<table className="table table-pin-rows table-zebra">

@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Loader from './Loader';
-import { ConsolidateInfo } from './ConsolidateInfo';
 import { ConsolidateAggregate } from './ConsolidateAggregate';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
-import { Address } from 'viem';
-import { FilterStatus } from '../types/validators';
+import { Address, formatEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
+import WithdrawBatch from './WithdrawBatch';
+import Deposit from './Deposit';
 
 enum Steps {
-	INFO = 'info',
 	SELECT = 'select',
 	SUMMARY = 'summary',
 }
 
-export default function Consolidate() {
+export default function Dashboard() {
 	const { account, network } = useWallet();
 	if (!network || !account.address) {
 		throw new Error('Network or account not found');
@@ -24,6 +23,18 @@ export default function Consolidate() {
 	);
 
 	const { validators, loading } = useBeaconValidators(network, account.address);
+
+	const totalBalance = useMemo(() => {
+		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0n);
+	}, [validators]);
+
+	const compoundingValidatorsActive = validators.filter(
+		(v) => v.type === 2 && v.filterStatus === 'active'
+	);
+
+	const totalCompoundingBalance = useMemo(() => {
+		return compoundingValidatorsActive.reduce((acc, v) => acc + v.balanceEth, 0n);
+	}, [compoundingValidatorsActive]);
 
 	const [state, setState] = useState<{
 		step: Steps;
@@ -53,13 +64,6 @@ export default function Consolidate() {
 
 	const renderStep = () => {
 		switch (state.step) {
-			case Steps.INFO:
-				return (
-					<ConsolidateInfo
-						pubkeysAmount={validators.filter((v) => v.filterStatus === FilterStatus.ACTIVE).length}
-						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SELECT }))}
-					/>
-				);
 			case Steps.SELECT:
 				return (
 					<ConsolidateAggregate
@@ -85,7 +89,7 @@ export default function Consolidate() {
 						<button
 							className="btn btn-primary mt-2"
 							onClick={() => {
-								setState((prev) => ({ ...prev, step: Steps.INFO }));
+								setState((prev) => ({ ...prev, step: Steps.SELECT }));
 							}}
 						>
 							Finish
@@ -103,7 +107,24 @@ export default function Consolidate() {
 					<p className="mt-2">Loading...</p>
 				</div>
 			) : (
-				renderStep()
+				<div className='flex flex-col w-full'>
+					<div className='flex justify-between w-full mb-8'>
+						<div className="flex flex-col">
+							<p className="text-xl font-bold">Validator Portfolio</p>
+							<p className="text-sm text-gray-500">Manage your validators and track your rewards</p>
+						</div>
+						<div className="flex space-x-3 items-end">
+							<div className="flex flex-col justify-end">
+								<p className="text-sm text-gray-500">Total balance</p>
+								<p className="font-semibold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
+							</div>
+							<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} />
+							{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
+						</div>
+					</div>
+
+					{renderStep()}
+				</div>
 			)}
 		</>
 	);

@@ -3,6 +3,7 @@ import { ValidatorInfo } from "../types/validators";
 import { formatEther, parseEther } from "viem";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { useWallet } from "../context/WalletContext";
+import { ArrowUp } from 'lucide-react';
 
 interface WithdrawProps {
   validators: ValidatorInfo[];
@@ -14,7 +15,7 @@ export default function WithdrawBatch({ validators, totalBalance }: WithdrawProp
   if (!network) {
     throw new Error('Network not found');
   }
-  
+
   const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [amount, setAmount] = useState(0);
@@ -24,11 +25,11 @@ export default function WithdrawBatch({ validators, totalBalance }: WithdrawProp
   return (
     <>
       <button
-        className="btn btn-xs btn-outline btn-primary"
+        className="btn btn-primary"
         onClick={() => dialogRef.current?.showModal()}
       >
+        <ArrowUp />
         Withdraw
-        <img src="/withdraw-batch.svg" alt="Withdraw" className="w-4 h-4" />
       </button>
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">

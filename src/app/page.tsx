@@ -1,7 +1,7 @@
 'use client';
 
 import { WrongNetwork } from '../components/WrongNetwork';
-import Consolidate from '../components/Consolidate';
+import Dashboard from '../components/Dashboard';
 import { DisclaimerBanner } from '../components/Disclaimer';
 import { useWallet } from '../context/WalletContext';
 import Navbar from '../components/Navbar';
@@ -14,13 +14,13 @@ function App() {
 	}
 
 	return (
-		<div className="w-full h-screen flex flex-col">
+		<div className="w-full flex flex-col">
 			<Navbar />
 			{/* Main content */}
-			<div className="flex px-8 flex-col h-full w-full items-center justify-center bg-base-100">
+			<div className="px-8 w-full mt-8">
 				{account.isConnected && account.address && network && chainId && balance ? (
 					<>
-						<Consolidate />
+						<Dashboard />
 					</>
 				) : (
 					<h1 className="text-xl font-bold">Please connect your wallet to continue</h1>

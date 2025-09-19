@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
+import { Plus } from "lucide-react";
 
 export default function Deposit() {
 
@@ -23,9 +24,10 @@ export default function Deposit() {
   return (
     <>
       <button
-        className="btn btn-xs btn-primary"
+        className="btn btn-primary"
         onClick={() => dialogRef.current?.showModal()}
       >
+        <Plus />
         Add new
       </button>
       <dialog ref={dialogRef} className="modal">
