@@ -5,12 +5,10 @@ import {
 	useConsolidateValidatorsBatch,
 } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
-import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import { formatEther, parseEther } from 'viem';
 import { NetworkConfig } from '../types/network';
-// import { WarningModal } from './WarningModal';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -70,38 +68,19 @@ export function ConsolidateAggregate({
 
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
-			{/* <WarningModal totalBalance={totalBalance} network={network} /> */}
-
 			{/* FILTER */}
-			<div className="flex gap-x-2 items-center w-full mt-4">
-				<p className="text-sm">Version</p>
-				<Filter text="All" filter={filterVersion} setFilter={setFilterVersion} value={undefined} />
-				<Filter text="1" filter={filterVersion} setFilter={setFilterVersion} value={'1'} />
-				<Filter text="2" filter={filterVersion} setFilter={setFilterVersion} value={'2'} />
-			</div>
-			<div className="flex items-center justify-between w-full">
-				<div className="flex gap-x-2 items-center w-full">
-					<p className="text-sm">Status</p>
-					<Filter text="All" filter={filterStatus} setFilter={setFilterStatus} value={undefined} />
-					<Filter
-						text="Active"
-						filter={filterStatus}
-						setFilter={setFilterStatus}
-						value={'active'}
-					/>
-					<Filter
-						text="Exited"
-						filter={filterStatus}
-						setFilter={setFilterStatus}
-						value={'exited'}
-					/>
-					<Filter
-						text="Pending"
-						filter={filterStatus}
-						setFilter={setFilterStatus}
-						value={'pending'}
-					/>
-				</div>
+			<div className="flex items-center gap-x-2">
+				<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterVersion(e.target.value || undefined)}>
+					<option value="">All versions</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+				</select>
+				<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
+					<option value="">All status</option>
+					<option value="active">Active</option>
+					<option value="exited">Exited</option>
+					<option value="pending">Pending</option>
+				</select>
 				{filterVersion === '1' && (
 					<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
 						Upgrade all

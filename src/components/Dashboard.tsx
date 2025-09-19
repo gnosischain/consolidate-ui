@@ -7,6 +7,7 @@ import { Address, formatEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
 import WithdrawBatch from './WithdrawBatch';
 import Deposit from './Deposit';
+import { WarningModal } from './WarningModal';
 
 enum Steps {
 	SELECT = 'select',
@@ -108,14 +109,15 @@ export default function Dashboard() {
 				</div>
 			) : (
 				<div className='flex flex-col w-full'>
+					<WarningModal totalBalance={totalBalance} network={network} />
 					<div className='flex justify-between w-full mb-8'>
 						<div className="flex flex-col">
 							<p className="text-xl font-bold">Validator Portfolio</p>
 							<p className="text-sm text-gray-500">Manage your validators and track your rewards</p>
 						</div>
 						<div className="flex space-x-3 items-end">
-							<div className="flex flex-col justify-end">
-								<p className="text-sm text-gray-500">Total balance</p>
+							<div className="flex flex-col items-end">
+								<p className="text-sm text-gray-500">Total validators balance</p>
 								<p className="font-semibold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 							</div>
 							<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} />
