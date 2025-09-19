@@ -9,6 +9,7 @@ import { ValidatorItem } from './ValidatorItem';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import { formatEther, parseEther } from 'viem';
 import { NetworkConfig } from '../types/network';
+import { Search } from 'lucide-react';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
@@ -69,23 +70,30 @@ export function ConsolidateAggregate({
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
 			{/* FILTER */}
-			<div className="flex items-center gap-x-2">
-				<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterVersion(e.target.value || undefined)}>
-					<option value="">All versions</option>
-					<option value="1">1</option>
-					<option value="2">2</option>
-				</select>
-				<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
-					<option value="">All status</option>
-					<option value="active">Active</option>
-					<option value="exited">Exited</option>
-					<option value="pending">Pending</option>
-				</select>
-				{filterVersion === '1' && (
-					<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
-						Upgrade all
-					</button>
-				)}
+			<div className="flex items-center justify-between w-full">
+				<div className="flex items-center gap-x-2">
+					<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterVersion(e.target.value || undefined)}>
+						<option value="">All versions</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+					</select>
+					<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
+						<option value="">All status</option>
+						<option value="active">Active</option>
+						<option value="exited">Exited</option>
+						<option value="pending">Pending</option>
+					</select>
+					{filterVersion === '1' && (
+						<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
+							Upgrade all
+						</button>
+					)}
+				</div>
+				{/* TODO: Add search */}
+				<label className="input input-sm w-64">
+					<Search className="w-4 h-4 opacity-50" />
+					<input type="search" required placeholder="Search validators..." />
+				</label>
 			</div>
 			<div className="overflow-auto h-72">
 				<table className="table table-pin-rows table-zebra">
