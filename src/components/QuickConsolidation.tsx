@@ -1,0 +1,84 @@
+import { formatEther, parseEther } from "viem";
+import { ConsolidationSummary } from "./ConsolidationSummary";
+import { NetworkConfig } from "../types/network";
+import { useEffect, useMemo, useState } from "react";
+import { computeConsolidations } from "../hooks/useConsolidate";
+import { ValidatorInfo } from "../types/validators";
+
+interface QuickConsolidationProps {
+    network: NetworkConfig;
+    filteredActive: ValidatorInfo[];
+}
+
+export default function QuickConsolidation({ network, filteredActive }: QuickConsolidationProps) {
+    const targetBalance = network.cl.maxBalance * 0.625;
+    const [chunkSize, setChunkSize] = useState(targetBalance);
+    const { consolidations, totalGroups, skippedValidators } = useMemo(() => {
+        const type1Filtered = filteredActive.filter(
+            (v) => v.type === 1 && v.filterStatus === 'active'
+        );
+        const compoundingFiltered = filteredActive.filter(
+            (v) => v.type === 2 && v.filterStatus === 'active'
+        );
+
+        const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingFiltered, type1Filtered, parseEther(chunkSize.toString()));
+        const totalGroups = targets.size + skippedValidators.length;
+
+        return { consolidations, totalGroups, skippedValidators };
+    }, [filteredActive, chunkSize]);
+
+    useEffect(() => setChunkSize(targetBalance), [targetBalance]);
+
+    return (
+        <div className="flex w-full justify-end mt-4 border border-base-content/5 rounded-lg p-4 shadow-xs gap-x-4">
+            <div className="flex flex-col w-full">
+                <p className="text-lg font-bold">Quick consolidation</p>
+                <p className="text-xs text-base-content/70">Balance min: {chunkSize}</p>
+                <input
+                    type="range"
+                    min={network.cl.minBalance}
+                    max={network.cl.maxBalance}
+                    value={chunkSize}
+                    className="range range-sm range-primary mt-2 w-full"
+                    onChange={(e) => setChunkSize(Number(e.target.value))}
+                />
+                <div className="flex justify-between w-full">
+                    <p className="text-xs text-base-content/70">1 GNO</p>
+                    <p className="text-xs text-base-content/70">{network.cl.maxBalance} GNO</p>
+                </div>
+            </div>
+
+            <div className="w-full flex flex-col bg-base-200 rounded-lg p-4">
+                <p className="font-semibold mb-2">Consolidation summary</p>
+                <div className="flex justify-between text-sm">
+                    <p className="text-base-content/70">Consolidations request:</p>
+                    <p className="">{consolidations.length}</p>
+                </div>
+                <div className="flex justify-between text-sm ">
+                    <p className="text-base-content/70">Gas fees:</p>
+                    <p className="">{formatEther(BigInt(consolidations.length) * 1000000000000000000n)} GNO</p>
+                </div>
+                <div className="flex justify-between text-sm mt-2 border-t border-base-content/5 pt-2 mb-6">
+                    <p className="text-base-content/70">Validators remaining:</p>
+                    <p className="">{totalGroups}</p>
+                </div>
+
+                {skippedValidators.length > 0 && (
+                    <div className="mt-2">
+                        <p className="text-warning text-sm">
+                            {skippedValidators.length} validators skipped
+                        </p>
+                        <ul className="list-disc list-inside text-xs mt-1">
+                            {skippedValidators.map((v) => (
+                                <li key={v.index}>
+                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                <ConsolidationSummary consolidations={consolidations} />
+            </div>
+        </div>
+    );
+}
