@@ -14,7 +14,7 @@ function App() {
 	}
 
 	return (
-		<div className="w-full flex flex-col">
+		<div className="w-full flex flex-col min-h-screen">
 			<Navbar />
 			{/* Main content */}
 			<div className="px-8 w-full mt-8">
