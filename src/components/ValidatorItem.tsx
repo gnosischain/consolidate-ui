@@ -10,10 +10,14 @@ import { useWallet } from '../context/WalletContext';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
+	isSelected: boolean;
+  onToggle: (index: number, checked: boolean) => void;
 }
 
 export function ValidatorItem({
 	validator,
+	isSelected,
+	onToggle,
 }: ValidatorItemProps) {
 	const { network } = useWallet();
 	if (!network) {
@@ -23,10 +27,10 @@ export function ValidatorItem({
 	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
 	const [showActions, setShowActions] = useState(false);
 	return (
-		<tr key={validator.index} className="h-14">
-			{/* <th>
-				<input type="checkbox" />
-			</th> */}
+		<tr className="h-14">
+			<th>
+				<input type="checkbox" checked={isSelected} onChange={(e) => onToggle(validator.index, e.target.checked)} />
+			</th>
 			<td>{validator.index}</td>
 			<td>{validator.type}</td>
 			<td>

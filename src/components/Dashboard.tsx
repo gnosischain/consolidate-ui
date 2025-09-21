@@ -83,7 +83,7 @@ export default function Dashboard() {
 								<p className="text-sm text-gray-500">Total validators balance</p>
 								<p className="font-semibold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 							</div>
-							<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} />
+							{/* <WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} /> */}
 							{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
 						</div>
 					</div>
