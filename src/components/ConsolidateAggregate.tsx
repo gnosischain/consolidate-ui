@@ -7,7 +7,6 @@ import { ValidatorInfo } from '../types/validators';
 import { ValidatorItem } from './ValidatorItem';
 import { NetworkConfig } from '../types/network';
 import { Search, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
-import QuickConsolidation from './QuickConsolidation';
 import ActionBar from './ActionBar';
 
 interface ConsolidateSelectProps {
@@ -66,7 +65,11 @@ export function ConsolidateAggregate({
 	const toggleOne = (idx: number, checked: boolean) => {
 		setSelected(prev => {
 			const next = new Set(prev);
-			checked ? next.add(idx) : next.delete(idx);
+			if (checked) {
+				next.add(idx);
+			} else {
+				next.delete(idx);
+			}
 			return next;
 		});
 	};
@@ -86,10 +89,10 @@ export function ConsolidateAggregate({
 		setSelected(new Set());
 	}, [filterVersion, filterStatus]);
 
-	const filteredActive = useMemo(
-		() => filteredValidators.filter(v => v.filterStatus === 'active'),
-		[filteredValidators]
-	);
+	// const filteredActive = useMemo(
+	// 	() => filteredValidators.filter(v => v.filterStatus === 'active'),
+	// 	[filteredValidators]
+	// );
 
 	const handleUpgradeAll = async () => {
 		const consolidations = computeSelfConsolidations(type1ValidatorsActive);

@@ -5,7 +5,6 @@ import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address, formatEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
-import WithdrawBatch from './WithdrawBatch';
 import Deposit from './Deposit';
 import { WarningModal } from './WarningModal';
 
@@ -29,13 +28,13 @@ export default function Dashboard() {
 		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0n);
 	}, [validators]);
 
-	const compoundingValidatorsActive = validators.filter(
-		(v) => v.type === 2 && v.filterStatus === 'active'
-	);
+	// const compoundingValidatorsActive = validators.filter(
+	// 	(v) => v.type === 2 && v.filterStatus === 'active'
+	// );
 
-	const totalCompoundingBalance = useMemo(() => {
-		return compoundingValidatorsActive.reduce((acc, v) => acc + v.balanceEth, 0n);
-	}, [compoundingValidatorsActive]);
+	// const totalCompoundingBalance = useMemo(() => {
+	// 	return compoundingValidatorsActive.reduce((acc, v) => acc + v.balanceEth, 0n);
+	// }, [compoundingValidatorsActive]);
 
 	const [state, setState] = useState<{
 		step: Steps;

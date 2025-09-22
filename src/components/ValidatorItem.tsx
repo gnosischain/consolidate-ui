@@ -29,7 +29,7 @@ export function ValidatorItem({
 	return (
 		<tr className="h-14">
 			<th>
-				<input type="checkbox" checked={isSelected} onChange={(e) => onToggle(validator.index, e.target.checked)} />
+				<input type="checkbox" checked={isSelected} onChange={(e) => onToggle(validator.index, e.target.checked)} disabled={validator.filterStatus !== 'active'} />
 			</th>
 			<td>{validator.index}</td>
 			<td>{validator.type}</td>
