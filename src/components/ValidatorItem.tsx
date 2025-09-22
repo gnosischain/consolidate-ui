@@ -7,11 +7,12 @@ import Withdraw from './Withdraw';
 import { formatEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
 import { useWallet } from '../context/WalletContext';
+import { EllipsisVertical, X } from 'lucide-react';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
 	isSelected: boolean;
-  onToggle: (index: number, checked: boolean) => void;
+	onToggle: (index: number, checked: boolean) => void;
 }
 
 export function ValidatorItem({
@@ -23,11 +24,11 @@ export function ValidatorItem({
 	if (!network) {
 		throw new Error('Network not found');
 	}
-	
+
 	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
 	const [showActions, setShowActions] = useState(false);
 	return (
-		<tr className="h-14">
+		<tr className={`h-14 hover:bg-base-200 transition-all duration-300 ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
 			<th>
 				<input type="checkbox" checked={isSelected} onChange={(e) => onToggle(validator.index, e.target.checked)} disabled={validator.filterStatus !== 'active'} />
 			</th>
@@ -42,7 +43,7 @@ export function ValidatorItem({
 				{validator.filterStatus === 'active' && (
 					<div className={`flex rounded-md max-w-fit transition-all duration-300 ${showActions ? 'bg-base-200' : ''}`}>
 						<button className="btn btn-ghost btn-circle btn-sm" onClick={() => setShowActions(!showActions)}>
-							<img src={showActions ? "/xmark.svg" : "/ellipsis-vertical.svg"} alt="Actions" className="w-5 h-5" />
+							{showActions ? <X className="w-5 h-5" /> : <EllipsisVertical className="w-5 h-5" />}
 						</button>
 						{showActions && (
 							<>
@@ -59,14 +60,14 @@ export function ValidatorItem({
 								)}
 
 								{validator.type === 2 && (
-										<div className="tooltip" data-tip="Deposit">
-											<PartialDeposit validator={validator} />
-										</div>
+									<div className="tooltip" data-tip="Deposit">
+										<PartialDeposit validator={validator} />
+									</div>
 								)}
-								
+
 								<div className="tooltip" data-tip="Withdraw">
-											<Withdraw validator={validator} />
-										</div>
+									<Withdraw validator={validator} />
+								</div>
 							</>
 						)} </div>)}
 			</td>

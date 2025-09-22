@@ -25,7 +25,7 @@ export function ConsolidateAggregate({
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selected, setSelected] = useState<Set<number>>(new Set());
 
-	const itemsPerPage = 10;
+	const itemsPerPage = 9;
 	const type1ValidatorsActive = validators.filter(
 		(v) => v.type === 1 && v.filterStatus === 'active'
 	);
