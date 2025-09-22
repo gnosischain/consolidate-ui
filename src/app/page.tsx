@@ -14,10 +14,10 @@ function App() {
 	}
 
 	return (
-		<div className="w-full flex flex-col min-h-screen">
+		<div className="w-full flex flex-col min-h-screen bg-base-200">
 			<Navbar />
 			{/* Main content */}
-			<div className="px-8 w-full mt-8">
+			<div className="px-8 sm:px-28 w-full mt-8">
 				{account.isConnected && account.address && network && chainId && balance ? (
 					<>
 						<Dashboard />

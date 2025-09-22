@@ -127,7 +127,7 @@ export function ConsolidateAggregate({
 					<input type="search" required placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box border border-base-content/5 bg-base-100 shadow-xs mt-4">
+			<div className="overflow-auto rounded-box border border-base-content/15 bg-base-100 shadow-xs mt-4">
 				<table className="table table-pin-rows">
 					{/* head */}
 					<thead>
@@ -138,7 +138,7 @@ export function ConsolidateAggregate({
 							<th><div className="flex items-center">Type <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Status <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Balance <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
-							<th></th>
+							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody>

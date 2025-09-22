@@ -2,7 +2,7 @@ import WalletModal from "./WalletModal";
 
 export default function Navbar() {
 	return (
-		<div className="navbar z-50">
+		<div className="navbar z-50 bg-base-100 border-b border-base-content/10 px-8 sm:px-12">
 			<div className="flex-1 font-bold">
 					Gnosis Launchpad
 			</div>
