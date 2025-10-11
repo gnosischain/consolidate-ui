@@ -5,6 +5,7 @@ import Dashboard from '../components/Dashboard';
 import { DisclaimerBanner } from '../components/Disclaimer';
 import { useWallet } from '../context/WalletContext';
 import Navbar from '../components/Navbar';
+import LandingPage from '../components/LandingPage';
 
 function App() {
 	const { account, chainId, network, isWrongNetwork, balance } = useWallet();
@@ -16,16 +17,13 @@ function App() {
 	return (
 		<div className="w-full flex flex-col min-h-screen bg-base-200">
 			<Navbar />
-			{/* Main content */}
-			<div className="px-8 sm:px-28 w-full mt-8">
-				{account.isConnected && account.address && network && chainId && balance ? (
-					<>
-						<Dashboard />
-					</>
-				) : (
-					<h1 className="text-xl font-bold">Please connect your wallet to continue</h1>
-				)}
-			</div>
+			{account.isConnected && account.address && network && chainId && balance ? (
+				<div className="px-8 sm:px-28 w-full mt-8">
+					<Dashboard />
+				</div>
+			) : (
+				<LandingPage />
+			)}
 			<DisclaimerBanner />
 		</div>
 	);
