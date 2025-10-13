@@ -34,7 +34,6 @@ export default function LandingPage() {
 
 	return (
 		<div className="w-full flex flex-col items-center py-12 px-4 max-w-7xl mx-auto">
-			{/* Hero Section - Asymmetric Layout */}
 			<div className="grid md:grid-cols-2 gap-12 items-center w-full mb-24">
 				<div className="space-y-6">
 					<div className="inline-block">
@@ -53,7 +52,6 @@ export default function LandingPage() {
 					</p>
 				</div>
 
-				{/* Visual Element - Action Workflow */}
 				<div className="hidden md:block relative">
 					<div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-8 border border-primary/20">
 						<div className="space-y-4">
@@ -84,7 +82,6 @@ export default function LandingPage() {
 				</div>
 			</div>
 
-			{/* Action Cards - Horizontal Layout */}
 			<div className="w-full mb-16">
 				<h2 className="text-3xl font-bold text-center mb-4">Powerful Batch Actions</h2>
 				<p className="text-center text-base-content/60 mb-12 max-w-2xl mx-auto">
@@ -109,7 +106,6 @@ export default function LandingPage() {
 				</div>
 			</div>
 
-			{/* CTA Section - More Prominent */}
 			<div className="w-full max-w-3xl bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 text-center border border-primary/20 mb-12">
 				<h3 className="text-2xl font-bold mb-3">Ready to Optimize Your Validators?</h3>
 				<p className="text-base-content/70 mb-6">
@@ -123,7 +119,6 @@ export default function LandingPage() {
 				</div>
 			</div>
 
-			{/* Security Notice - Minimalist */}
 			<div className="max-w-2xl text-center">
 				<p className="text-sm text-base-content/60 leading-relaxed">
 					<span className="font-semibold text-base-content">Non-custodial by design.</span> You maintain complete control 

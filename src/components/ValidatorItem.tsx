@@ -28,16 +28,28 @@ export function ValidatorItem({
 	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
 	const [showActions, setShowActions] = useState(false);
 	return (
-		<tr className={`h-14 hover:bg-base-200 transition-all duration-300 ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
+		<tr className={`h-14 hover:bg-primary/5 transition-all duration-200 border-b border-base-content/5 ${
+			isSelected ? 'bg-primary/10' : ''
+		} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
 			<th>
-				<input type="checkbox" checked={isSelected} onChange={(e) => onToggle(validator.index, e.target.checked)} disabled={validator.filterStatus !== 'active'} />
+				<input 
+					type="checkbox" 
+					className="checkbox checkbox-primary checkbox-xs" 
+					checked={isSelected} 
+					onChange={(e) => onToggle(validator.index, e.target.checked)} 
+					disabled={validator.filterStatus !== 'active'} 
+				/>
 			</th>
-			<td>{validator.index}</td>
-			<td>{validator.type}</td>
+			<td className="font-medium">{validator.index}</td>
+			<td>
+				<span className='badge badge-sm badge-ghost'>
+					Type {validator.type}
+				</span>
+			</td>
 			<td>
 				<ValidatorBadge filterStatus={validator.filterStatus} status={validator.status} />
 			</td>
-			<td>{Number(formatEther(validator.balanceEth)).toFixed(2)} GNO</td>
+			<td className="font-semibold">{Number(formatEther(validator.balanceEth)).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></td>
 
 			<td className="min-w-24">
 				{validator.filterStatus === 'active' && (

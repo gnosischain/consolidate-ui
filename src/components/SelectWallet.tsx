@@ -25,8 +25,8 @@ export function SelectWallet() {
 
 	return (
 		<>
-			<button className="btn" onClick={() => dialogRef.current?.showModal()}>
-				Connect
+			<button className="btn btn-primary" onClick={() => dialogRef.current?.showModal()}>
+				Connect Wallet
 			</button>
 			<dialog ref={dialogRef} className="modal">
 				<div className="modal-box">

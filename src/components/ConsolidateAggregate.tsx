@@ -89,14 +89,9 @@ export function ConsolidateAggregate({
 		setSelected(new Set());
 	}, [filterVersion, filterStatus]);
 
-	// const filteredActive = useMemo(
-	// 	() => filteredValidators.filter(v => v.filterStatus === 'active'),
-	// 	[filteredValidators]
-	// );
-
-	const handleUpgradeAll = async () => {
+	const handleUpgradeAll = () => {
 		const consolidations = computeSelfConsolidations(type1ValidatorsActive);
-		await consolidateValidators(consolidations);
+		consolidateValidators(consolidations);
 	};
 
 	return (
@@ -104,20 +99,24 @@ export function ConsolidateAggregate({
 			{/* FILTER */}
 			<div className="flex items-center justify-between w-full">
 				<div className="flex items-center gap-x-2">
-					<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterVersion(e.target.value || undefined)}>
-						<option value="">All versions</option>
-						<option value="1">1</option>
-						<option value="2">2</option>
-					</select>
-					<select defaultValue="" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
+					<select defaultValue="active" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
 						<option value="">All status</option>
 						<option value="active">Active</option>
 						<option value="exited">Exited</option>
 						<option value="pending">Pending</option>
 					</select>
+					<select 
+						defaultValue="" 
+						className="select select-sm" 
+						onChange={(e) => setFilterVersion(e.target.value || undefined)}
+					>
+						<option value="">All versions</option>
+						<option value="1">Type 1</option>
+						<option value="2">Type 2</option>
+					</select>
 					{filterVersion === '1' && (
-						<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
-							Upgrade all
+						<button className="btn btn-sm" onClick={handleUpgradeAll}>
+							Upgrade all Type 1
 						</button>
 					)}
 				</div>
@@ -127,13 +126,13 @@ export function ConsolidateAggregate({
 					<input type="search" required placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box border border-base-content/15 bg-base-100 shadow-xs mt-4">
+			<div className="overflow-auto rounded-box border border-base-content/15 bg-base-100 shadow-xs">
 				<table className="table table-pin-rows">
 					{/* head */}
 					<thead>
 						<tr className="bg-base-200">
 							{/* TODO: Add sorting */}
-							<th><input type="checkbox" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} /></th>
+							<th><input type="checkbox" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} className="checkbox checkbox-primary checkbox-xs" /></th>
 							<th><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Type <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Status <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
@@ -165,7 +164,7 @@ export function ConsolidateAggregate({
 					</div>
 					<div className="flex items-center gap-2">
 						<button
-							className="btn btn-sm btn-ghost"
+							className="btn btn-sm btn-circle btn-ghost"
 							onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
 							disabled={currentPage === 1}
 						>
@@ -183,7 +182,7 @@ export function ConsolidateAggregate({
 							))}
 						</div>
 						<button
-							className="btn btn-sm btn-ghost"
+							className="btn btn-sm btn-circle btn-ghost"
 							onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
 							disabled={currentPage === totalPages}
 						>

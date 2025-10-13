@@ -72,18 +72,22 @@ export default function Dashboard() {
 			) : (
 				<div className='flex flex-col w-full'>
 					<WarningModal totalBalance={totalBalance} network={network} />
-					<div className='flex justify-between w-full mb-8'>
-						<div className="flex flex-col">
-							<p className="text-xl font-bold">Validator Portfolio</p>
-							<p className="text-sm text-gray-500">Manage your validators and track your rewards</p>
-						</div>
-						<div className="flex space-x-3 items-end">
-							<div className="flex flex-col items-end">
-								<p className="text-sm text-gray-500">Total validators balance</p>
-								<p className="font-semibold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
+					<div className='bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl border border-primary/20 p-6 mb-6'>
+						<div className='flex justify-between items-center w-full'>
+							<div className="flex flex-col gap-2">
+								<div className="flex items-center gap-3">
+									<h1 className="text-2xl font-bold">Validator Portfolio</h1>
+									<span className="badge badge-info badge-sm">{validators.filter(v => v.filterStatus === 'active').length} Active</span>
+								</div>
+								<p className="text-sm text-base-content/60">Manage your validators and track your rewards</p>
 							</div>
-							{/* <WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} /> */}
-							{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
+							<div className="flex items-center gap-4">
+								<div className="flex flex-col items-end">
+									<p className="text-xs text-base-content/60 mb-1">Total validators balance</p>
+									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
+								</div>
+								{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
+							</div>
 						</div>
 					</div>
 					<ConsolidateAggregate
