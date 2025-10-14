@@ -27,7 +27,7 @@ export default function Withdraw({ validator }: WithdrawProps) {
       >
         <ArrowUpFromLine className="w-4 h-4" />
       </button>
-      <dialog ref={dialogRef} className="modal modal-bottom">
+      <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Validator {validator.index}</h3>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(validator.balanceEth)).toFixed(2)} GNO</p>

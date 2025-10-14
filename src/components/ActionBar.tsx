@@ -3,6 +3,7 @@ import ModalButton from "./ModalButton";
 import QuickConsolidation from "./QuickConsolidation";
 import { ValidatorInfo } from "../types/validators";
 import WithdrawBatch from "./WithdrawBatch";
+import PartialDepositBatch from "./PartialDepositBatch";
 
 interface ActionBarProps {
     selected: ValidatorInfo[];
@@ -33,7 +34,7 @@ export default function ActionBar({ selected }: ActionBarProps) {
                 <ModalButton title="Continue">
                     {tab === 'consolidate' && <QuickConsolidation validators={selected} />}
                     {tab === 'withdraw' && <WithdrawBatch validators={selected} />}
-                    {/* {tab === 'topup' && <PartialDeposit />} */}
+                    {tab === 'topup' && <PartialDepositBatch validators={selected} />}
                 </ModalButton>
             </div>
         </div>

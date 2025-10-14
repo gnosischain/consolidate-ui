@@ -15,12 +15,12 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { setDepositData, depositData, approve, isApproved, deposit, partialDeposit } = useDeposit(network, account.address, true, validator?.pubkey);
+  const { setDepositData, depositData, approve, isApproved, deposit, partialDeposit } = useDeposit(network, account.address, true);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setFile(file);
-      setDepositData(file);
+      setDepositData(file, validator.pubkey);
     }
   };
 

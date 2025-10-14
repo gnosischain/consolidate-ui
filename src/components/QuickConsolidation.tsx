@@ -59,7 +59,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                 </div>
                 <div className="flex justify-between text-sm ">
                     <p className="text-base-content/70">Gas fees:</p>
-                    <p className="">{formatEther(BigInt(consolidations.length) * 1000000000000000000n)} GNO</p>
+                    <p className="">{formatEther(BigInt(consolidations.length) * 1000000000000000n)} XDAI</p>
                 </div>
                 <div className="flex justify-between text-sm mt-2 border-t border-base-content/5 pt-2 mb-6">
                     <p className="text-base-content/70">Validators remaining:</p>
@@ -74,7 +74,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                         <ul className="list-disc list-inside text-xs mt-1">
                             {skippedValidators.map((v) => (
                                 <li key={v.index}>
-                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} XDAI)
+                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
                                 </li>
                             ))}
                         </ul>

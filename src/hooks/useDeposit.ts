@@ -14,7 +14,7 @@ import { buildDepositRoot, generateDepositData, generateSignature, GET_DEPOSIT_E
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
 
-function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false, pubkey?: string) {
+function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
   const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
@@ -44,7 +44,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   }, [allowance, totalDepositAmount, contractConfig?.cl?.multiplier]);
 
   const validate = useCallback(
-    async (deposits: DepositDataJson[], balance: bigint) => {
+    async (deposits: DepositDataJson[], balance: bigint, pubkey?: string) => {
 
       const isValidJson = deposits.every((d) =>
         ["pubkey", "withdrawal_credentials", "amount", "signature", "deposit_message_root", "deposit_data_root", "fork_version"].every((key) => key in d)
@@ -124,11 +124,11 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client, isPartialDeposit, pubkey]
+    [contractConfig, client, isPartialDeposit]
   );
 
   const setDepositData = useCallback(
-    async (file: File) => {
+    async (file: File, pubkey?: string) => {
       if (file) {
         let data: DepositDataJson[] = [];
         try {
@@ -141,7 +141,8 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         }
         const { deposits, credentialType, _totalDepositAmount } = await validate(
           data,
-          balance
+          balance,
+          pubkey
         );
         setDeposits(deposits);
         setCredentialType(credentialType);
@@ -221,6 +222,23 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
     }
   }, [contractConfig, writeContract]);
 
+  const computePartialDepositAmounts = useCallback((amount: bigint, validators: ValidatorInfo[], targetAmount: bigint) => {
+    if (targetAmount === 0n) {
+      return Array.from(validators, () => amount / BigInt(validators.length));
+    }
+    else {
+      const amounts: bigint[] = [];
+      validators.map((v) => {
+        if (v.balanceEth < targetAmount) {
+          const amountNeeded = targetAmount - v.balanceEth;
+          amounts.push(amountNeeded)
+        }
+      })
+      return amounts;
+    }
+
+  }, [])
+
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
@@ -244,6 +262,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   return {
     deposit,
     partialDeposit,
+    computePartialDepositAmounts,
     depositSuccess,
     contractError,
     txError,
