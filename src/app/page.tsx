@@ -18,7 +18,7 @@ function App() {
 		<div className="w-full flex flex-col min-h-screen bg-base-200">
 			<Navbar />
 			{account.isConnected && account.address && network && chainId && balance ? (
-				<div className="px-8 sm:px-28 w-full mt-8">
+				<div className="px-2 sm:px-28 w-full mt-8">
 					<Dashboard />
 				</div>
 			) : (

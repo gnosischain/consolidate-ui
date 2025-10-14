@@ -3,6 +3,7 @@ import { formatEther, parseEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 import { ValidatorInfo } from "../types/validators";
+import { ArrowDownToLine } from "lucide-react";
 
 export default function PartialDeposit({ validator }: { validator: ValidatorInfo }) {
 
@@ -38,7 +39,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
   return (
     <>
       <button className="btn btn-ghost btn-circle btn-sm"
-        onClick={() => dialogRef.current?.showModal()}><img src="/deposit.svg" alt="Deposit" className="w-4 h-4" /></button>
+        onClick={() => dialogRef.current?.showModal()}><ArrowDownToLine className="w-4 h-4" /></button>
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
           <div className="flex items-center justify-between">

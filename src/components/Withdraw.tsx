@@ -3,6 +3,7 @@ import { ValidatorInfo } from "../types/validators";
 import { formatEther, parseEther } from "viem";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { useWallet } from "../context/WalletContext";
+import { ArrowUpFromLine } from "lucide-react";
 
 interface WithdrawProps {
   validator: ValidatorInfo;
@@ -24,9 +25,9 @@ export default function Withdraw({ validator }: WithdrawProps) {
         className="btn btn-ghost btn-circle btn-sm"
         onClick={() => dialogRef.current?.showModal()}
       >
-        <img src="/withdraw.svg" alt="Withdraw" className="w-4 h-4" />
+        <ArrowUpFromLine className="w-4 h-4" />
       </button>
-      <dialog ref={dialogRef} className="modal">
+      <dialog ref={dialogRef} className="modal modal-bottom">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Validator {validator.index}</h3>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(validator.balanceEth)).toFixed(2)} GNO</p>

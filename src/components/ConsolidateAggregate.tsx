@@ -94,6 +94,10 @@ export function ConsolidateAggregate({
 		consolidateValidators(consolidations);
 	};
 
+	const selectedValidators = useMemo<ValidatorInfo[]>(() => {
+		return filteredValidators.filter(v => selected.has(v.index));
+	  }, [filteredValidators, selected]);
+
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
 			{/* FILTER */}
@@ -193,9 +197,8 @@ export function ConsolidateAggregate({
 			)}
 
 			{selected.size > 0 && (
-				<ActionBar selected={selected} />
+				<ActionBar selected={selectedValidators} />
 			)}
-			{/* <QuickConsolidation network={network} filteredActive={filteredActive} /> */}
 
 		</div>
 	);

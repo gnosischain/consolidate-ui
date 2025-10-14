@@ -1,38 +1,30 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { ValidatorInfo } from "../types/validators";
 import { formatEther, parseEther } from "viem";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { useWallet } from "../context/WalletContext";
-import { ArrowUp } from 'lucide-react';
 
 interface WithdrawProps {
   validators: ValidatorInfo[];
-  totalBalance: bigint;
 }
 
-export default function WithdrawBatch({ validators, totalBalance }: WithdrawProps) {
+export default function WithdrawBatch({ validators }: WithdrawProps) {
   const { network } = useWallet();
   if (!network) {
     throw new Error('Network not found');
   }
 
+  const totalBalance = useMemo(() => {
+    return validators.reduce((acc, v) => acc + v.balanceEth, 0n);
+  }, [validators]);
+
   const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [amount, setAmount] = useState(0);
   const [preventExit, setPreventExit] = useState(true);
 
   const { withdrawals, exits, withdrawalsAmount } = useMemo(() => computeWithdrawals(validators, parseEther(amount.toString()), totalBalance, preventExit), [validators, amount, totalBalance, preventExit, computeWithdrawals]);
   return (
     <>
-      <button
-        className="btn btn-primary"
-        onClick={() => dialogRef.current?.showModal()}
-      >
-        <ArrowUp />
-        Withdraw
-      </button>
-      <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box">
           <h3 className="text-lg font-bold">Batch withdraw</h3>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
           <fieldset className="fieldset mt-2 w-full gap-y-2">
@@ -68,11 +60,6 @@ export default function WithdrawBatch({ validators, totalBalance }: WithdrawProp
               {'Withdraw ' + Number(formatEther(withdrawalsAmount)).toFixed(2) + ' GNO'}
             </button>
           </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-    </>
+          </>
   );
 }

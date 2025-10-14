@@ -1,23 +1,26 @@
 import { formatEther, parseEther } from "viem";
 import { ConsolidationSummary } from "./ConsolidationSummary";
-import { NetworkConfig } from "../types/network";
 import { useEffect, useMemo, useState } from "react";
 import { computeConsolidations } from "../hooks/useConsolidate";
 import { ValidatorInfo } from "../types/validators";
+import { useWallet } from "../context/WalletContext";
 
 interface QuickConsolidationProps {
-    network: NetworkConfig;
-    filteredActive: ValidatorInfo[];
+    validators: ValidatorInfo[];
 }
 
-export default function QuickConsolidation({ network, filteredActive }: QuickConsolidationProps) {
+export default function QuickConsolidation({ validators }: QuickConsolidationProps) {
+    const { network } = useWallet();
+    if (!network) {
+        throw new Error('Network not found');
+    }
     const targetBalance = network.cl.maxBalance * 0.625;
     const [chunkSize, setChunkSize] = useState(targetBalance);
     const { consolidations, totalGroups, skippedValidators } = useMemo(() => {
-        const type1Filtered = filteredActive.filter(
+        const type1Filtered = validators.filter(
             (v) => v.type === 1 && v.filterStatus === 'active'
         );
-        const compoundingFiltered = filteredActive.filter(
+        const compoundingFiltered = validators.filter(
             (v) => v.type === 2 && v.filterStatus === 'active'
         );
 
@@ -25,12 +28,12 @@ export default function QuickConsolidation({ network, filteredActive }: QuickCon
         const totalGroups = targets.size + skippedValidators.length;
 
         return { consolidations, totalGroups, skippedValidators };
-    }, [filteredActive, chunkSize]);
+    }, [validators, chunkSize]);
 
     useEffect(() => setChunkSize(targetBalance), [targetBalance]);
 
     return (
-        <div className="flex w-full justify-end mt-4 border border-base-content/5 rounded-lg p-4 shadow-xs gap-x-4">
+        <>
             <div className="flex flex-col w-full">
                 <p className="text-lg font-bold">Quick consolidation</p>
                 <p className="text-xs text-base-content/70">Balance min: {chunkSize}</p>
@@ -39,7 +42,7 @@ export default function QuickConsolidation({ network, filteredActive }: QuickCon
                     min={network.cl.minBalance}
                     max={network.cl.maxBalance}
                     value={chunkSize}
-                    className="range range-sm range-primary mt-2 w-full"
+                    className="range range-sm range-primary mt-8 w-full"
                     onChange={(e) => setChunkSize(Number(e.target.value))}
                 />
                 <div className="flex justify-between w-full">
@@ -48,7 +51,7 @@ export default function QuickConsolidation({ network, filteredActive }: QuickCon
                 </div>
             </div>
 
-            <div className="w-full flex flex-col bg-base-200 rounded-lg p-4">
+            <div className="w-full flex flex-col bg-base-200 rounded-lg p-4 mt-8">
                 <p className="font-semibold mb-2">Consolidation summary</p>
                 <div className="flex justify-between text-sm">
                     <p className="text-base-content/70">Consolidations request:</p>
@@ -71,7 +74,7 @@ export default function QuickConsolidation({ network, filteredActive }: QuickCon
                         <ul className="list-disc list-inside text-xs mt-1">
                             {skippedValidators.map((v) => (
                                 <li key={v.index}>
-                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
+                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} XDAI)
                                 </li>
                             ))}
                         </ul>
@@ -79,6 +82,6 @@ export default function QuickConsolidation({ network, filteredActive }: QuickCon
                 )}
                 <ConsolidationSummary consolidations={consolidations} />
             </div>
-        </div>
+        </>
     );
 }

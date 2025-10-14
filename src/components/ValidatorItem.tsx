@@ -7,7 +7,7 @@ import Withdraw from './Withdraw';
 import { formatEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
 import { useWallet } from '../context/WalletContext';
-import { EllipsisVertical, X } from 'lucide-react';
+import { ArrowUp, EllipsisVertical, X } from 'lucide-react';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -35,7 +35,7 @@ export function ValidatorItem({
 				<input 
 					type="checkbox" 
 					className="checkbox checkbox-primary checkbox-xs" 
-					checked={isSelected} 
+					checked={isSelected}
 					onChange={(e) => onToggle(validator.index, e.target.checked)} 
 					disabled={validator.filterStatus !== 'active'} 
 				/>
@@ -59,14 +59,13 @@ export function ValidatorItem({
 						</button>
 						{showActions && (
 							<>
-
 								{validator.type === 1 && (
 									<div className="tooltip" data-tip="Upgrade">
 										<button
 											className="btn btn-ghost btn-circle btn-sm"
 											onClick={() => consolidateValidators(computeSelfConsolidations([validator]))}
 										>
-											<img src="/upgrade.svg" alt="Upgrade" className="w-5 h-5" />
+											<ArrowUp className="w-4 h-4" />
 										</button>
 									</div>
 								)}

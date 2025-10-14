@@ -28,14 +28,6 @@ export default function Dashboard() {
 		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0n);
 	}, [validators]);
 
-	// const compoundingValidatorsActive = validators.filter(
-	// 	(v) => v.type === 2 && v.filterStatus === 'active'
-	// );
-
-	// const totalCompoundingBalance = useMemo(() => {
-	// 	return compoundingValidatorsActive.reduce((acc, v) => acc + v.balanceEth, 0n);
-	// }, [compoundingValidatorsActive]);
-
 	const [state, setState] = useState<{
 		step: Steps;
 		loading: boolean;
