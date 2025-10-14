@@ -64,16 +64,16 @@ export default function Dashboard() {
 			) : (
 				<div className='flex flex-col w-full'>
 					<WarningModal totalBalance={totalBalance} network={network} />
-					<div className='bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl border border-primary/20 p-6 mb-6'>
+					<div className='sm:bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl sm:border border-primary/20 sm:p-6 mb-6'>
 						<div className='flex justify-between items-center w-full'>
 							<div className="flex flex-col gap-2">
 								<div className="flex items-center gap-3">
-									<h1 className="text-2xl font-bold">Validator Portfolio</h1>
-									<span className="badge badge-info badge-sm">{validators.filter(v => v.filterStatus === 'active').length} Active</span>
+									<h1 className="text-lg sm:text-2xl font-bold">Validator Portfolio</h1>
+									<span className="hidden sm:inline badge badge-info badge-sm">{validators.filter(v => v.filterStatus === 'active').length} Active</span>
 								</div>
-								<p className="text-sm text-base-content/60">Manage your validators and track your rewards</p>
+								<p className="hidden sm:inline text-sm text-base-content/60">Manage your validators and track your rewards</p>
 							</div>
-							<div className="flex items-center gap-4">
+							<div className="flex flex-col sm:flex-row items-center gap-4">
 								<div className="flex flex-col items-end">
 									<p className="text-xs text-base-content/60 mb-1">Total validators balance</p>
 									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>

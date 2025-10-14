@@ -7,6 +7,7 @@ import { AccountView } from "./AccountView";
 import { AutoclaimView } from "./AutoclaimView";
 import { NetworkView } from "./NetworkView";
 import { AutoclaimConfigView } from "./AutoclaimConfigView";
+import { Menu } from "lucide-react";
 
 export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config';
 
@@ -42,7 +43,7 @@ export default function WalletModal() {
 						onClick={() => handleViewChange('main')}
 					>
 						<span className="font-medium">{truncateAddress(account.address)}</span>
-						<img src="/bars3.svg" alt="Menu" className="w-5 h-5 opacity-70" />
+						<Menu className="w-4 h-4" />
 					</button>
 
 					{/* Wallet Popover */}

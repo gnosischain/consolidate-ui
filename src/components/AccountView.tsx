@@ -2,6 +2,7 @@ import { useDisconnect } from "wagmi";
 import { truncateAddress } from "../utils/address";
 import { Balance } from "./Balance";
 import { ModalView } from "./WalletModal";
+import { ChevronRight } from "lucide-react";
 
 interface AccountViewProps {
     address: `0x${string}`;
@@ -39,14 +40,14 @@ export function AccountView({ address, onViewChange, connectedChain }: AccountVi
                     onClick={() => onViewChange('autoclaim')}
                 >
                     Autoclaim Registry
-                    <img src="/chevron-right.svg" alt='Chevron Right' className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                     className="btn btn-ghost w-full flex justify-between"
                     onClick={() => onViewChange('network')}
                 >
                     Network: {connectedChain}
-                    <img src="/chevron-right.svg" alt='Chevron Right' className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => disconnect()}

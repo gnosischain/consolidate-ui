@@ -24,7 +24,7 @@ export default function Deposit() {
   return (
     <>
       <button
-        className="btn btn-primary"
+        className="btn btn-primary btn-sm sm:btn-md"
         onClick={() => dialogRef.current?.showModal()}
       >
         <Plus />
