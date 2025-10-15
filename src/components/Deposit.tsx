@@ -12,7 +12,7 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-	const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address, false);
+	const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {

@@ -14,7 +14,7 @@ import { buildDepositRoot, generateDepositData, generateSignature, GET_DEPOSIT_E
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
 
-function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false) {
+function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
   const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
@@ -44,7 +44,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   }, [allowance, totalDepositAmount, contractConfig?.cl?.multiplier]);
 
   const validate = useCallback(
-    async (deposits: DepositDataJson[], balance: bigint, pubkey?: string) => {
+    async (deposits: DepositDataJson[], balance: bigint) => {
 
       const isValidJson = deposits.every((d) =>
         ["pubkey", "withdrawal_credentials", "amount", "signature", "deposit_message_root", "deposit_data_root", "fork_version"].every((key) => key in d)
@@ -53,13 +53,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
       if (!deposits.every((d) => d.fork_version === contractConfig.forkVersion)) {
         throw Error(`File is for the wrong network. Expected: ${contractConfig.chainId}`);
-      }
-
-      // Partial deposit specific validation
-      if (isPartialDeposit) {
-        if (deposits.length !== 1) {
-          throw Error("Partial deposit files must contain exactly one validator.");
-        }
       }
 
       const pubkeys = deposits.map((d) => `0x${d.pubkey}`);
@@ -80,27 +73,14 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         data.SBCDepositContract_DepositEvent.map((d: { pubkey: string }) => d.pubkey)
       );
 
-      let validDeposits: DepositDataJson[];
+      const validDeposits: DepositDataJson[] = deposits.filter((d) => !existingDeposits.has('0x' + d.pubkey));
 
-      if (isPartialDeposit) {
-        const hasExistingDeposit = existingDeposits.has('0x' + deposits[0].pubkey);
-        if (pubkey && pubkey.replace(/^0x/, '') !== deposits[0].pubkey) {
-          throw Error(`Validator ${pubkey.replace(/^0x/, '')} does not match ${deposits[0].pubkey}.`);
-        }
-        if (!hasExistingDeposit) {
-          throw Error("Cannot make partial deposit: No existing deposit found for this validator. Use regular deposit for new validators.");
-        }
-        validDeposits = deposits;
-      } else {
-        validDeposits = deposits.filter((d) => !existingDeposits.has('0x' + d.pubkey));
+      if (validDeposits.length === 0) throw Error("Deposits have already been made to all validators in this file.");
 
-        if (validDeposits.length === 0) throw Error("Deposits have already been made to all validators in this file.");
-
-        if (validDeposits.length !== deposits.length) {
-          throw Error(
-            "Some of the deposits have already been made to the validators in this file."
-          );
-        }
+      if (validDeposits.length !== deposits.length) {
+        throw Error(
+          "Some of the deposits have already been made to the validators in this file."
+        );
       }
 
       const uniquePubkeys = new Set(validDeposits.map((d) => d.pubkey));
@@ -124,11 +104,11 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client, isPartialDeposit]
+    [contractConfig, client]
   );
 
   const setDepositData = useCallback(
-    async (file: File, pubkey?: string) => {
+    async (file: File) => {
       if (file) {
         let data: DepositDataJson[] = [];
         try {
@@ -141,8 +121,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         }
         const { deposits, credentialType, _totalDepositAmount } = await validate(
           data,
-          balance,
-          pubkey
+          balance
         );
         setDeposits(deposits);
         setCredentialType(credentialType);
