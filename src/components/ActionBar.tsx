@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import ModalButton from "./ModalButton";
 import QuickConsolidation from "./QuickConsolidation";
 import { ValidatorInfo } from "../types/validators";
@@ -11,14 +11,12 @@ interface ActionBarProps {
 
 export default function ActionBar({ selected }: ActionBarProps) {
     const [tab, setTab] = useState<'consolidate' | 'withdraw' | 'topup'>('consolidate');
-    const dialogRef = useRef<HTMLDialogElement>(null);
     
     return (
         <div className="flex flex-col sm:flex-row justify-between w-full z-10 fixed bottom-0 left-0 bg-base-100 border-t-2 border-primary/20 py-3 px-4">
             <div className="flex items-center">
                 <p className="border-r border-base-content/10 pr-3">{selected.length} {selected.length === 1 ? 'validator' : 'validators'} selected</p>
-                <button className="btn btn-xs btn-ghost"
-                    onClick={() => dialogRef.current?.showModal()}>Clear selection</button>
+                <button className="btn btn-xs btn-ghost">Clear selection</button>
             </div>
             <div className="flex items-center gap-x-4 mt-4 sm:mt-0">
                 <div role="tablist" className="hidden sm:inline tabs tabs-md tabs-box">
