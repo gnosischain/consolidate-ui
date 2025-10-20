@@ -18,9 +18,7 @@ export default function Dashboard() {
 	if (!network || !account.address) {
 		throw new Error('Network or account not found');
 	}
-	const { callStatusData } = useConsolidateValidatorsBatch(
-		network.consolidateAddress,
-	);
+	const { callStatusData } = useConsolidateValidatorsBatch();
 
 	const { validators, loading } = useBeaconValidators(network, account.address);
 
@@ -84,7 +82,6 @@ export default function Dashboard() {
 					</div>
 					<ConsolidateAggregate
 						validators={validators}
-						network={network}
 						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
 					/>
 				</div>

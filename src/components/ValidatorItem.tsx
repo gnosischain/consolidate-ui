@@ -6,7 +6,6 @@ import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
-import { useWallet } from '../context/WalletContext';
 import { ArrowUp, EllipsisVertical, X } from 'lucide-react';
 
 interface ValidatorItemProps {
@@ -20,12 +19,7 @@ export function ValidatorItem({
 	isSelected,
 	onToggle,
 }: ValidatorItemProps) {
-	const { network } = useWallet();
-	if (!network) {
-		throw new Error('Network not found');
-	}
-
-	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
+	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	const [showActions, setShowActions] = useState(false);
 	return (
 		<tr className={`h-14 hover:bg-primary/5 transition-all duration-200 border-b border-base-content/5 ${

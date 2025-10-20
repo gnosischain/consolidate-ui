@@ -5,21 +5,18 @@ import {
 } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorItem } from './ValidatorItem';
-import { NetworkConfig } from '../types/network';
 import { Search, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 import ActionBar from './ActionBar';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
-	network: NetworkConfig;
 	goToStep: () => void;
 }
 
 export function ConsolidateAggregate({
 	validators,
-	network,
 }: ConsolidateSelectProps) {
-	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
+	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
 	const [currentPage, setCurrentPage] = useState(1);

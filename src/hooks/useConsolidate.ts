@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
 import { Consolidation, ValidatorInfo, CredentialType } from '../types/validators';
+import { useWallet } from '../context/WalletContext';
 
 interface ComputedConsolidation {
 	consolidations: Consolidation[];
@@ -67,8 +68,9 @@ export function computeConsolidations(
 	return { consolidations, skippedValidators, targets }
 }
 
-export function useConsolidateValidatorsBatch(contract: Address) {
-	const { data: hash, sendCalls, status } = useSendCalls();
+export function useConsolidateValidatorsBatch() {
+	const { network, canBatch } = useWallet();
+	const { data: hash, sendCalls } = useSendCalls();
 	const { data, sendTransaction } = useSendTransaction();
 	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
 		hash: data as Address,
@@ -81,53 +83,39 @@ export function useConsolidateValidatorsBatch(contract: Address) {
 		},
 	});
 
-
-	const lastBatchRef = useRef<Consolidation[] | null>(null)
-
 	const consolidateValidators = useCallback(
 		(consolidations: Consolidation[]) => {
 			if (consolidations.length === 0) {
 				throw new Error('No consolidation possible with given chunk size')
 			}
-			lastBatchRef.current = consolidations
 
-			const calls = consolidations.map(({ sourceKey, targetKey }) => ({
-				to: contract,
-				data: concat([sourceKey, targetKey]),
-				value: parseEther('0.000001'),
-			}))
+			if (canBatch) {
 
-			console.log('Attempting batch of', calls.length, 'calls…')
-			sendCalls({ calls, capabilities: {} })
-		},
-		[contract, sendCalls],
-	)
+				const calls = consolidations.map(({ sourceKey, targetKey }) => ({
+					to: network?.consolidateAddress,
+					data: concat([sourceKey, targetKey]),
+					value: parseEther('0.000001'),
+				}))
 
-	useEffect(() => {
-		if (status === 'error' && lastBatchRef.current) {
-			console.warn('Batch failed – falling back to individual txs')
-
-			const calls = lastBatchRef.current.map(({ sourceKey, targetKey }) => ({
-				to: contract,
-				data: concat([sourceKey, targetKey]),
-				value: parseEther('0.000001'),
-			}))
-
-			Promise.all(
-				calls.map((call) =>
-					sendTransaction({
-						to: call.to,
-						data: call.data,
-						value: call.value,
+				console.log('Attempting batch of', calls.length, 'calls…')
+				sendCalls({ calls, capabilities: {} })
+			} else {
+				const calls = consolidations.map(({ sourceKey, targetKey }) => ({
+					to: network?.consolidateAddress,
+					data: concat([sourceKey, targetKey]),
+					value: parseEther('0.000001'),
+				}))
+				Promise.all(calls.map((call) => sendTransaction({ to: call.to, data: call.data, value: call.value })))
+					.then(() => {
+						console.log('All individual transactions submitted')
 					})
-				),
-			).then(() => {
-				console.log('All individual transactions submitted')
-			}).catch((err) => {
-				console.error('Fallback submission error', err)
-			})
-		}
-	}, [status, contract, sendTransaction])
+					.catch((err) => {
+						console.error('Fallback submission error', err)
+					})
+			}
+		},
+		[network, sendCalls],
+	)
 
 	return { consolidateValidators, callStatusData, isConfirming, isConfirmed };
 }
