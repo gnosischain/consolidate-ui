@@ -10,7 +10,6 @@ import ActionBar from './ActionBar';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
-	goToStep: () => void;
 }
 
 export function ConsolidateAggregate({

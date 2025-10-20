@@ -82,7 +82,6 @@ export default function Dashboard() {
 					</div>
 					<ConsolidateAggregate
 						validators={validators}
-						goToStep={() => setState((prev) => ({ ...prev, step: Steps.SUMMARY }))}
 					/>
 				</div>
 			)}
