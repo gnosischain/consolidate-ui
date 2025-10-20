@@ -123,7 +123,7 @@ export function ConsolidateAggregate({
 				{/* TODO: Add search */}
 				<label className="input input-sm w-64">
 					<Search className="w-4 h-4 opacity-50" />
-					<input type="search" required placeholder="Search validators..." />
+					<input type="search" placeholder="Search validators..." />
 				</label>
 			</div>
 			<div className="overflow-auto rounded-box border border-base-content/15 bg-base-100 shadow-xs">

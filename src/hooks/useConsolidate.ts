@@ -114,7 +114,7 @@ export function useConsolidateValidatorsBatch() {
 					})
 			}
 		},
-		[network, sendCalls],
+		[network, sendCalls, canBatch, sendTransaction],
 	)
 
 	return { consolidateValidators, callStatusData, isConfirming, isConfirmed };

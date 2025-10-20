@@ -58,7 +58,7 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
         <p className="text-sm text-gray-500">Top up: {depositAmounts.length} validator(s)</p>
       </div>
       <div className="mt-8 flex w-full justify-end">
-        <button className="btn btn-primary" disabled={depositAmounts.length === 0} onClick={() =>
+        <button className="btn btn-primary" disabled={totalDepositAmount === 0n} onClick={() =>
           partialDeposit(depositAmounts, validators)}>
           {'Deposit ' + Number(formatEther(totalDepositAmount)).toFixed(2) + ' GNO'}
         </button>

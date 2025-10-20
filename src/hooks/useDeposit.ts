@@ -202,22 +202,27 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   }, [contractConfig, writeContract]);
 
   const computePartialDepositAmounts = useCallback((amount: bigint, validators: ValidatorInfo[], targetAmount: bigint) => {
+    const amounts: bigint[] = [];
+
     if (targetAmount === 0n) {
-      return Array.from(validators, () => amount / BigInt(validators.length));
+      const baseAmount = amount / BigInt(validators.length);
+      const remainder = amount % BigInt(validators.length);
+      validators.forEach((_, i) => {
+        amounts.push(baseAmount + (i < Number(remainder) ? 1n : 0n));
+      });
     }
     else {
-      const amounts: bigint[] = [];
-      validators.map((v) => {
+      validators.forEach((v) => {
         if (v.balanceEth < targetAmount) {
           const amountNeeded = targetAmount - v.balanceEth;
           amounts.push(amountNeeded)
+        } else {
+          amounts.push(0n);
         }
-      })
-      return amounts;
+      });
     }
-
-  }, [])
-
+    return amounts;
+  }, []);
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
