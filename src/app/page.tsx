@@ -9,7 +9,6 @@ import LandingPage from '../components/LandingPage';
 
 function App() {
 	const { account, chainId, network, isWrongNetwork, balance } = useWallet();
-
 	if (isWrongNetwork) {
 		return <WrongNetwork />;
 	}

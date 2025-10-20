@@ -12,7 +12,7 @@ import { Menu } from "lucide-react";
 export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config';
 
 export default function WalletModal() {
-	const { account, chainId, chainName, network } = useWallet();
+	const { account, canBatch, chainId, chainName, network } = useWallet();
 	const { chains, switchChain } = useSwitchChain();
 	const [currentView, setCurrentView] = useState<ModalView>('main');
 	const [isTransitioning, setIsTransitioning] = useState(false);
@@ -48,9 +48,8 @@ export default function WalletModal() {
 
 					{/* Wallet Popover */}
 					<div
-						className={`dropdown dropdown-end bg-base-100 rounded-2xl shadow-lg border border-base-300 p-0 w-80 max-w-sm transition-all duration-300 ease-in-out ${
-							isTransitioning ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
-						}`}
+						className={`dropdown dropdown-end bg-base-100 rounded-2xl shadow-lg border border-base-300 p-0 w-80 max-w-sm transition-all duration-300 ease-in-out ${isTransitioning ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
+							}`}
 						popover="auto"
 						id="wallet-popover"
 						style={{ positionAnchor: "--wallet-anchor" } as React.CSSProperties}
@@ -58,6 +57,7 @@ export default function WalletModal() {
 						{currentView === 'main' && (
 							<AccountView
 								address={account.address}
+								canBatch={canBatch}
 								onViewChange={handleViewChange}
 								connectedChain={chainName}
 							/>
