@@ -25,8 +25,8 @@ export function SelectWallet() {
 
 	return (
 		<>
-			<button className="btn" onClick={() => dialogRef.current?.showModal()}>
-				Connect
+			<button className="btn btn-primary" onClick={() => dialogRef.current?.showModal()}>
+				Connect Wallet
 			</button>
 			<dialog ref={dialogRef} className="modal">
 				<div className="modal-box">
@@ -38,7 +38,7 @@ export function SelectWallet() {
 						{isMounted ? uniqueConnectors.map((connector) => {
 							return (
 								<button
-									className="list-row flex w-full justify-between items-center text-white btn"
+									className="list-row flex w-full justify-between items-center btn"
 									key={connector.uid}
 									onClick={() =>
 										connect({
@@ -48,7 +48,7 @@ export function SelectWallet() {
 									}
 								>
 									{connector.name}
-									{connector.name.toLowerCase() === 'safe' ? (<a href='https://app.safe.global/' target="_blank" rel="noopener noreferrer" className="text-xs flex items-center text-white/50">Open via Safe UI <img src='/external.svg' className='w-3 h-3 ml-1'/></a>) : null}
+									{connector.name.toLowerCase() === 'safe' ? (<a href='https://app.safe.global/' target="_blank" rel="noopener noreferrer" className="text-xs flex items-center text-black/50">Open via Safe UI <img src='/external.svg' className='w-3 h-3 ml-1'/></a>) : null}
 									{connector.name.toLowerCase() === 'rabby wallet' ? (<span className="badge badge-xs badge-warning">Batch with safe</span>) : null}
 									{!acceptedConnectors.includes(connector.name.toLowerCase()) ? (
 										<span className="badge badge-xs badge-warning">Not support batch</span>

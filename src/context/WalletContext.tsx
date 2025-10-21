@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useCapabilities } from 'wagmi';
 import { NETWORK_CONFIG } from '../constants/networks';
 import useBalance from '../hooks/useBalance';
 import { NetworkConfig } from '../types/network';
@@ -10,6 +10,7 @@ interface WalletContextType {
     isConnected: boolean;
     address?: Address;
   };
+  canBatch: boolean;
   chainId?: number;
   chainName?: string;
   network?: NetworkConfig;
@@ -29,6 +30,7 @@ const WalletContext = createContext<WalletContextType | null>(null);
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
   const account = useAccount();
+  const capabilities = useCapabilities( {account: account.address});
   const chainId = account?.chainId;
   const chainName = account?.chain?.name;
   const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
@@ -44,6 +46,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       isConnected: isMounted && account.isConnected,
       address: account.address,
     },
+    canBatch: capabilities?.data?.[chainId ?? 0].atomic.status == 'supported' ? true : false,
     chainId,
     chainName,
     network,
