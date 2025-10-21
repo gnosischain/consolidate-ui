@@ -89,10 +89,14 @@ export function useConsolidateValidatorsBatch() {
 				throw new Error('No consolidation possible with given chunk size')
 			}
 
+			if (!network?.consolidateAddress) {
+				throw new Error('Network consolidation address not available')
+			}
+
 			if (canBatch) {
 
 				const calls = consolidations.map(({ sourceKey, targetKey }) => ({
-					to: network?.consolidateAddress,
+					to: network.consolidateAddress,
 					data: concat([sourceKey, targetKey]),
 					value: parseEther('0.000001'),
 				}))
@@ -101,7 +105,7 @@ export function useConsolidateValidatorsBatch() {
 				sendCalls({ calls, capabilities: {} })
 			} else {
 				const calls = consolidations.map(({ sourceKey, targetKey }) => ({
-					to: network?.consolidateAddress,
+					to: network.consolidateAddress,
 					data: concat([sourceKey, targetKey]),
 					value: parseEther('0.000001'),
 				}))
