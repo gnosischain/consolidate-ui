@@ -94,7 +94,6 @@ export function useConsolidateValidatorsBatch() {
 			}
 
 			if (canBatch) {
-
 				const calls = consolidations.map(({ sourceKey, targetKey }) => ({
 					to: network.consolidateAddress,
 					data: concat([sourceKey, targetKey]),

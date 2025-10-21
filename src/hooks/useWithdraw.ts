@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, encodePacked, formatUnits, parseEther } from 'viem';
 import { ValidatorInfo, Withdrawal } from '../types/validators';
 import { NetworkConfig } from '../types/network';
+import { useWallet } from '../context/WalletContext';
 
 export function useWithdraw(network: NetworkConfig) {
-	const { data: hash, sendCalls, status } = useSendCalls();
+	const { canBatch } = useWallet();
+	const { data: hash, sendCalls } = useSendCalls();
 	const { data, sendTransaction } = useSendTransaction();
 	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
 		hash: data as Address,
@@ -17,9 +19,6 @@ export function useWithdraw(network: NetworkConfig) {
 			refetchInterval: (data) => data.state.data?.status === "success" ? false : 1000,
 		},
 	});
-
-
-	const lastBatchRef = useRef<Withdrawal[] | null>(null)
 
 	const computeWithdrawals = useCallback(
 		(validators: ValidatorInfo[], amountToWithdraw: bigint, totalValidatorBalance: bigint, preventExit = true) => {
@@ -66,31 +65,8 @@ export function useWithdraw(network: NetworkConfig) {
 			if (withdrawal.length === 0) {
 				throw new Error('No withdrawal possible with given chunk size')
 			}
-			lastBatchRef.current = withdrawal
 
-			const calls = withdrawal.map(({ pubkey, amount }) => (
-				{
-					to: network.withdrawalAddress,
-					data: encodePacked(
-						["bytes", "uint64"],
-						[
-							pubkey,
-							BigInt(formatUnits(amount * network.cl.multiplier, 9)),
-						],
-					),
-					value: parseEther('0.000001'),
-				}))
-			sendCalls({ calls, capabilities: {} })
-		},
-		[network, sendCalls],
-	)
-
-
-	useEffect(() => {
-		if (status === 'error' && lastBatchRef.current) {
-			console.warn('Batch failed – falling back to individual txs')
-
-			const calls = lastBatchRef.current.map(({ pubkey, amount }) => ({
+			const calls = withdrawal.map(({ pubkey, amount }) => ({
 				to: network.withdrawalAddress,
 				data: encodePacked(
 					["bytes", "uint64"],
@@ -102,21 +78,21 @@ export function useWithdraw(network: NetworkConfig) {
 				value: parseEther('0.000001'),
 			}))
 
-			Promise.all(
-				calls.map((call) =>
-					sendTransaction({
-						to: call.to,
-						data: call.data,
-						value: call.value,
+			if (canBatch) {
+				console.log('Attempting batch of', calls.length, 'calls…')
+				sendCalls({ calls, capabilities: {} })
+			} else {
+				Promise.all(calls.map((call) => sendTransaction({ to: call.to, data: call.data, value: call.value })))
+					.then(() => {
+						console.log('All individual transactions submitted')
 					})
-				),
-			).then(() => {
-				console.log('All individual transactions submitted')
-			}).catch((err) => {
-				console.error('Fallback submission error', err)
-			})
-		}
-	}, [status, network, sendTransaction])
+					.catch((err) => {
+						console.error('Fallback submission error', err)
+					})
+			}
+		},
+		[network, sendCalls, canBatch, sendTransaction],
+	)
 
 	return { withdrawalValidators, callStatusData, isConfirming, isConfirmed, computeWithdrawals };
 }
