@@ -212,14 +212,23 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
       });
     }
     else {
-      validators.forEach((v) => {
-        if (v.balanceEth < targetAmount) {
-          const amountNeeded = targetAmount - v.balanceEth;
-          amounts.push(amountNeeded)
-        } else {
-          amounts.push(0n);
-        }
-      });
+      const needed = validators.map(v => 
+        v.balanceEth < targetAmount ? targetAmount - v.balanceEth : 0n
+      );
+      
+      const totalNeeded = needed.reduce((sum, n) => sum + n, 0n);
+      
+      if (totalNeeded > amount) {
+        needed.forEach((need) => {
+          if (need > 0n) {
+            amounts.push((need * amount) / totalNeeded);
+          } else {
+            amounts.push(0n);
+          }
+        });
+      } else {
+        amounts.push(...needed);
+      }
     }
     return amounts;
   }, []);
