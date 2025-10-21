@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
+import { Plus } from "lucide-react";
 
 export default function Deposit() {
 
@@ -11,7 +12,7 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-	const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address, false);
+	const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -23,12 +24,13 @@ export default function Deposit() {
   return (
     <>
       <button
-        className="btn btn-xs btn-primary"
+        className="btn btn-primary btn-sm sm:btn-md"
         onClick={() => dialogRef.current?.showModal()}
       >
+        <Plus />
         Add new
       </button>
-      <dialog ref={dialogRef} className="modal">
+      <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <h3 className="text-lg font-bold">Add new validator</h3>
           <p className="text-sm text-gray-500">Balance: {Number(formatEther(balance.balance)).toFixed(2)} GNO</p>

@@ -2,14 +2,16 @@ import { useDisconnect } from "wagmi";
 import { truncateAddress } from "../utils/address";
 import { Balance } from "./Balance";
 import { ModalView } from "./WalletModal";
+import { ChevronRight } from "lucide-react";
 
 interface AccountViewProps {
     address: `0x${string}`;
+    canBatch: boolean;
     onViewChange: (view: ModalView) => void;
     connectedChain: string;
 }
 
-export function AccountView({ address, onViewChange, connectedChain }: AccountViewProps) {
+export function AccountView({ address, canBatch, onViewChange, connectedChain }: AccountViewProps) {
     const { disconnect } = useDisconnect();
 
     return (
@@ -23,7 +25,14 @@ export function AccountView({ address, onViewChange, connectedChain }: AccountVi
                             {truncateAddress(address)}
                         </p>
                     </div>
-                    <div className="badge badge-info badge-sm">Connected</div>
+                    <div className="flex flex-col gap-1 items-end">
+                        {canBatch && (
+                            <div className="badge badge-soft badge-sm gap-1">
+                                <span>⚡</span>
+                                <span className="text-xs">Batch</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Balance Section */}
@@ -39,14 +48,14 @@ export function AccountView({ address, onViewChange, connectedChain }: AccountVi
                     onClick={() => onViewChange('autoclaim')}
                 >
                     Autoclaim Registry
-                    <img src="/chevron-right.svg" alt='Chevron Right' className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                     className="btn btn-ghost w-full flex justify-between"
                     onClick={() => onViewChange('network')}
                 >
                     Network: {connectedChain}
-                    <img src="/chevron-right.svg" alt='Chevron Right' className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => disconnect()}

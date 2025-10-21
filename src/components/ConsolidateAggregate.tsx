@@ -1,39 +1,29 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-	computeConsolidations,
 	computeSelfConsolidations,
 	useConsolidateValidatorsBatch,
 } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
-import { Filter } from './Filter';
 import { ValidatorItem } from './ValidatorItem';
-import { ConsolidationSummary } from './ConsolidationSummary';
-import WithdrawBatch from './WithdrawBatch';
-import { formatEther, parseEther } from 'viem';
-import Deposit from './Deposit';
-import { NetworkConfig } from '../types/network';
-import { WarningModal } from './WarningModal';
+import { Search, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
+import ActionBar from './ActionBar';
 
 interface ConsolidateSelectProps {
 	validators: ValidatorInfo[];
-	network: NetworkConfig;
-	goToStep: () => void;
 }
 
 export function ConsolidateAggregate({
 	validators,
-	network,
 }: ConsolidateSelectProps) {
-	const { consolidateValidators } = useConsolidateValidatorsBatch(network.consolidateAddress);
-	const targetBalance = network.cl.maxBalance * 0.625;
-	const [chunkSize, setChunkSize] = useState(targetBalance);
+	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
+	const [currentPage, setCurrentPage] = useState(1);
+	const [selected, setSelected] = useState<Set<number>>(new Set());
+
+	const itemsPerPage = 9;
 	const type1ValidatorsActive = validators.filter(
 		(v) => v.type === 1 && v.filterStatus === 'active'
-	);
-	const compoundingValidatorsActive = validators.filter(
-		(v) => v.type === 2 && v.filterStatus === 'active'
 	);
 
 	const filteredValidators = useMemo(() => {
@@ -47,144 +37,165 @@ export function ConsolidateAggregate({
 		return result;
 	}, [validators, filterVersion, filterStatus]);
 
-	const filteredActive = useMemo(
-		() => filteredValidators.filter(v => v.filterStatus === 'active'),
-		[filteredValidators]
-	);
+	const totalPages = Math.ceil(filteredValidators.length / itemsPerPage);
+	const startIndex = (currentPage - 1) * itemsPerPage;
+	const endIndex = startIndex + itemsPerPage;
+	const paginatedValidators = filteredValidators.slice(startIndex, endIndex);
 
-	const totalBalance = useMemo(() => {
-		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0n);
-	}, [validators]);
+	const getVisiblePages = () => {
+		if (totalPages <= 3) {
+			return Array.from({ length: totalPages }, (_, i) => i + 1);
+		}
 
-	const totalCompoundingBalance = useMemo(() => {
-		return compoundingValidatorsActive.reduce((acc, v) => acc + v.balanceEth, 0n);
-	}, [compoundingValidatorsActive]);
+		if (currentPage <= 2) {
+			return [1, 2, 3];
+		}
 
-	const { consolidations, totalGroups, skippedValidators } = useMemo(() => {
-		const type1Filtered = filteredActive.filter(
-			(v) => v.type === 1 && v.filterStatus === 'active'
-		);
-		const compoundingFiltered = filteredActive.filter(
-			(v) => v.type === 2 && v.filterStatus === 'active'
-		);
+		if (currentPage >= totalPages - 1) {
+			return [totalPages - 2, totalPages - 1, totalPages];
+		}
 
-		const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingFiltered, type1Filtered, parseEther(chunkSize.toString()));
-		const totalGroups = targets.size + skippedValidators.length;
-
-		return { consolidations, totalGroups, skippedValidators };
-	}, [filteredActive, chunkSize]);
-
-	const handleUpgradeAll = async () => {
-		const consolidations = computeSelfConsolidations(type1ValidatorsActive);
-		await consolidateValidators(consolidations);
+		return [currentPage - 1, currentPage, currentPage + 1];
 	};
 
-	useEffect(() => setChunkSize(targetBalance), [targetBalance]);
+	const toggleOne = (idx: number, checked: boolean) => {
+		setSelected(prev => {
+			const next = new Set(prev);
+			if (checked) {
+				next.add(idx);
+			} else {
+				next.delete(idx);
+			}
+			return next;
+		});
+	};
+
+	const toggleAll = (checked: boolean) => {
+		setSelected(checked ? new Set(filteredValidators.map(v => v.index)) : new Set());
+	};
+
+	const allSelected = useMemo(() => {
+		return selected.size === filteredValidators.length;
+	}, [selected, filteredValidators]);
+
+	const emptyRows = Array.from({ length: itemsPerPage - paginatedValidators.length }, (_, i) => i);
+
+	useEffect(() => {
+		setCurrentPage(1);
+		setSelected(new Set());
+	}, [filterVersion, filterStatus]);
+
+	const handleUpgradeAll = () => {
+		const consolidations = computeSelfConsolidations(type1ValidatorsActive);
+		consolidateValidators(consolidations);
+	};
+
+	const selectedValidators = useMemo<ValidatorInfo[]>(() => {
+		return filteredValidators.filter(v => selected.has(v.index));
+	  }, [filteredValidators, selected]);
 
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
-			<WarningModal totalBalance={totalBalance} network={network} />
-
-			<p className="font-bold">Your validators</p>
-			<div className="flex items-center  w-full">
-				<p className="text-sm text-gray-500 mr-2">Balance: {Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
-				<WithdrawBatch validators={compoundingValidatorsActive} totalBalance={totalCompoundingBalance} />
-			</div>
-
 			{/* FILTER */}
-			<div className="flex gap-x-2 items-center w-full mt-4">
-				<p className="text-sm">Version</p>
-				<Filter text="All" filter={filterVersion} setFilter={setFilterVersion} value={undefined} />
-				<Filter text="1" filter={filterVersion} setFilter={setFilterVersion} value={'1'} />
-				<Filter text="2" filter={filterVersion} setFilter={setFilterVersion} value={'2'} />
-			</div>
 			<div className="flex items-center justify-between w-full">
-				<div className="flex gap-x-2 items-center w-full">
-					<p className="text-sm">Status</p>
-					<Filter text="All" filter={filterStatus} setFilter={setFilterStatus} value={undefined} />
-					<Filter
-						text="Active"
-						filter={filterStatus}
-						setFilter={setFilterStatus}
-						value={'active'}
-					/>
-					<Filter
-						text="Exited"
-						filter={filterStatus}
-						setFilter={setFilterStatus}
-						value={'exited'}
-					/>
-					<Filter
-						text="Pending"
-						filter={filterStatus}
-						setFilter={setFilterStatus}
-						value={'pending'}
-					/>
+				<div className="flex items-center gap-x-2">
+					<select defaultValue="active" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
+						<option value="">All status</option>
+						<option value="active">Active</option>
+						<option value="exited">Exited</option>
+						<option value="pending">Pending</option>
+					</select>
+					<select 
+						defaultValue="" 
+						className="select select-sm" 
+						onChange={(e) => setFilterVersion(e.target.value || undefined)}
+					>
+						<option value="">All versions</option>
+						<option value="1">Type 1</option>
+						<option value="2">Type 2</option>
+					</select>
+					{filterVersion === '1' && (
+						<button className="btn btn-sm" onClick={handleUpgradeAll}>
+							Upgrade all Type 1
+						</button>
+					)}
 				</div>
-				{filterVersion === '1' && (
-					<button className="btn btn-sm btn-ghost text-primary" onClick={handleUpgradeAll}>
-						Upgrade all
-					</button>
-				)}
-				{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
+				{/* TODO: Add search */}
+				<label className="input input-sm w-64">
+					<Search className="w-4 h-4 opacity-50" />
+					<input type="search" placeholder="Search validators..." />
+				</label>
 			</div>
-			<div className="overflow-auto h-72">
-				<table className="table table-pin-rows table-zebra">
+			<div className="overflow-auto rounded-box border border-base-content/15 bg-base-100 shadow-xs">
+				<table className="table table-pin-rows">
 					{/* head */}
 					<thead>
 						<tr className="bg-base-200">
-							<th>Index</th>
-							<th>Type</th>
-							<th>Status</th>
-							<th>Balance</th>
-							<th></th>
+							{/* TODO: Add sorting */}
+							<th><input type="checkbox" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} className="checkbox checkbox-primary checkbox-xs" /></th>
+							<th><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Type <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Status <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Balance <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
-						{filteredValidators.map((v) => (
+						{paginatedValidators.map((v) => (
 							<ValidatorItem
 								key={v.index}
 								validator={v}
+								isSelected={selected.has(v.index)}
+								onToggle={toggleOne}
 							/>
+						))}
+						{emptyRows.map((_, index) => (
+							<tr key={`empty-${index}`} className="h-14">
+							</tr>
 						))}
 					</tbody>
 				</table>
 			</div>
 
-			<div className="flex flex-col w-full items-center mt-4 gap-y-2">
-				<p className="text-xs">Balance min: {chunkSize}</p>
-				<input
-					type="range"
-					min={network.cl.minBalance}
-					max={network.cl.maxBalance}
-					value={chunkSize}
-					className="range range-sm range-primary"
-					onChange={(e) => setChunkSize(Number(e.target.value))}
-				/>
-			</div>
-
-			<div className="w-full flex flex-col items-center gap-y-4">
-				<div className="text-center text-sm p-2">
-					<p>{totalGroups} validators after consolidation</p>
-					<p>{consolidations.length} consolidations request</p>
-
-					{skippedValidators.length > 0 && (
-						<div className="mt-2">
-							<p className="text-warning text-sm">
-								{skippedValidators.length} validators skipped
-							</p>
-							<ul className="list-disc list-inside text-xs mt-1">
-								{skippedValidators.map((v) => (
-									<li key={v.index}>
-										{v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
-									</li>
-								))}
-							</ul>
+			{totalPages > 1 && (
+				<div className="flex items-center justify-between w-full px-2">
+					<div className="text-sm text-base-content/70">
+						Showing {startIndex + 1}-{Math.min(endIndex, filteredValidators.length)} of {filteredValidators.length} validators
+					</div>
+					<div className="flex items-center gap-2">
+						<button
+							className="btn btn-sm btn-circle btn-ghost"
+							onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+							disabled={currentPage === 1}
+						>
+							<ChevronLeft className="w-4 h-4" />
+						</button>
+						<div className="flex items-center gap-1">
+							{getVisiblePages().map(page => (
+								<button
+									key={page}
+									className={`btn btn-sm ${currentPage === page ? 'btn-primary' : 'btn-ghost'}`}
+									onClick={() => setCurrentPage(page)}
+								>
+									{page}
+								</button>
+							))}
 						</div>
-					)}
+						<button
+							className="btn btn-sm btn-circle btn-ghost"
+							onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+							disabled={currentPage === totalPages}
+						>
+							<ChevronRight className="w-4 h-4" />
+						</button>
+					</div>
 				</div>
-				<ConsolidationSummary consolidations={consolidations} />
-			</div>
+			)}
+
+			{selected.size > 0 && (
+				<ActionBar selected={selectedValidators} />
+			)}
+
 		</div>
 	);
 }

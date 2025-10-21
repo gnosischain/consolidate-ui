@@ -1,31 +1,28 @@
 'use client';
 
 import { WrongNetwork } from '../components/WrongNetwork';
-import Consolidate from '../components/Consolidate';
+import Dashboard from '../components/Dashboard';
 import { DisclaimerBanner } from '../components/Disclaimer';
 import { useWallet } from '../context/WalletContext';
 import Navbar from '../components/Navbar';
+import LandingPage from '../components/LandingPage';
 
 function App() {
 	const { account, chainId, network, isWrongNetwork, balance } = useWallet();
-
 	if (isWrongNetwork) {
 		return <WrongNetwork />;
 	}
 
 	return (
-		<div className="w-full h-screen flex flex-col">
+		<div className="w-full flex flex-col min-h-screen bg-base-200">
 			<Navbar />
-			{/* Main content */}
-			<div className="flex px-8 flex-col h-full w-full items-center justify-center bg-base-100">
-				{account.isConnected && account.address && network && chainId && balance ? (
-					<>
-						<Consolidate />
-					</>
-				) : (
-					<h1 className="text-xl font-bold">Please connect your wallet to continue</h1>
-				)}
-			</div>
+			{account.isConnected && account.address && network && chainId && balance ? (
+				<div className="px-2 sm:px-28 w-full sm:mt-8">
+					<Dashboard />
+				</div>
+			) : (
+				<LandingPage />
+			)}
 			<DisclaimerBanner />
 		</div>
 	);

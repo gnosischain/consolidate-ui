@@ -14,7 +14,7 @@ import { buildDepositRoot, generateDepositData, generateSignature, GET_DEPOSIT_E
 import DEPOSIT_ABI from "../utils/abis/deposit";
 import ERC677ABI from "../utils/abis/erc677";
 
-function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPartialDeposit: boolean = false, pubkey?: string) {
+function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
   const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
@@ -55,13 +55,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         throw Error(`File is for the wrong network. Expected: ${contractConfig.chainId}`);
       }
 
-      // Partial deposit specific validation
-      if (isPartialDeposit) {
-        if (deposits.length !== 1) {
-          throw Error("Partial deposit files must contain exactly one validator.");
-        }
-      }
-
       const pubkeys = deposits.map((d) => `0x${d.pubkey}`);
       const { data, error } = await client.query(GET_DEPOSIT_EVENTS, {
         pubkeys: pubkeys,
@@ -80,27 +73,14 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
         data.SBCDepositContract_DepositEvent.map((d: { pubkey: string }) => d.pubkey)
       );
 
-      let validDeposits: DepositDataJson[];
+      const validDeposits: DepositDataJson[] = deposits.filter((d) => !existingDeposits.has('0x' + d.pubkey));
 
-      if (isPartialDeposit) {
-        const hasExistingDeposit = existingDeposits.has('0x' + deposits[0].pubkey);
-        if (pubkey && pubkey.replace(/^0x/, '') !== deposits[0].pubkey) {
-          throw Error(`Validator ${pubkey.replace(/^0x/, '')} does not match ${deposits[0].pubkey}.`);
-        }
-        if (!hasExistingDeposit) {
-          throw Error("Cannot make partial deposit: No existing deposit found for this validator. Use regular deposit for new validators.");
-        }
-        validDeposits = deposits;
-      } else {
-        validDeposits = deposits.filter((d) => !existingDeposits.has('0x' + d.pubkey));
+      if (validDeposits.length === 0) throw Error("Deposits have already been made to all validators in this file.");
 
-        if (validDeposits.length === 0) throw Error("Deposits have already been made to all validators in this file.");
-
-        if (validDeposits.length !== deposits.length) {
-          throw Error(
-            "Some of the deposits have already been made to the validators in this file."
-          );
-        }
+      if (validDeposits.length !== deposits.length) {
+        throw Error(
+          "Some of the deposits have already been made to the validators in this file."
+        );
       }
 
       const uniquePubkeys = new Set(validDeposits.map((d) => d.pubkey));
@@ -124,7 +104,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
 
       return { deposits: validDeposits, credentialType, _totalDepositAmount };
     },
-    [contractConfig, client, isPartialDeposit, pubkey]
+    [contractConfig, client]
   );
 
   const setDepositData = useCallback(
@@ -221,6 +201,37 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
     }
   }, [contractConfig, writeContract]);
 
+  const computePartialDepositAmounts = useCallback((amount: bigint, validators: ValidatorInfo[], targetAmount: bigint) => {
+    const amounts: bigint[] = [];
+
+    if (targetAmount === 0n) {
+      const baseAmount = amount / BigInt(validators.length);
+      const remainder = amount % BigInt(validators.length);
+      validators.forEach((_, i) => {
+        amounts.push(baseAmount + (i < Number(remainder) ? 1n : 0n));
+      });
+    }
+    else {
+      const needed = validators.map(v => 
+        v.balanceEth < targetAmount ? targetAmount - v.balanceEth : 0n
+      );
+      
+      const totalNeeded = needed.reduce((sum, n) => sum + n, 0n);
+      
+      if (totalNeeded > amount) {
+        needed.forEach((need) => {
+          if (need > 0n) {
+            amounts.push((need * amount) / totalNeeded);
+          } else {
+            amounts.push(0n);
+          }
+        });
+      } else {
+        amounts.push(...needed);
+      }
+    }
+    return amounts;
+  }, []);
 
   const approve = useCallback(async (amount: bigint) => {
     if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
@@ -244,6 +255,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, isPar
   return {
     deposit,
     partialDeposit,
+    computePartialDepositAmounts,
     depositSuccess,
     contractError,
     txError,
