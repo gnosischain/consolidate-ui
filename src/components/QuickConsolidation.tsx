@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { computeConsolidations } from "../hooks/useConsolidate";
 import { ValidatorInfo } from "../types/validators";
 import { useWallet } from "../context/WalletContext";
+import ModalButton from "./ModalButton";
 
 interface QuickConsolidationProps {
     validators: ValidatorInfo[];
@@ -80,7 +81,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                         </ul>
                     </div>
                 )}
-                <ConsolidationSummary consolidations={consolidations} />
+                <ModalButton title="Summary" children={<ConsolidationSummary consolidations={consolidations} />} />
             </div>
         </>
     );
