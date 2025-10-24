@@ -58,8 +58,8 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                     <p className="">{consolidations.length}</p>
                 </div>
                 <div className="flex justify-between text-sm ">
-                    <p className="text-base-content/70">Gas fees:</p>
-                    <p className="">{formatEther(BigInt(consolidations.length) * 1000000000000000n)} XDAI</p>
+                    <p className="text-base-content/70">Pocessing fees:</p>
+                    <p className="">{consolidations.length * 0.000001} GNO</p>
                 </div>
                 <div className="flex justify-between text-sm mt-2 border-t border-base-content/5 pt-2 mb-6">
                     <p className="text-base-content/70">Validators remaining:</p>

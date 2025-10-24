@@ -8,6 +8,7 @@ import { AutoclaimView } from "./AutoclaimView";
 import { NetworkView } from "./NetworkView";
 import { AutoclaimConfigView } from "./AutoclaimConfigView";
 import { Menu } from "lucide-react";
+import ModalButton from "./ModalButton";
 
 export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config';
 
@@ -86,7 +87,10 @@ export default function WalletModal() {
 					</div>
 				</div>
 			) : (
-				<SelectWallet />
+				<ModalButton
+					title="Connect Wallet"
+					children={<SelectWallet />}
+				/>
 			)}
 		</>
 	);
