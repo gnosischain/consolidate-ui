@@ -1,5 +1,4 @@
 import { useSwitchChain } from "wagmi";
-import { useState } from "react";
 import { useWallet } from "../context/WalletContext";
 import { truncateAddress } from "../utils/address";
 import { SelectWallet } from "./SelectWallet";
@@ -9,21 +8,14 @@ import { NetworkView } from "./NetworkView";
 import { AutoclaimConfigView } from "./AutoclaimConfigView";
 import { Menu } from "lucide-react";
 import ModalButton from "./ModalButton";
+import { useViewTransition } from "../hooks/useViewTransition";
 
 export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config';
 
 export default function WalletModal() {
 	const { account, canBatch, chainId, chainName, network } = useWallet();
 	const { chains, switchChain } = useSwitchChain();
-	const [currentView, setCurrentView] = useState<ModalView>('main');
-	const [isTransitioning, setIsTransitioning] = useState(false);
-	const handleViewChange = (view: ModalView) => {
-		setIsTransitioning(true);
-		setTimeout(() => {
-			setCurrentView(view);
-			setIsTransitioning(false);
-		}, 150);
-	};
+	const { currentView, isTransitioning, changeView } = useViewTransition<ModalView>('main');
 
 	const handleNetworkChange = (chainId: number) => {
 		const selectedChain = chains.find((chain) => chain.id === chainId);
@@ -35,38 +27,35 @@ export default function WalletModal() {
 	return (
 		<>
 			{account.isConnected && account.address && network && chainId && chainName ? (
-				<div className="flex items-center gap-x-3">
-					{/* Wallet Button */}
-					<button
-						className="btn btn-ghost flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-base-300 transition-all duration-200"
-						popoverTarget="wallet-popover"
-						style={{ anchorName: "--wallet-anchor" } as React.CSSProperties}
-						onClick={() => handleViewChange('main')}
-					>
-						<span className="font-medium">{truncateAddress(account.address)}</span>
-						<Menu className="w-4 h-4" />
-					</button>
-
-					{/* Wallet Popover */}
-					<div
-						className={`dropdown dropdown-end bg-base-100 rounded-2xl shadow-lg border border-base-300 p-0 w-80 max-w-sm transition-all duration-300 ease-in-out ${isTransitioning ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
-							}`}
-						popover="auto"
-						id="wallet-popover"
-						style={{ positionAnchor: "--wallet-anchor" } as React.CSSProperties}
-					>
+				<ModalButton
+					trigger={(openModal) => (
+						<button
+							className="btn btn-ghost flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-base-300 transition-all duration-200"
+							onClick={() => {
+								changeView('main');
+								openModal();
+							}}
+						>
+							<span className="font-medium">{account.address && truncateAddress(account.address)}</span>
+							<Menu className="w-4 h-4" />
+						</button>
+					)}
+				>
+					<div className={`transition-all duration-300 ease-in-out ${
+						isTransitioning ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
+					}`}>
 						{currentView === 'main' && (
 							<AccountView
 								address={account.address}
 								canBatch={canBatch}
-								onViewChange={handleViewChange}
+								onViewChange={changeView}
 								connectedChain={chainName}
 							/>
 						)}
 						{currentView === 'autoclaim' && (
 							<AutoclaimView
 								network={network}
-								handleViewChange={handleViewChange}
+								handleViewChange={changeView}
 							/>
 						)}
 						{currentView === 'network' && (
@@ -74,23 +63,22 @@ export default function WalletModal() {
 								chains={chains}
 								currentChainId={chainId}
 								handleNetworkChange={handleNetworkChange}
-								onBackToMain={() => handleViewChange('main')}
+								onBackToMain={() => changeView('main')}
 							/>
 						)}
 						{currentView === 'autoclaim-config' && (
 							<AutoclaimConfigView
 								network={network}
 								address={account.address}
-								handleViewChange={handleViewChange}
+								handleViewChange={changeView}
 							/>
 						)}
 					</div>
-				</div>
+				</ModalButton>
 			) : (
-				<ModalButton
-					title="Connect Wallet"
-					children={<SelectWallet />}
-				/>
+				<ModalButton title="Connect Wallet">
+					<SelectWallet />
+				</ModalButton>
 			)}
 		</>
 	);

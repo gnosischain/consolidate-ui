@@ -1,20 +1,29 @@
 import { useRef } from "react";
 
 interface ModalButtonProps {
-    title: string;
+    title?: string;
+    trigger?: (openModal: () => void) => React.ReactNode;
     children: React.ReactNode;
 }
 
-export default function ModalButton({ title, children }: ModalButtonProps) {
+export default function ModalButton({ title, trigger, children }: ModalButtonProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
+
+    const openModal = () => {
+        dialogRef.current?.showModal();
+    };
 
     return (
         <>
-            <button
-                className="btn btn-primary"
-                onClick={() => dialogRef.current?.showModal()}
-            >{title}
-            </button>
+            {trigger ? (
+                trigger(openModal)
+            ) : (
+                <button
+                    className="btn btn-primary"
+                    onClick={openModal}
+                >{title}
+                </button>
+            )}
             <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
                     {children}
