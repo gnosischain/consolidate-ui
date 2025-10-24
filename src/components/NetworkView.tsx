@@ -1,3 +1,5 @@
+import { ArrowLeftIcon } from "lucide-react";
+
 interface Chain {
     id: number;
     name: string;
@@ -21,7 +23,7 @@ export function NetworkView({ chains, currentChainId, handleNetworkChange, onBac
                         className="btn btn-ghost btn-sm btn-circle"
                         aria-label="Back to wallet"
                     >
-                        <img src="/arrow-left.svg" alt='Back' className="w-4 h-4" />
+                        <ArrowLeftIcon className="w-4 h-4" />
                     </button>
                     <h3 className="font-semibold text-base">Select Network</h3>
                     <div className="w-8"></div> {/* Spacer for centering */}

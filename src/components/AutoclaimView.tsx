@@ -1,3 +1,4 @@
+import { ArrowLeftIcon } from "lucide-react";
 import { NetworkConfig } from "../types/network";
 import { ModalView } from "./WalletModal";
 
@@ -17,7 +18,7 @@ export function AutoclaimView({ network, handleViewChange }: AutoclaimViewProps)
                         className="btn btn-ghost btn-sm btn-circle"
                         aria-label="Back to wallet"
                     >
-                        <img src="/arrow-left.svg" alt='Back' className="w-4 h-4" />
+                        <ArrowLeftIcon className="w-4 h-4" />
                     </button>
                     <h3 className="font-semibold text-base">Autoclaim Registry</h3>
                 </div>
