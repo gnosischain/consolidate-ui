@@ -6,7 +6,8 @@ import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
-import { ArrowUp, EllipsisVertical, X } from 'lucide-react';
+import { ArrowDownToLine, ArrowUp, ArrowUpFromLine, EllipsisVertical, X } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -19,19 +20,19 @@ export function ValidatorItem({
 	isSelected,
 	onToggle,
 }: ValidatorItemProps) {
+	const { openModal } = useModal();
 	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	const [showActions, setShowActions] = useState(false);
 	return (
-		<tr className={`h-14 hover:bg-primary/5 transition-all duration-200 border-b border-base-content/5 ${
-			isSelected ? 'bg-primary/10' : ''
-		} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
+		<tr className={`h-14 hover:bg-primary/5 transition-all duration-200 border-b border-base-content/5 ${isSelected ? 'bg-primary/10' : ''
+			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
 			<th>
-				<input 
-					type="checkbox" 
-					className="checkbox checkbox-primary checkbox-xs" 
+				<input
+					type="checkbox"
+					className="checkbox checkbox-primary checkbox-xs"
 					checked={isSelected}
-					onChange={(e) => onToggle(validator.index, e.target.checked)} 
-					disabled={validator.filterStatus !== 'active'} 
+					onChange={(e) => onToggle(validator.index, e.target.checked)}
+					disabled={validator.filterStatus !== 'active'}
 				/>
 			</th>
 			<td className="font-medium">{validator.index}</td>
@@ -66,12 +67,12 @@ export function ValidatorItem({
 
 								{validator.type === 2 && (
 									<div className="tooltip" data-tip="Deposit">
-										<PartialDeposit validator={validator} />
+										<button className="btn btn-ghost btn-circle btn-sm" onClick={() => openModal(<PartialDeposit validator={validator} />)}><ArrowDownToLine className="w-4 h-4" /></button>
 									</div>
 								)}
 
 								<div className="tooltip" data-tip="Withdraw">
-									<Withdraw validator={validator} />
+									<button className="btn btn-ghost btn-circle btn-sm" onClick={() => openModal(<Withdraw validator={validator} />)}><ArrowUpFromLine className="w-4 h-4" /></button>
 								</div>
 							</>
 						)} </div>)}

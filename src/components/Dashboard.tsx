@@ -7,6 +7,8 @@ import { Address, formatEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
 import Deposit from './Deposit';
 import { WarningModal } from './WarningModal';
+import { Plus } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
 
 enum Steps {
 	SELECT = 'select',
@@ -15,6 +17,7 @@ enum Steps {
 
 export default function Dashboard() {
 	const { account, network } = useWallet();
+	const { openModal } = useModal();
 	if (!network || !account.address) {
 		throw new Error('Network or account not found');
 	}
@@ -76,7 +79,13 @@ export default function Dashboard() {
 									<p className="text-xs text-base-content/60 mb-1">Total validators balance</p>
 									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 								</div>
-								{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
+								{(network.chainId === 100 || network.chainId === 10200) && <button
+									className="btn btn-primary btn-sm sm:btn-md"
+									onClick={() => openModal(<Deposit />)}
+								>
+									<Plus />
+									Add new
+								</button>}
 							</div>
 						</div>
 					</div>
