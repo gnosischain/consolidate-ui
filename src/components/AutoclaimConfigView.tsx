@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useAutoclaim from "../hooks/useAutoclaim";
 import { NetworkConfig } from "../types/network";
-import type { ModalView } from "./WalletModal";
 import { SECOND_IN_DAY, ZERO_ADDRESS } from "../constants/misc";
 import { formatEther, isAddress } from "viem";
 
 interface AutoclaimConfigViewProps {
     network: NetworkConfig;
     address: `0x${string}`;
-    handleViewChange: (view: ModalView) => void;
 }
 
-export function AutoclaimConfigView({ network, address, handleViewChange }: AutoclaimConfigViewProps) {
+export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewProps) {
     const {
         register,
         setActionContract,
@@ -168,13 +166,6 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
             {/* Header with Back Button */}
             <div className="px-4 py-4 border-b border-base-300">
                 <div className="flex items-center justify-between">
-                    <button
-                        onClick={() => handleViewChange('main')}
-                        className="btn btn-ghost btn-sm btn-circle"
-                        aria-label="Back to wallet"
-                    >
-                        <img src="/arrow-left.svg" alt='Back' className="w-4 h-4" />
-                    </button>
                     <h3 className="font-semibold text-base">Autoclaim Registry</h3>
                     {isRegister && (
                         <div className="badge badge-success badge-sm mt-1">Active</div>

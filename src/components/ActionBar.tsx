@@ -1,9 +1,9 @@
 import { useState } from "react";
-import ModalButton from "./ModalButton";
 import QuickConsolidation from "./QuickConsolidation";
 import { ValidatorInfo } from "../types/validators";
 import WithdrawBatch from "./WithdrawBatch";
 import PartialDepositBatch from "./PartialDepositBatch";
+import { useModal } from "../context/ModalContext";
 
 interface ActionBarProps {
     selected: ValidatorInfo[];
@@ -11,6 +11,7 @@ interface ActionBarProps {
 
 export default function ActionBar({ selected }: ActionBarProps) {
     const [tab, setTab] = useState<'consolidate' | 'withdraw' | 'topup'>('consolidate');
+    const { openModal } = useModal();
     
     return (
         <div className="flex flex-col sm:flex-row justify-between w-full z-10 fixed bottom-0 left-0 bg-base-100 border-t-2 border-primary/20 py-3 px-4">
@@ -25,15 +26,20 @@ export default function ActionBar({ selected }: ActionBarProps) {
                     <input type="radio" name="tab" className="tab" aria-label="Top up" checked={tab === 'topup'} onChange={() => setTab('topup')} />
                 </div>
                 <select defaultValue="consolidate" className="select select-sm sm:hidden" onChange={(e) => setTab(e.target.value as 'consolidate' | 'withdraw' | 'topup')}>
-						<option value="consolidate">Consolidate</option>
-						<option value="withdraw">Withdraw</option>
-						<option value="topup">Top up</option>
-					</select>
-                <ModalButton title="Continue">
-                    {tab === 'consolidate' && <QuickConsolidation validators={selected} />}
-                    {tab === 'withdraw' && <WithdrawBatch validators={selected} />}
-                    {tab === 'topup' && <PartialDepositBatch validators={selected} />}
-                </ModalButton>
+					<option value="consolidate">Consolidate</option>
+					<option value="withdraw">Withdraw</option>
+					<option value="topup">Top up</option>
+				</select>
+                <button 
+                    className="btn btn-primary" 
+                    onClick={() => {
+                        if (tab === 'consolidate') openModal(<QuickConsolidation validators={selected} />);
+                        else if (tab === 'withdraw') openModal(<WithdrawBatch validators={selected} />);
+                        else openModal(<PartialDepositBatch validators={selected} />);
+                    }}
+                >
+                    Continue
+                </button>
             </div>
         </div>
     );

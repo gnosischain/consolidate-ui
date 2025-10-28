@@ -1,18 +1,23 @@
 import { useDisconnect } from "wagmi";
 import { truncateAddress } from "../utils/address";
 import { Balance } from "./Balance";
-import { ModalView } from "./WalletModal";
 import { ChevronRight } from "lucide-react";
+import { NetworkView } from "./NetworkView";
+import { useModal } from "../context/ModalContext";
+import { AutoclaimView } from "./AutoclaimView";
+import { NetworkConfig } from "../types/network";
 
 interface AccountViewProps {
     address: `0x${string}`;
     canBatch: boolean;
-    onViewChange: (view: ModalView) => void;
     connectedChain: string;
+    chainId: number;
+    network: NetworkConfig;
 }
 
-export function AccountView({ address, canBatch, onViewChange, connectedChain }: AccountViewProps) {
+export function AccountView({ address, canBatch, connectedChain, chainId, network }: AccountViewProps) {
     const { disconnect } = useDisconnect();
+    const { openModal } = useModal();
 
     return (
         <>
@@ -45,14 +50,14 @@ export function AccountView({ address, canBatch, onViewChange, connectedChain }:
             <div className="px-6 py-4 space-y-3">
                 <button
                     className="btn btn-ghost w-full flex justify-between"
-                    onClick={() => onViewChange('autoclaim')}
+                    onClick={() => openModal(<AutoclaimView network={network} address={address} />)}
                 >
                     Autoclaim Registry
                     <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                     className="btn btn-ghost w-full flex justify-between"
-                    onClick={() => onViewChange('network')}
+                    onClick={() => openModal(<NetworkView currentChainId={chainId} />)}
                 >
                     Network: {connectedChain}
                     <ChevronRight className="w-4 h-4" />

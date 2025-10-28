@@ -1,13 +1,12 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { gnosis } from 'viem/chains';
 import { Connector, useConnect } from 'wagmi';
 
 export function SelectWallet() {
 	const [isMounted, setIsMounted] = useState(false);
 	const { connectors, connect } = useConnect();
-	const dialogRef = useRef<HTMLDialogElement>(null);
 
 	useEffect(() => {
 		setIsMounted(true);

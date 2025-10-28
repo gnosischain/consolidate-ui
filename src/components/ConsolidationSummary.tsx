@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { Consolidation } from '../types/validators';
 import { formatEther } from 'viem';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
