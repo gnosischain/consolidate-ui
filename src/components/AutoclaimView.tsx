@@ -21,7 +21,6 @@ export function AutoclaimView({ network, address }: AutoclaimViewProps) {
 
             {/* Autoclaim Content */}
             <div className="px-6 py-4">
-                <p className="text-xs text-warning italic">under development</p>
                 <div className="text-center py-8">
                     <div className="w-16 h-16 mx-auto mb-4 bg-base-200 rounded-full flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
