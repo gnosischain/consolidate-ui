@@ -4,7 +4,6 @@ import { WrongNetwork } from '../components/WrongNetwork';
 import Dashboard from '../components/Dashboard';
 import { DisclaimerBanner } from '../components/Disclaimer';
 import { useWallet } from '../context/WalletContext';
-import Navbar from '../components/Navbar';
 import LandingPage from '../components/LandingPage';
 
 function App() {
@@ -14,8 +13,7 @@ function App() {
 	}
 
 	return (
-		<div className="w-full flex flex-col min-h-screen bg-base-200">
-			<Navbar />
+		<>
 			{account.isConnected && account.address && network && chainId && balance ? (
 				<div className="px-2 sm:px-28 w-full sm:mt-8">
 					<Dashboard />
@@ -24,7 +22,7 @@ function App() {
 				<LandingPage />
 			)}
 			<DisclaimerBanner />
-		</div>
+		</>
 	);
 }
 

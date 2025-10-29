@@ -1,3 +1,4 @@
+import Link from "next/link";
 import WalletModal from "./WalletModal";
 
 export default function Navbar() {
@@ -6,7 +7,8 @@ export default function Navbar() {
 			<div className="flex-1 font-bold">
 					Gnosis Launchpad
 			</div>
-			<div className="flex gap-x-2">
+			<div className="flex items-center gap-x-4">
+				<Link href='/explorer' className="btn btn-ghost">Explorer</Link>
 				<WalletModal />
 			</div>
 		</div>

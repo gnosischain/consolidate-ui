@@ -1,3 +1,5 @@
+'use client';
+
 import { useWallet } from "../context/WalletContext";
 import { truncateAddress } from "../utils/address";
 import { SelectWallet } from "./SelectWallet";
