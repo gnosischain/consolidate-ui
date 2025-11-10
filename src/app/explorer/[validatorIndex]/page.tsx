@@ -1,14 +1,15 @@
-'use client'; //TODO fetch directly without hook
+'use client'; //TODO fetch directly with server component
 
+import { use } from "react";
 import { StatisticsTable } from "../../../components/StatisticsTable";
 import { useStatistics } from "../../../hooks/useStatistics";
 
-export default async function Page({
+export default function Page({
     params,
 }: {
     params: Promise<{ validatorIndex: string }>;
 }) {
-    const { validatorIndex } = await params;
+    const { validatorIndex } = use(params);
     const { statistics } = useStatistics(validatorIndex);
 
     if (!statistics) { return (<div>No statistics found</div>) }
