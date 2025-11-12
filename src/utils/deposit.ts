@@ -72,23 +72,3 @@ export const getCredentialType = (withdrawalCredential: string): CredentialType 
   }
   return undefined;
 };
-
-export const GET_DEPOSIT_EVENTS = `
-query MyQuery($pubkeys: [String!], $chainId: Int!) {
-  SBCDepositContract_DepositEvent(
-    where: { 
-      pubkey: { 
-        _in: $pubkeys
-      },
-      chainId: {_eq: $chainId}
-    }
-  ) {
-    id
-    amount
-    db_write_timestamp
-    index
-    withdrawal_credentials
-    pubkey
-  }
-}
-`;

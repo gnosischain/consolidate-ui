@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
+import { toast } from "react-hot-toast";
 
 export default function Deposit() {
 
@@ -10,7 +11,41 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { setDepositData, depositData, approve, isApproved, deposit } = useDeposit(network, account.address);
+  const { setDepositData, depositData, approve, isApproved, deposit, depositSuccess, approveSuccess, error, approveLoading, depositLoading } = useDeposit(network, account.address);
+
+  // Handle success toasts
+  useEffect(() => {
+    if (approveSuccess) {
+      toast.success('Approval successful');
+    }
+  }, [approveSuccess]);
+
+  useEffect(() => {
+    if (depositSuccess) {
+      toast.success('Deposit successful');
+    }
+  }, [depositSuccess]);
+
+  // Handle loading toasts
+  useEffect(() => {
+    if (approveLoading) {
+      toast.loading('Approving...');
+    }
+  }, [approveLoading]);
+
+  useEffect(() => {
+    if (depositLoading) {
+      toast.loading('Depositing...');
+    }
+  }, [depositLoading]);
+
+  // Handle error toast
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message);
+    }
+  }, [error]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {

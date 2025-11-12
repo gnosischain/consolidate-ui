@@ -17,6 +17,7 @@
     "next": "^15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.6.0",
     "tailwindcss": "^4.1.5",
     "ts-node": "^10.9.2",
     "urql": "^4.2.2",
