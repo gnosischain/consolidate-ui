@@ -3,7 +3,7 @@ import { NetworkConfig } from "../types/network";
 import { DepositDataJson } from "../types/deposit";
 import { CredentialType } from "../types/validators";
 import { getCredentialType } from "./deposit";
-import { Client } from "urql";
+import { fetchGraphQL } from "./graphql";
 
 export interface ValidationResult {
   deposits: DepositDataJson[];
@@ -12,13 +12,23 @@ export interface ValidationResult {
 }
 
 export const GET_DEPOSIT_EVENTS = `
-  query GetDepositEvents($pubkeys: [String!]!, $chainId: Int!) {
-    SBCDepositContract_DepositEvent(
-      where: { pubkey: { _in: $pubkeys }, chainId: { _eq: $chainId } }
-    ) {
-      pubkey
+query MyQuery($pubkeys: [String!], $chainId: Int!) {
+  SBCDepositContract_DepositEvent(
+    where: { 
+      pubkey: { 
+        _in: $pubkeys
+      },
+      chainId: {_eq: $chainId}
     }
+  ) {
+    id
+    amount
+    db_write_timestamp
+    index
+    withdrawal_credentials
+    pubkey
   }
+}
 `;
 
 /**
@@ -29,7 +39,7 @@ export async function validateDepositData(
   deposits: DepositDataJson[],
   balance: bigint,
   contractConfig: NetworkConfig,
-  client: Client
+  graphqlUrl: string
 ): Promise<ValidationResult> {
   // Validate JSON structure
   const isValidJson = deposits.every((d) =>
@@ -46,22 +56,22 @@ export async function validateDepositData(
 
   // Check for existing deposits
   const pubkeys = deposits.map((d) => `0x${d.pubkey}`);
-  const { data, error } = await client.query(GET_DEPOSIT_EVENTS, {
+  const response = await fetchGraphQL(graphqlUrl, GET_DEPOSIT_EVENTS, {
     pubkeys: pubkeys,
     chainId: contractConfig.chainId,
   });
 
-  if (error) {
-    console.error(error, pubkeys);
-    throw new Error(`Failed to fetch existing deposits: ${error.message}`);
+  if (response.errors && response.errors.length > 0) {
+    console.error(response.errors, pubkeys);
+    throw new Error(`Failed to fetch existing deposits: ${response.errors[0].message}`);
   }
 
-  if (!data || !data.SBCDepositContract_DepositEvent) {
+  if (!response.data || !response.data.SBCDepositContract_DepositEvent) {
     throw new Error("Invalid response from deposit query");
   }
 
   const existingDeposits = new Set(
-    data.SBCDepositContract_DepositEvent.map((d: { pubkey: string }) => d.pubkey)
+    response.data.SBCDepositContract_DepositEvent.map((d: { pubkey: string }) => d.pubkey)
   );
 
   const validDeposits: DepositDataJson[] = deposits.filter((d) => !existingDeposits.has('0x' + d.pubkey));

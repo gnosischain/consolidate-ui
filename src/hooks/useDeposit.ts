@@ -7,7 +7,6 @@ import {
 import { parseGwei } from "viem";
 import useBalance from "./useBalance";
 import { NetworkConfig } from "../types/network";
-import { useClient } from "urql";
 import { DepositRequest, DepositDataJson } from "../types/deposit";
 import { CredentialType, ValidatorInfo } from "../types/validators";
 import { buildDepositRoot, generateDepositData, generateSignature } from "../utils/deposit";
@@ -32,8 +31,12 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const { isSuccess: depositSuccess, isLoading: depositLoading, error: depositTxError } = useWaitForTransactionReceipt({
     hash: depositHash,
   });
-  const client = useClient();
   const [isApproved, setIsApproved] = useState(false);
+  
+  const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
+  if (!graphqlUrl) {
+    throw new Error('Environment variable NEXT_PUBLIC_GRAPHQL_URL is not defined');
+  }
 
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: contractConfig?.tokenAddress,
@@ -74,7 +77,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
           data,
           balance,
           contractConfig,
-          client
+          graphqlUrl
         );
 
         setDeposits(deposits);
@@ -88,7 +91,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         setTotalDepositAmount(0n);
       }
     },
-    [balance, contractConfig, client]
+    [balance, contractConfig]
   );
 
   const deposit = useCallback(async () => {
