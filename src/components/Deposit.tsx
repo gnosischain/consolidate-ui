@@ -42,7 +42,7 @@ export default function Deposit() {
   // Handle error toast
   useEffect(() => {
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message.substring(0, 20));
     }
   }, [error]);
 

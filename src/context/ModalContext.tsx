@@ -17,15 +17,17 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     const openModal = (content: ReactNode) => {
         setIsTransitioning(true);
         setStack(prev => [...prev, content]);
-        if (!dialogRef.current?.open) {
-            dialogRef.current?.showModal();
+        if (dialogRef.current && !dialogRef.current.classList.contains('modal-open')) {
+            dialogRef.current.classList.add('modal-open');
         }
         setTimeout(() => setIsTransitioning(false), 100);
     };
 
     const closeModal = () => {
         setStack([]);
-        dialogRef.current?.close();
+        if (dialogRef.current) {
+            dialogRef.current.classList.remove('modal-open');
+        }
         setIsTransitioning(false);
     };
 
@@ -41,7 +43,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     return (
         <ModalContext.Provider value={{ openModal, closeModal, goBack }}>
             {children}
-            <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle" onClose={() => setStack([])}>
+            <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
                     {showBackButton && (
                         <button
@@ -57,9 +59,9 @@ export function ModalProvider({ children }: { children: ReactNode }) {
                         {currentContent}
                     </div>
                 </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
+
+                <div className="modal-backdrop" onClick={closeModal}>
+                </div>
             </dialog>
         </ModalContext.Provider>
     );
