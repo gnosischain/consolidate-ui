@@ -46,7 +46,7 @@
   /* Border radius - modern, clean rounded corners */
   --radius-selector: 0.75rem; /* Moderate rounding for modern feel */
   --radius-field: 0.5rem; /* Clean field corners */
-  --radius-box: 0.75rem; /* Modern card rounding */
+  --radius-box: 0.5rem; /* Modern card rounding */
 
   /* Base sizes */
   --size-selector: 0.25rem;
