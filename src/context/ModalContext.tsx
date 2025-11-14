@@ -59,7 +59,6 @@ export function ModalProvider({ children }: { children: ReactNode }) {
                         {currentContent}
                     </div>
                 </div>
-
                 <div className="modal-backdrop" onClick={closeModal}>
                 </div>
             </dialog>
