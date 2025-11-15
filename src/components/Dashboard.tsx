@@ -80,7 +80,7 @@ export default function Dashboard() {
 									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 								</div>
 								{(network.chainId === 100 || network.chainId === 10200) && <button
-									className="btn btn-primary btn-sm sm:btn-md"
+									className="btn btn-accent btn-sm sm:btn-md"
 									onClick={() => openModal(<Deposit />)}
 								>
 									<Plus />

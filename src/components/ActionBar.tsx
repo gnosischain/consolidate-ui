@@ -31,7 +31,7 @@ export default function ActionBar({ selected }: ActionBarProps) {
 					<option value="topup">Top up</option>
 				</select>
                 <button 
-                    className="btn btn-primary" 
+                    className="btn btn-accent" 
                     onClick={() => {
                         if (tab === 'consolidate') openModal(<QuickConsolidation validators={selected} />);
                         else if (tab === 'withdraw') openModal(<WithdrawBatch validators={selected} />);
