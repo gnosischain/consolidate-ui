@@ -35,7 +35,7 @@ export default function WalletModal() {
 					<Menu className="w-4 h-4" />
 				</button>
 			) : (
-				<button onClick={() => openModal(<SelectWallet />)} className="btn btn-accent">Connect Wallet</button>
+				<button onClick={() => openModal(<SelectWallet />)} className="btn btn-primary">Connect Wallet</button>
 			)}
 		</>
 	);
