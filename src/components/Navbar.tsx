@@ -2,6 +2,7 @@ import Link from "next/link";
 import WalletModal from "./WalletModal";
 import { Boldonse } from "next/font/google";
 import Image from "next/image";
+import { ExternalLink } from "lucide-react";
 
 const boldonse = Boldonse({
 	subsets: ["latin"],
@@ -17,7 +18,8 @@ export default function Navbar() {
 				VALIDATORS
 			</div>
 			<div className="flex items-center gap-x-4">
-				<Link href='/explorer' className="btn btn-ghost">Explorer</Link>
+				<Link href='/explorer' className="hover:text-black/70 font-medium">Explorer</Link>
+				<Link href='https://www.validategnosis.com/' target="_blank" rel="noopener noreferrer" className="hover:text-black/70 flex font-medium items-center gap-x-1">Get Started <ExternalLink className="w-4 h-4" /></Link>
 				<WalletModal />
 			</div>
 		</div>

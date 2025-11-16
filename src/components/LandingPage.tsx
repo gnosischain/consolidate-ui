@@ -26,8 +26,11 @@ export default function LandingPage() {
 				</div>
 
 				{/* CTA Button */}
-				<div className="mb-20 border-t border-base-content/10 pt-10 px-4">
-					<span className="text-lg font-semibold text-base-content">Connect your wallet to get started</span>
+				<div className="mb-24 flex flex-col items-center justify-center border-t border-base-content/10 pt-10 px-4">
+					<span className="text-lg font-semibold text-base-content">Connect your wallet to view your validators</span>
+					<p className="text-sm text-gray-500">
+						New here? <a href="https://www.validategnosis.com/" target="_blank" rel="noopener noreferrer" className="underline">Learn about Gnosis validators</a>
+					</p>
 				</div>
 
 				{/* Footer Note */}
