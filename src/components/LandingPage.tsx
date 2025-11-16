@@ -1,131 +1,80 @@
-export default function LandingPage() {
-	const actions = [
-		{
-			icon: (
-				<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-				</svg>
-			),
-			title: 'Consolidate',
-			description: 'Merge multiple validators into efficient 0x02 credentials',
-			color: 'from-blue-500 to-cyan-500',
-		},
-		{
-			icon: (
-				<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-				</svg>
-			),
-			title: 'Withdraw',
-			description: 'Trigger partial or full validator withdrawal operations',
-			color: 'from-purple-500 to-pink-500',
-		},
-		{
-			icon: (
-				<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
-				</svg>
-			),
-			title: 'Top-up',
-			description: 'Add funds to existing validators in a single transaction',
-			color: 'from-green-500 to-emerald-500',
-		},
-	];
+import { Boldonse } from "next/font/google";
+import Image from "next/image";
 
+const boldonse = Boldonse({
+	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
+});
+
+export default function LandingPage() {
 	return (
-		<div className="w-full flex flex-col items-center py-12 px-4 max-w-7xl mx-auto">
-			<div className="grid md:grid-cols-2 gap-12 items-center w-full mb-24">
-				<div className="space-y-6">
-					<div className="inline-block">
-						<span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold">
-							Gnosis Validator Management
-						</span>
-					</div>
-					<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-						Your Validators,
-						<br />
-						<span className="text-primary">Your Control</span>
+		<div className="w-full min-h-screen">
+
+			{/* Content */}
+			<div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20">
+
+				{/* Hero Title */}
+				<div className="flex flex-col items-center justify-center mb-16">
+					<Image src="/gnosis-purple.svg" alt="Gnosis" width={600} height={600} />
+					<h1 className={`text-6xl md:text-8xl lg:text-9xl font-bold mb-8 text-accent ${boldonse.className}`}>
+						VALIDATORS
 					</h1>
-					<p className="text-lg text-base-content/70 leading-relaxed">
-						A selection-first approach to managing validator operations. Choose your validators, 
-						pick your action, execute in batch.
+					<p className="text-xl md:text-2xl text-base-content/70 max-w-2xl mx-auto font-medium">
+						Manage your validators with powerful batch operations
 					</p>
 				</div>
 
-				<div className="hidden md:block relative">
-					<div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-8 border border-primary/20">
-						<div className="space-y-4">
-							<div className="flex items-center gap-3 bg-base-100 p-4 rounded-xl shadow-sm">
-								<div className="w-3 h-3 rounded-full bg-success"></div>
-								<div className="text-sm">Select validators from your portfolio</div>
-							</div>
-							<div className="flex justify-center">
-								<svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-								</svg>
-							</div>
-							<div className="flex items-center gap-3 bg-base-100 p-4 rounded-xl shadow-sm">
-								<div className="w-3 h-3 rounded-full bg-info"></div>
-								<div className="text-sm">Choose action: Consolidate, Withdraw, or Top-up</div>
-							</div>
-							<div className="flex justify-center">
-								<svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-								</svg>
-							</div>
-							<div className="flex items-center gap-3 bg-base-100 p-4 rounded-xl shadow-sm">
-								<div className="w-3 h-3 rounded-full bg-warning"></div>
-								<div className="text-sm">Execute batch operation efficiently</div>
-							</div>
-						</div>
+				{/* CTA Button */}
+				<div className="mb-20">
+					<div className="inline-flex items-center gap-3 px-8 py-4 bg-base-100 rounded-full border-2 border-primary/30 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl">
+						<span className="text-lg font-semibold text-base-content">Connect your wallet to get started</span>
+						<svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+						</svg>
 					</div>
 				</div>
-			</div>
 
-			<div className="w-full mb-16">
-				<h2 className="text-3xl font-bold text-center mb-4">Powerful Batch Actions</h2>
-				<p className="text-center text-base-content/60 mb-12 max-w-2xl mx-auto">
-					Execute operations across multiple validators simultaneously with our intuitive dashboard controls
-				</p>
-				<div className="grid md:grid-cols-3 gap-6">
-					{actions.map((action, index) => (
-						<div
-							key={index}
-							className="group relative overflow-hidden bg-base-100 rounded-2xl p-6 border border-base-content/10 hover:border-transparent transition-all duration-300"
-						>
-							<div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-							<div className="relative z-10">
-								<div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${action.color} text-white mb-4`}>
-									{action.icon}
-								</div>
-								<h3 className="text-xl font-bold mb-2">{action.title}</h3>
-								<p className="text-base-content/70">{action.description}</p>
-							</div>
+				{/* Features */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
+					<div className="bg-base-100/80 backdrop-blur-sm rounded-2xl p-6 border border-base-300 hover:border-primary/30 transition-all">
+						<div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+							<svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+							</svg>
 						</div>
-					))}
-				</div>
-			</div>
+						<h3 className="text-lg font-bold mb-2 text-base-content">Batch Operations</h3>
+						<p className="text-base-content/60 text-sm">Execute multiple validator actions in a single transaction</p>
+					</div>
 
-			<div className="w-full max-w-3xl bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 text-center border border-primary/20 mb-12">
-				<h3 className="text-2xl font-bold mb-3">Ready to Optimize Your Validators?</h3>
-				<p className="text-base-content/70 mb-6">
-					Connect your wallet to access your validator portfolio and start managing with ease
-				</p>
-				<div className="inline-flex items-center gap-2 px-6 py-3 bg-base-100 rounded-full border-2 border-primary/30">
-					<svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-					</svg>
-					<span className="font-semibold">Click <span className="text-primary">Connect</span> in the top right to begin</span>
-				</div>
-			</div>
+					<div className="bg-base-100/80 backdrop-blur-sm rounded-2xl p-6 border border-base-300 hover:border-accent/30 transition-all">
+						<div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
+							<svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+							</svg>
+						</div>
+						<h3 className="text-lg font-bold mb-2 text-base-content">Fast & Efficient</h3>
+						<p className="text-base-content/60 text-sm">Consolidate, withdraw, and manage validators with ease</p>
+					</div>
 
-			<div className="max-w-2xl text-center">
-				<p className="text-sm text-base-content/60 leading-relaxed">
-					<span className="font-semibold text-base-content">Non-custodial by design.</span> You maintain complete control 
-					over your validators and assets. All operations execute directly from your connected wallet.
-				</p>
+					<div className="bg-base-100/80 backdrop-blur-sm rounded-2xl p-6 border border-base-300 hover:border-primary/30 transition-all">
+						<div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+							<svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+							</svg>
+						</div>
+						<h3 className="text-lg font-bold mb-2 text-base-content">Non-Custodial</h3>
+						<p className="text-base-content/60 text-sm">Your keys, your control. Direct wallet integration</p>
+					</div>
+				</div>
+
+				{/* Footer Note */}
+				<div className="mt-16 text-center">
+					<p className="text-sm text-base-content/50">
+						Powered by Gnosis Chain
+					</p>
+				</div>
 			</div>
 		</div>
 	);
 }
-

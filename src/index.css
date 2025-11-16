@@ -11,7 +11,7 @@
 
   /* Base colors - clean, modern light theme */
   --color-base-100: #ffffff; /* Pure white for cards and main content */
-  --color-base-200: #faf5f1; /* Very light gray for subtle backgrounds */
+  --color-base-200: #fcfaf7; /* Very light gray for subtle backgrounds */
   --color-base-300: #e8e4e1; /* Light gray for borders and dividers */
   --color-base-content: #1e293b; /* Dark slate for main text */
 
@@ -19,7 +19,7 @@
   --color-primary-content: #ffffff; /* White text on primary */
 
   /* Secondary - Lighter blue for secondary elements */
-  --color-secondary: #3b82f6; /* Bright blue for secondary actions */
+  --color-secondary: #1A1751; /* Bright blue for secondary actions */
   --color-secondary-content: #ffffff; /* White text on secondary */
 
   /* Accent - Purple accent */
