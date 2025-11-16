@@ -8,12 +8,16 @@ import { BeaconApiValidatorsResponse } from '../types/beaconApi';
 
 const LIMIT = 200;
 
-export function useBeaconValidators(network: NetworkConfig, address: Address) {
+export function useBeaconValidators(network: NetworkConfig | undefined, address: Address | undefined) {
 	const [validators, setValidators] = useState<ValidatorInfo[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<unknown>(null);
 
 	useEffect(() => {
+		if (!network || !address) {
+			return;
+		}
+		
 		const fetchValidators = async () => {
 			setLoading(true);
 
@@ -90,7 +94,7 @@ export function useBeaconValidators(network: NetworkConfig, address: Address) {
 		} else {
 			fetchValidators();
 		}
-	}, [network.beaconchainApi, network.clEndpoint, address, network]);
+	}, [address, network]);
 
 	return { validators, loading, error };
 }
@@ -115,7 +119,7 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 		const errorData = await resp.json();
 		throw new Error(errorData.error || `Error ${resp.status} on GET /api/validator-details`);
 	}
-	
+
 	const body: { data: APIValidatorInfo[] } = await resp.json();
 	return body.data.map(apiToValidatorInfo);
 };

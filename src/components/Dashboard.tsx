@@ -18,9 +18,6 @@ enum Steps {
 export default function Dashboard() {
 	const { account, network } = useWallet();
 	const { openModal } = useModal();
-	if (!network || !account.address) {
-		throw new Error('Network or account not found');
-	}
 	const { callStatusData } = useConsolidateValidatorsBatch();
 
 	const { validators, loading } = useBeaconValidators(network, account.address);
@@ -64,7 +61,7 @@ export default function Dashboard() {
 				</div>
 			) : (
 				<div className='flex flex-col w-full'>
-					<WarningModal totalBalance={totalBalance} network={network} />
+					{network && <WarningModal totalBalance={totalBalance} network={network} />}
 					<div className='rounded-box bg-white shadow-xs sm:p-6 mb-10'>
 						<div className='flex justify-between items-center w-full'>
 							<div className="flex flex-col gap-2">
@@ -79,13 +76,13 @@ export default function Dashboard() {
 									<p className="text-xs text-base-content/60 mb-1">Total validators balance</p>
 									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 								</div>
-								{(network.chainId === 100 || network.chainId === 10200) && <button
+								<button
 									className="btn btn-primary btn-sm sm:btn-md"
 									onClick={() => openModal(<Deposit />)}
 								>
 									<Plus />
 									Add new
-								</button>}
+								</button>
 							</div>
 						</div>
 					</div>
