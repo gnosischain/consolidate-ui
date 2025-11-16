@@ -65,7 +65,7 @@ export default function Dashboard() {
 			) : (
 				<div className='flex flex-col w-full'>
 					<WarningModal totalBalance={totalBalance} network={network} />
-					<div className='rounded-box bg-white shadow-xs sm:p-6 mb-6'>
+					<div className='rounded-box bg-white shadow-xs sm:p-6 mb-10'>
 						<div className='flex justify-between items-center w-full'>
 							<div className="flex flex-col gap-2">
 								<div className="flex items-center gap-3">

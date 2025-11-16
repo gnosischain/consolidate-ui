@@ -95,7 +95,7 @@ export function ConsolidateAggregate({
 	  }, [filteredValidators, selected]);
 
 	return (
-		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
+		<div className="w-full flex flex-col justify-center gap-y-2">
 			{/* FILTER */}
 			<div className="flex items-center justify-between w-full">
 				<div className="flex items-center gap-x-2">
