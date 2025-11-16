@@ -11,7 +11,7 @@ const boldonse = Boldonse({
 
 export default function Navbar() {
 	return (
-		<div className="navbar sticky top-0 z-50 bg-base-200 border-b border-base-content/10 px-4 sm:px-8 shadow-md">
+		<div className="navbar sticky top-0 z-50 bg-base-200 border-b border-base-content/20 px-4 sm:px-8 shadow-xs">
 			<div className={`flex items-center text-secondary flex-1 font-bold ${boldonse.className}`}>
 				<Image src="/logo.svg" alt="Gnosis" width={30} height={30} className="mr-2" />
 				VALIDATORS

@@ -22,7 +22,7 @@ export function ValidatorItem({
 	const { openModal } = useModal();
 	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	return (
-		<tr className={`h-14 hover:bg-primary/5 group transition-all duration-200 border-b border-base-content/5 ${isSelected ? 'bg-primary/10' : ''
+		<tr className={`h-14 hover:bg-accent/5 group transition-all duration-200 border-b border-base-content/5 ${isSelected ? 'bg-primary/10' : ''
 			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
 			<th>
 				<input

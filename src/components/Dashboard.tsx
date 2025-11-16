@@ -65,12 +65,12 @@ export default function Dashboard() {
 			) : (
 				<div className='flex flex-col w-full'>
 					<WarningModal totalBalance={totalBalance} network={network} />
-					<div className='sm:bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl sm:border border-primary/20 sm:p-6 mb-6'>
+					<div className='rounded-box bg-white shadow-xs sm:p-6 mb-6'>
 						<div className='flex justify-between items-center w-full'>
 							<div className="flex flex-col gap-2">
 								<div className="flex items-center gap-3">
 									<h1 className="text-lg sm:text-2xl font-bold">Validator Portfolio</h1>
-									<span className="hidden sm:inline badge badge-info badge-sm">{validators.filter(v => v.filterStatus === 'active').length} Active</span>
+									<span className="hidden sm:inline badge badge-accent badge-sm">{validators.filter(v => v.filterStatus === 'active').length} Active</span>
 								</div>
 								<p className="hidden sm:inline text-sm text-base-content/60">Manage your validators and track your rewards</p>
 							</div>
@@ -80,7 +80,7 @@ export default function Dashboard() {
 									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 								</div>
 								{(network.chainId === 100 || network.chainId === 10200) && <button
-									className="btn btn-accent btn-sm sm:btn-md"
+									className="btn btn-primary btn-sm sm:btn-md"
 									onClick={() => openModal(<Deposit />)}
 								>
 									<Plus />

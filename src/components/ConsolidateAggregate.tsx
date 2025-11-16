@@ -126,11 +126,11 @@ export function ConsolidateAggregate({
 					<input type="search" placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box border border-base-content/15 bg-base-100 shadow-xs">
+			<div className="overflow-auto rounded-box bg-white whadow-xs">
 				<table className="table table-pin-rows">
 					{/* head */}
 					<thead>
-						<tr className="bg-base-200">
+						<tr className="bg-primary/5">
 							{/* TODO: Add sorting */}
 							<th><input type="checkbox" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} className="checkbox checkbox-primary checkbox-xs" /></th>
 							<th><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>

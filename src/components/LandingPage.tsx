@@ -21,7 +21,7 @@ export default function LandingPage() {
 						VALIDATORS
 					</h1>
 					<p className="text-xl md:text-2xl text-base-content/70 max-w-2xl mx-auto font-medium">
-						Manage your validators with powerful batch operations
+						Manage your validators on Gnosis Chain
 					</p>
 				</div>
 
