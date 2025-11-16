@@ -24,7 +24,7 @@
 
   /* Accent - Purple accent */
   --color-accent: #8CE8AB; /* Purple accent for highlights */
-  --color-accent-content: #000000; /* White text on accent */
+  --color-accent-content: #ffffff; /* White text on accent */
 
   /* Neutral - Clean grays for modern look */
   --color-neutral: #001f24;

@@ -126,7 +126,7 @@ export function ConsolidateAggregate({
 					<input type="search" placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box bg-white whadow-xs">
+			<div className="overflow-auto rounded-box backdrop-blur-sm bg-white/80 whadow-xs">
 				<table className="table table-pin-rows">
 					{/* head */}
 					<thead>

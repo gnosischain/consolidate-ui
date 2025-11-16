@@ -62,7 +62,7 @@ export default function Dashboard() {
 			) : (
 				<div className='flex flex-col w-full'>
 					{network && <WarningModal totalBalance={totalBalance} network={network} />}
-					<div className='rounded-box bg-white shadow-xs sm:p-6 mb-10'>
+					<div className='rounded-box backdrop-blur-sm bg-white/80 shadow-xs sm:p-6 mb-10'>
 						<div className='flex justify-between items-center w-full'>
 							<div className="flex flex-col gap-2">
 								<div className="flex items-center gap-3">
@@ -77,11 +77,11 @@ export default function Dashboard() {
 									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 								</div>
 								<button
-									className="btn btn-primary btn-sm sm:btn-md"
+									className="btn btn-accent btn-sm sm:btn-md"
 									onClick={() => openModal(<Deposit />)}
 								>
 									<Plus />
-									Add new
+									Add Validator
 								</button>
 							</div>
 						</div>
