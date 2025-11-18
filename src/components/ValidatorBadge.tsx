@@ -30,7 +30,7 @@ export function ValidatorBadge({ filterStatus, status }: ValidatorBadgeProps) {
 				<p className="capitalize">{filterStatus}</p>
 				<div
 					className={`status animate-pulse
-    ${color === 'info' ? 'status-info' : ''}
+    ${color === 'info' ? 'status-primary' : ''}
     ${color === 'success' ? 'status-success' : ''}
     ${color === 'warning' ? 'status-warning' : ''}
     ${color === 'error' ? 'status-error' : ''}

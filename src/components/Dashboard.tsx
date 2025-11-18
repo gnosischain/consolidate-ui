@@ -16,7 +16,7 @@ enum Steps {
 }
 
 export default function Dashboard() {
-	const { account, network } = useWallet();
+	const { account, network, isMounted } = useWallet();
 	const { openModal } = useModal();
 	const { callStatusData } = useConsolidateValidatorsBatch();
 
@@ -61,7 +61,7 @@ export default function Dashboard() {
 				</div>
 			) : (
 				<div className='flex flex-col w-full'>
-					{network && <WarningModal totalBalance={totalBalance} network={network} />}
+					{isMounted && network && <WarningModal totalBalance={totalBalance} network={network} />}
 					<div className='rounded-box backdrop-blur-sm bg-white/80 shadow-xs sm:p-6 mb-10'>
 						<div className='flex justify-between items-center w-full'>
 							<div className="flex flex-col gap-2">

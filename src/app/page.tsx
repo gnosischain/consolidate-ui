@@ -23,8 +23,10 @@ function App() {
 
 	return (
 		<>
-			<div className="relative px-2 sm:px-28 w-full sm:mt-8 min-h-screen">
-				<Dashboard />
+			<div className="relative px-2 sm:px-28 w-full min-h-screen">
+				<div className="sm:mt-8">
+					<Dashboard />
+				</div>
 				{!account.isConnected && <LandingPage />}
 			</div>
 			<DisclaimerBanner />

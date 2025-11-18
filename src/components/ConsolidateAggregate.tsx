@@ -5,7 +5,7 @@ import {
 } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorItem } from './ValidatorItem';
-import { Search, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, Info } from 'lucide-react';
 import ActionBar from './ActionBar';
 
 interface ConsolidateSelectProps {
@@ -126,15 +126,16 @@ export function ConsolidateAggregate({
 					<input type="search" placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box backdrop-blur-sm bg-white/80 whadow-xs">
-				<table className="table table-pin-rows">
+			<div className="overflow-auto rounded-box backdrop-blur-sm bg-white/80 shadow-xs">
+				<table className="table">
 					{/* head */}
 					<thead>
-						<tr className="bg-primary/5">
+						<tr className="bg-primary/15">
 							{/* TODO: Add sorting */}
 							<th><input type="checkbox" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} className="checkbox checkbox-primary checkbox-xs" /></th>
-							<th><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
-							<th><div className="flex items-center">Type <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th className="w-16"><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Pubkey <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Type <span className="tooltip tooltip-right" data-tip="Standard validators rewards need to be claimed, compounding validators rewards are automatically compounded up to 64 GNOs"><Info className="w-4 h-4 opacity-50" /></span><button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Status <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Balance <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th>Actions</th>

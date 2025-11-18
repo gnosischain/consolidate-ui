@@ -37,8 +37,8 @@
   --color-success: oklch(65% 0.16 140); /* Natural green */
   --color-success-content: oklch(98% 0.01 140);
   
-  --color-warning: oklch(75% 0.15 70); /* Warm amber */
-  --color-warning-content: oklch(20% 0.03 70);
+  --color-warning: #FFC107; /* Warm amber */
+  --color-warning-content: #000000;
   
   --color-error: oklch(65% 0.18 20); /* Soft red */
   --color-error-content: oklch(98% 0.01 20);

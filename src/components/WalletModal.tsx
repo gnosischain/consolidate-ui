@@ -17,7 +17,7 @@ export default function WalletModal() {
 		<>
 			{account.isConnected && account.address && network && chainId && chainName ? (
 				<button
-					className="btn btn-ghost flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-base-300 transition-all duration-200"
+					className="btn btn-soft btn-primary flex items-center gap-2"
 					onClick={() => {
 						if (!account.address) return;
 						openModal(

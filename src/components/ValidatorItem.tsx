@@ -5,8 +5,10 @@ import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther, parseEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
-import { ArrowDownToLine, ArrowUp, ArrowUpFromLine, TriangleAlert } from 'lucide-react';
+import { ArrowDownToLine, ArrowUp, ArrowUpFromLine } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
+import { truncateAddress } from '../utils/address';
+import { CopyButton } from './CopyButton';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -22,7 +24,7 @@ export function ValidatorItem({
 	const { openModal } = useModal();
 	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	return (
-		<tr className={`h-14 hover:bg-accent/5 group transition-all duration-200 border-b border-base-content/5 ${isSelected ? 'bg-primary/10' : ''
+		<tr className={`h-14 hover:shadow-xs group transition-all duration-200 border-b border-base-content/5 ${isSelected ? 'bg-primary/10' : ''
 			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
 			<th>
 				<input
@@ -33,29 +35,28 @@ export function ValidatorItem({
 					disabled={validator.filterStatus !== 'active'}
 				/>
 			</th>
-			<td className="font-medium">{validator.index}</td>
+			<td>{validator.index}</td>
+			<td>{truncateAddress(validator.pubkey)} <CopyButton text={validator.pubkey} /></td>
 			<td>
-				<span className='badge badge-sm badge-ghost'>
-					Type {validator.type}
-				</span>
+				{validator.type === 1 ? 'Standard' : validator.type === 2 ? 'Compounding' : 'Legacy'}
 			</td>
 			<td>
 				<ValidatorBadge filterStatus={validator.filterStatus} status={validator.status} />
 			</td>
-		<td className="font-semibold">
-			<div className="flex items-center gap-2">
-				<span>{(Math.floor(Number(formatEther(validator.balanceEth)) * 100) / 100).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></span>
-				{validator.balanceEth < parseEther('1') && validator.filterStatus !== 'exited' && (
-					<div className="badge badge-xs badge-soft badge-warning">
-						Low
-					</div>
-				)}
-			</div>
-		</td>
+			<td className="font-semibold">
+				<div className="flex items-center gap-2">
+					<span>{(Math.floor(Number(formatEther(validator.balanceEth)) * 100) / 100).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></span>
+					{validator.balanceEth < parseEther('1') && validator.filterStatus !== 'exited' && (
+						<div className="badge badge-xs badge-soft badge-warning">
+							Low
+						</div>
+					)}
+				</div>
+			</td>
 
 			<td className="min-w-24">
 				{validator.filterStatus === 'active' && (
-					<div className="flex rounded-md max-w-fit transition-all duration-300 opacity-0 group-hover:opacity-100">
+					<div className="flex rounded-md max-w-fit transition-all duration-300 opacity-30 group-hover:opacity-100">
 						{validator.type === 1 && (
 							<div className="tooltip" data-tip="Upgrade">
 								<button
