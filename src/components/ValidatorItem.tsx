@@ -5,7 +5,7 @@ import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther, parseEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
-import { ArrowDownToLine, ArrowUp, ArrowUpFromLine } from 'lucide-react';
+import { ArrowUp, Plus, Minus } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 import { truncateAddress } from '../utils/address';
 import { CopyButton } from './CopyButton';
@@ -24,7 +24,7 @@ export function ValidatorItem({
 	const { openModal } = useModal();
 	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	return (
-		<tr className={`h-14 hover:shadow-xs group transition-all duration-200 border-b border-base-content/5 ${isSelected ? 'bg-primary/10' : ''
+		<tr className={`h-14 hover:bg-primary/5 group transition-all duration-200 ${isSelected ? 'bg-primary/10' : ''
 			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
 			<th>
 				<input
@@ -56,11 +56,11 @@ export function ValidatorItem({
 
 			<td className="min-w-24">
 				{validator.filterStatus === 'active' && (
-					<div className="flex rounded-md max-w-fit transition-all duration-300 opacity-30 group-hover:opacity-100">
+					<div className="flex gap-x-1 transition-all duration-300 opacity-40 group-hover:opacity-100">
 						{validator.type === 1 && (
 							<div className="tooltip" data-tip="Upgrade">
 								<button
-									className="btn btn-ghost btn-circle btn-sm"
+									className="btn btn-soft btn-secondary btn-circle btn-xs"
 									onClick={() => consolidateValidators(computeSelfConsolidations([validator]))}
 								>
 									<ArrowUp className="w-4 h-4" />
@@ -70,12 +70,12 @@ export function ValidatorItem({
 
 						{validator.type === 2 && (
 							<div className="tooltip" data-tip="Deposit">
-								<button className="btn btn-ghost btn-circle btn-sm" onClick={() => openModal(<PartialDeposit validator={validator} />)}><ArrowDownToLine className="w-4 h-4" /></button>
+								<button className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<PartialDeposit validator={validator} />)}><Plus className="w-4 h-4" /></button>
 							</div>
 						)}
 
 						<div className="tooltip" data-tip="Withdraw">
-							<button className="btn btn-ghost btn-circle btn-sm" onClick={() => openModal(<Withdraw validator={validator} />)}><ArrowUpFromLine className="w-4 h-4" /></button>
+							<button className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<Withdraw validator={validator} />)}><Minus className="w-4 h-4" /></button>
 						</div>
 					</div>)}
 			</td>

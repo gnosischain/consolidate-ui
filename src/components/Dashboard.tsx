@@ -74,7 +74,7 @@ export default function Dashboard() {
 							<div className="flex flex-col sm:flex-row items-center gap-4">
 								<div className="flex flex-col items-end">
 									<p className="text-xs text-base-content/60 mb-1">Total validators balance</p>
-									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
+									<p className="font-bold text-2xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
 								</div>
 								<button
 									className="btn btn-accent btn-sm sm:btn-md"
