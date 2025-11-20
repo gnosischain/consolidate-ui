@@ -15,10 +15,10 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
   }
 
   const totalBalance = useMemo(() => {
-    return validators.reduce((acc, v) => acc + v.balanceEth, 0n);
+    return validators.reduce((acc, v) => acc + v.balance, 0n);
   }, [validators]);
 
-  const { withdrawalValidators, computeWithdrawals } = useWithdraw(network);
+  const { withdrawValidators, computeWithdrawals } = useWithdraw(network);
   const [amount, setAmount] = useState(0);
   const [preventExit, setPreventExit] = useState(true);
 
@@ -56,7 +56,7 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
           </div>
           <div className="mt-8 flex w-full justify-end">
             <button className="btn btn-primary" disabled={withdrawals.length === 0} onClick={() =>
-              withdrawalValidators(withdrawals)}>
+              withdrawValidators(withdrawals)}>
               {'Withdraw ' + Number(formatEther(withdrawalsAmount)).toFixed(2) + ' GNO'}
             </button>
           </div>

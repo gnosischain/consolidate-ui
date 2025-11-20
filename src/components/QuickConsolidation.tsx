@@ -80,7 +80,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                         <ul className="list-disc list-inside text-xs mt-1">
                             {skippedValidators.map((v) => (
                                 <li key={v.index}>
-                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
+                                    {v.index} ({Number(formatEther(v.balance)).toFixed(2)} GNO)
                                 </li>
                             ))}
                         </ul>

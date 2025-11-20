@@ -29,20 +29,20 @@ export function computeWithdrawals(
 	}
 
 	const exitBuffer = preventExit ? parseEther(network.cl.minBalance.toString()) : 0n;
-	const eligibleValidators = validators.filter(v => v.balanceEth > exitBuffer);
+	const eligibleValidators = validators.filter(v => v.balance > exitBuffer);
 
 	const withdrawals: Withdrawal[] = [];
 	const exits: ValidatorInfo[] = [];
 
 	for (const v of eligibleValidators) {
-		const maxWithdrawable = v.balanceEth - BigInt(exitBuffer);
-		const proportionalAmount = (v.balanceEth * amountToWithdraw) / totalValidatorBalance;
+		const maxWithdrawable = v.balance - BigInt(exitBuffer);
+		const proportionalAmount = (v.balance * amountToWithdraw) / totalValidatorBalance;
 		let rawAmount = proportionalAmount < maxWithdrawable ? proportionalAmount : maxWithdrawable;
 
 		if (!preventExit) {
-			const leftover = v.balanceEth - rawAmount;
+			const leftover = v.balance - rawAmount;
 			if (leftover > 0 && leftover < parseEther(network.cl.minBalance.toString())) {
-				rawAmount = v.balanceEth;
+				rawAmount = v.balance;
 			}
 		}
 
@@ -50,10 +50,10 @@ export function computeWithdrawals(
 			// An exit is triggered by setting amount to 0
 			withdrawals.push({ 
 				pubkey: v.pubkey, 
-				amount: !preventExit && rawAmount === v.balanceEth ? 0n : rawAmount 
+				amount: !preventExit && rawAmount === v.balance ? 0n : rawAmount 
 			});
 
-			if (!preventExit && rawAmount === v.balanceEth) {
+			if (!preventExit && rawAmount === v.balance) {
 				exits.push(v);
 			}
 		}

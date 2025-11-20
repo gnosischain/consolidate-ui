@@ -24,7 +24,7 @@ export function computePartialDepositAmounts(
   } else {
     // Distribution based on need to reach target
     const needed = validators.map(v =>
-      v.balanceEth < targetAmount ? targetAmount - v.balanceEth : 0n
+      v.balance < targetAmount ? targetAmount - v.balance : 0n
     );
 
     const totalNeeded = needed.reduce((sum, n) => sum + n, 0n);

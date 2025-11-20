@@ -26,7 +26,7 @@ export function computeConsolidations(
 
 	while (remaining.length > 0) {
 		const target = remaining.shift()!
-		let tb = target.balanceEth
+		let tb = target.balance
 
 		if (tb >= chunkSize) {
 			skippedValidators.push(target)
@@ -37,7 +37,7 @@ export function computeConsolidations(
 			consolidations.push({
 				sourceIndex: target.index,
 				sourceKey: target.pubkey,
-				sourceBalance: target.balanceEth,
+				sourceBalance: target.balance,
 				targetIndex: target.index,
 				targetKey: target.pubkey,
 				targetBalance: 0n,
@@ -46,16 +46,16 @@ export function computeConsolidations(
 
 		for (let i = 0; i < remaining.length;) {
 			const cand = remaining[i]
-			if (tb + cand.balanceEth <= chunkSize) {
+			if (tb + cand.balance <= chunkSize) {
 				consolidations.push({
 					sourceIndex: cand.index,
 					sourceKey: cand.pubkey,
-					sourceBalance: cand.balanceEth,
+					sourceBalance: cand.balance,
 					targetIndex: target.index,
 					targetKey: target.pubkey,
 					targetBalance: tb,
 				})
-				tb += cand.balanceEth
+				tb += cand.balance
 				remaining.splice(i, 1)
 			} else {
 				i++
