@@ -20,8 +20,8 @@ export default function ActionBar({ selected }: ActionBarProps) {
                 <button className="btn btn-xs btn-ghost">Clear selection</button>
             </div>
             <div className="flex items-center gap-x-4 mt-4 sm:mt-0">
-                <div role="tablist" className="hidden sm:inline tabs tabs-md tabs-box">
-                    <input type="radio" name="tab" className={`tab ${tab === 'consolidate' ? 'border border-primary' : ''}`} aria-label="Consolidate" checked={tab === 'consolidate'} onChange={() => setTab('consolidate')} />
+                <div role="tablist" className="hidden sm:inline tabs tabs-md tabs-box bg-black/5">
+                    <input type="radio" name="tab" className="tab" aria-label="Consolidate" checked={tab === 'consolidate'} onChange={() => setTab('consolidate')} />
                     <input type="radio" name="tab" className="tab" aria-label="Withdraw" checked={tab === 'withdraw'} onChange={() => setTab('withdraw')} />
                     <input type="radio" name="tab" className="tab" aria-label="Top up" checked={tab === 'topup'} onChange={() => setTab('topup')} />
                 </div>

@@ -37,7 +37,7 @@ export function NetworkView({ currentChainId }: NetworkViewProps) {
                             >
                                 <span className="font-medium">{chain.name}</span>
                                 {isConnected && (
-                                    <div className="badge badge-info badge-sm">
+                                    <div className="badge badge-secondary badge-soft badge-sm">
                                         Connected
                                     </div>
                                 )}
