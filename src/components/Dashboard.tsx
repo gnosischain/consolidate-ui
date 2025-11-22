@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Loader from './Loader';
-import { ConsolidateAggregate } from './ConsolidateAggregate';
+import { ValidatorsTable } from './ValidatorsTable';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
 import { Address } from 'viem';
@@ -152,7 +152,7 @@ export default function Dashboard() {
 						autoclaimStatus={autoclaimStatus}
 						handleOpenAutoclaim={handleOpenAutoclaim}
 					/>
-					<ConsolidateAggregate
+					<ValidatorsTable
 						validators={validators}
 					/>
 				</div>

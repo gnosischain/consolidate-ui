@@ -8,13 +8,13 @@ import { ValidatorItem } from './ValidatorItem';
 import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, Info } from 'lucide-react';
 import ActionBar from './ActionBar';
 
-interface ConsolidateSelectProps {
+interface ValidatorsTableProps {
 	validators: ValidatorInfo[];
 }
 
-export function ConsolidateAggregate({
+export function ValidatorsTable({
 	validators,
-}: ConsolidateSelectProps) {
+}: ValidatorsTableProps) {
 	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
@@ -92,7 +92,7 @@ export function ConsolidateAggregate({
 
 	const selectedValidators = useMemo<ValidatorInfo[]>(() => {
 		return filteredValidators.filter(v => selected.has(v.index));
-	  }, [filteredValidators, selected]);
+	}, [filteredValidators, selected]);
 
 	return (
 		<div className="w-full flex flex-col justify-center gap-y-2">
@@ -105,9 +105,9 @@ export function ConsolidateAggregate({
 						<option value="exited">Exited</option>
 						<option value="pending">Pending</option>
 					</select>
-					<select 
-						defaultValue="" 
-						className="select select-sm" 
+					<select
+						defaultValue=""
+						className="select select-sm"
 						onChange={(e) => setFilterVersion(e.target.value || undefined)}
 					>
 						<option value="">All versions</option>

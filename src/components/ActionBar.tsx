@@ -1,5 +1,5 @@
 import { useState } from "react";
-import QuickConsolidation from "./QuickConsolidation";
+import Consolidate from "./Consolidate";
 import { ValidatorInfo } from "../types/validators";
 import WithdrawBatch from "./WithdrawBatch";
 import PartialDepositBatch from "./PartialDepositBatch";
@@ -33,7 +33,7 @@ export default function ActionBar({ selected }: ActionBarProps) {
                 <button 
                     className="btn btn-soft btn-primary" 
                     onClick={() => {
-                        if (tab === 'consolidate') openModal(<QuickConsolidation validators={selected} />);
+                        if (tab === 'consolidate') openModal(<Consolidate validators={selected} />);
                         else if (tab === 'withdraw') openModal(<WithdrawBatch validators={selected} />);
                         else openModal(<PartialDepositBatch validators={selected} />);
                     }}
