@@ -32,7 +32,7 @@ export default function DashboardHeader({
     const { openModal } = useModal();
 
     return (
-        <div className='flex p-5 flex-col md:flex-row w-full bg-white/80 backdrop-blur-sm rounded-box shadow-xs mb-10'>
+        <div className='flex p-5 flex-col-reverse md:flex-row w-full bg-white/80 backdrop-blur-sm rounded-box shadow-xs mb-10 gap-y-5'>
              <div 
                 onClick={handleOpenAutoclaim}
                 className='group w-full md:w-80 bg-base-50/50 cursor-pointer md:border-r border-black/10 md:pr-5 md:mr-5 flex flex-col justify-between gap-y-2'

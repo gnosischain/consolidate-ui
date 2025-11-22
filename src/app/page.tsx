@@ -23,7 +23,7 @@ function App() {
 	return (
 		<>
 			<div className="relative px-2 sm:px-28 w-full min-h-screen">
-				<div className="sm:mt-8">
+				<div className="mt-4 sm:mt-8">
 					<Dashboard />
 				</div>
 				{!account.isConnected && <LandingPage />}
