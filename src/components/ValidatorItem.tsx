@@ -35,8 +35,21 @@ export function ValidatorItem({
 					disabled={validator.filterStatus !== 'active'}
 				/>
 			</th>
-			<td>{validator.index}</td>
-			<td>{truncateAddress(validator.pubkey)} <CopyButton text={validator.pubkey} /></td>
+			<td className="font-mono text-sm opacity-70">
+				#{validator.index}
+			</td>
+			<td>
+				<div className="flex items-center gap-2">
+					<span className="font-mono text-xs bg-secondary/5 px-2 py-1 rounded border border-base-300/50 text-base-content/80">
+						{truncateAddress(validator.pubkey)}
+					</span>
+					<div className="opacity-0 group-hover:opacity-100 transition-opacity">
+						<CopyButton text={validator.pubkey} />
+					</div>
+				</div>
+			</td>
+
+			{/* Type Column */}
 			<td>
 				{validator.type === 1 ? 'Standard' : validator.type === 2 ? 'Compounding' : 'Legacy'}
 			</td>

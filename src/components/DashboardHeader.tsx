@@ -1,5 +1,5 @@
 import { formatEther } from 'viem';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronRight } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 import Deposit from './Deposit';
 import { ReactNode } from 'react';
@@ -32,27 +32,35 @@ export default function DashboardHeader({
     const { openModal } = useModal();
 
     return (
-        <div className='flex p-4 flex-col md:flex-row w-full bg-white/80 backdrop-blur-sm rounded-box shadow-xs border border-base-200 mb-10 overflow-hidden'>
-            <div className='w-full md:w-[25%] flex flex-col justify-between md:border-r border-black/10 pr-8 mr-8'>
-                <span className="text-xs font-bold tracking-wider text-base-content/40">AUTOCLAIM MODULE</span>
-
-                <div onClick={handleOpenAutoclaim} className={`btn flex items-center justify-between ${isRegistered ? 'btn-outline border-black/10' : 'btn-dash'}`}>
-                    <div className="flex flex-col gap-0.5">
-                        <span className={`text-sm font-bold ${isRegistered ? 'text-base-content' : 'text-base-content/60'}`}>
-                            {autoclaimStatus.detail}
-                        </span>
-                        <span className="text-[10px] font-semibold tracking-wide text-base-content/40" >
-                            {autoclaimStatus.status}
-                        </span>
-                    </div>
-
-                    <div className="flex-shrink-0 ml-3">
-                        {autoclaimStatus.icon}
-                    </div>
+        <div className='flex p-6 flex-col md:flex-row w-full bg-white/80 backdrop-blur-sm rounded-box shadow-xs mb-10'>
+             <div 
+                onClick={handleOpenAutoclaim}
+                className='group w-full md:w-80 bg-base-50/50 cursor-pointer md:border-r border-black/10 md:pr-8 md:mr-8 flex flex-col justify-between gap-y-2'
+            >
+                <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold tracking-widest text-base-content/40">AUTOCLAIM MODULE</span>
+                    <div className={`status ${isRegistered ? 'status-success' : ''}`} />
                 </div>
 
-                <p className="text-xs text-base-content/40 px-1">
-                    {isRegistered ? 'Autoclaim module is active. Tap to configure.' : 'Tap to configure automatic reward claiming to your wallet or Gnosis Pay card.'}
+                <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg transition-colors duration-200 ${isRegistered ? '' : 'bg-base-200/50 text-base-content/40 group-hover:bg-base-200 group-hover:text-base-content/60'}`}>
+                        {autoclaimStatus.icon}
+                    </div>
+                    <div className="flex flex-col">
+                         <span className={`font-bold text-sm leading-tight transition-colors duration-200 ${isRegistered ? 'text-base-content' : 'text-base-content/60 group-hover:text-base-content'}`}>
+                            {autoclaimStatus.detail}
+                         </span>
+                         <span className="text-[10px] font-medium text-base-content/50">
+                            {autoclaimStatus.status}
+                         </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 ml-auto text-base-content/20 group-hover:text-base-content/40 group-hover:translate-x-0.5 transition-all" />
+                </div>
+                
+                <p className="text-[10px] text-base-content/40 leading-relaxed">
+                    {isRegistered 
+                        ? 'Rewards sent to wallet automatically.' 
+                        : 'Configure automatic reward claiming.'}
                 </p>
             </div>
 
@@ -99,4 +107,3 @@ export default function DashboardHeader({
         </div>
     );
 }
-
