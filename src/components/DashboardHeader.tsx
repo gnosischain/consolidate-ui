@@ -32,10 +32,10 @@ export default function DashboardHeader({
     const { openModal } = useModal();
 
     return (
-        <div className='flex p-6 flex-col md:flex-row w-full bg-white/80 backdrop-blur-sm rounded-box shadow-xs mb-10'>
+        <div className='flex p-5 flex-col md:flex-row w-full bg-white/80 backdrop-blur-sm rounded-box shadow-xs mb-10'>
              <div 
                 onClick={handleOpenAutoclaim}
-                className='group w-full md:w-80 bg-base-50/50 cursor-pointer md:border-r border-black/10 md:pr-8 md:mr-8 flex flex-col justify-between gap-y-2'
+                className='group w-full md:w-80 bg-base-50/50 cursor-pointer md:border-r border-black/10 md:pr-5 md:mr-5 flex flex-col justify-between gap-y-2'
             >
                 <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold tracking-widest text-base-content/40">AUTOCLAIM MODULE</span>
@@ -64,7 +64,7 @@ export default function DashboardHeader({
                 </p>
             </div>
 
-            <div className="flex flex-col w-full gap-6 h-full justify-between">
+            <div className="flex flex-col w-full gap-y-3 h-full">
                 {/* Header Row */}
                 <div className="flex justify-between items-start">
                     <div className="flex flex-col gap-1">
