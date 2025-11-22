@@ -2,7 +2,6 @@
 
 import { WrongNetwork } from '../components/WrongNetwork';
 import Dashboard from '../components/Dashboard';
-import { DisclaimerBanner } from '../components/Disclaimer';
 import { useWallet } from '../context/WalletContext';
 import LandingPage from '../components/LandingPage';
 import { useEffect } from 'react';
@@ -29,7 +28,6 @@ function App() {
 				</div>
 				{!account.isConnected && <LandingPage />}
 			</div>
-			<DisclaimerBanner />
 		</>
 	);
 }
