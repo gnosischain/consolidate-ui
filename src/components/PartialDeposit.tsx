@@ -3,14 +3,34 @@ import { formatEther, parseEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 import { ValidatorInfo } from "../types/validators";
+import { useTransactionToast } from "../hooks/useTransactionToast";
+import { useModal } from "../context/ModalContext";
 
 export default function PartialDeposit({ validator }: { validator: ValidatorInfo }) {
   const { balance, network, account } = useWallet();
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { approve, isApproved, partialDeposit } = useDeposit(network, account.address);
+  const { approve, isApproved, partialDeposit, approveLoading, approveSuccess, error, depositLoading, depositSuccess } = useDeposit(network, account.address);
   const [amount, setAmount] = useState(0n);
+  const { closeModal } = useModal();
+
+  useTransactionToast({
+    isLoading: approveLoading,
+    isSuccess: approveSuccess,
+    error: null,
+    loadingMessage: 'Approving...',
+    successMessage: 'Approval successful',
+  });
+
+  useTransactionToast({
+    isLoading: depositLoading,
+    isSuccess: depositSuccess,
+    error,
+    loadingMessage: 'Depositing...',
+    successMessage: 'Deposit successful',
+    onSuccess: closeModal,
+  });
 
   return (
     <>
