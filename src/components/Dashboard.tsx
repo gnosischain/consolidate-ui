@@ -60,11 +60,13 @@ export default function Dashboard() {
 	}, [actionContract, network?.payClaimActionAddress]);
 
 	const autoclaimStatus = useMemo(() => {
-		if (!network?.claimRegistryAddress) {
+		const defaultIcon = <Settings className="w-4 h-4 text-base-content/40" />;
+
+		if (network?.claimRegistryAddress) {
 			return {
 				status: 'AUTOCLAIM UNAVAILABLE',
 				detail: 'Switch Network',
-				icon: <Settings className="w-4 h-4 text-base-content/40" />,
+				icon: defaultIcon,
 			};
 		}
 
@@ -78,7 +80,7 @@ export default function Dashboard() {
 						<Image src="/gnosis-pay.svg" alt="Gnosis Pay" width={40} height={40} className="w-full h-full object-contain" />
 					</div>
 				) : (
-					<Settings className="w-4 h-4 text-base-content/40" />
+					defaultIcon
 				),
 			};
 		}
@@ -86,9 +88,9 @@ export default function Dashboard() {
 		return {
 			status: 'AUTOCLAIM INACTIVE',
 			detail: 'Setup Autoclaim',
-			icon: <Settings className="w-4 h-4 text-base-content/40" />,
+			icon: defaultIcon,
 		};
-	}, [actionContractLabel, isRegistered, network?.claimRegistryAddress]);
+	}, [actionContractLabel, isMounted, isRegistered, network?.claimRegistryAddress]);
 
 	const handleOpenAutoclaim = useCallback(() => {
 		if (!network || !account.address) return;
