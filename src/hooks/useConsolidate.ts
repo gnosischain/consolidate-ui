@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useCallsStatus, useSendCalls, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 import { Address, concat, parseEther } from 'viem';
 import { Consolidation, ValidatorInfo, CredentialType } from '../types/validators';
@@ -70,8 +70,8 @@ export function computeConsolidations(
 
 export function useConsolidateValidatorsBatch() {
 	const { network, canBatch } = useWallet();
-	const { data: hash, sendCalls } = useSendCalls();
-	const { data, sendTransaction } = useSendTransaction();
+	const { data: hash, sendCalls, error: sendCallsError } = useSendCalls();
+	const { data, sendTransaction, error: sendTransactionError } = useSendTransaction();
 	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
 		hash: data as Address,
 	});
@@ -82,15 +82,19 @@ export function useConsolidateValidatorsBatch() {
 			refetchInterval: (data) => data.state.data?.status === "success" ? false : 1000,
 		},
 	});
+	
+	const [error, setError] = useState<Error | null>(null);
 
 	const consolidateValidators = useCallback(
 		(consolidations: Consolidation[]) => {
 			if (consolidations.length === 0) {
-				throw new Error('No consolidation possible with given chunk size')
+				setError(new Error('No consolidation possible with given chunk size'));
+				return;
 			}
 
 			if (!network?.consolidateAddress) {
-				throw new Error('Network consolidation address not available')
+				setError(new Error('Network consolidation address not available'));
+				return;
 			}
 
 			if (canBatch) {
@@ -120,7 +124,9 @@ export function useConsolidateValidatorsBatch() {
 		[network, sendCalls, canBatch, sendTransaction],
 	)
 
-	return { consolidateValidators, callStatusData, isConfirming, isConfirmed };
+	const combinedError = error || sendCallsError || sendTransactionError || null;
+
+	return { consolidateValidators, callStatusData, isConfirming, isConfirmed, error: combinedError };
 }
 
 export function computeSelfConsolidations(

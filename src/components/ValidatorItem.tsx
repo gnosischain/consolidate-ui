@@ -1,5 +1,4 @@
 import { computeSelfConsolidations } from '../hooks/useConsolidate';
-import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
@@ -9,6 +8,7 @@ import { ArrowUp, Plus, Minus } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 import { truncateAddress } from '../utils/address';
 import { CopyButton } from './CopyButton';
+import { ConsolidationSummary } from './ConsolidationSummary';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -22,7 +22,6 @@ export function ValidatorItem({
 	onToggle,
 }: ValidatorItemProps) {
 	const { openModal } = useModal();
-	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	return (
 		<tr className={`h-14 hover:bg-primary/5 group transition-all duration-200 ${isSelected ? 'bg-primary/10' : ''
 			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
@@ -70,7 +69,7 @@ export function ValidatorItem({
 							<div className="tooltip" data-tip="Upgrade">
 								<button
 									className="btn btn-soft btn-secondary btn-circle btn-xs"
-									onClick={() => consolidateValidators(computeSelfConsolidations([validator]))}
+									onClick={() => openModal(<ConsolidationSummary consolidations={computeSelfConsolidations([validator])} />)}
 								>
 									<ArrowUp className="w-4 h-4" />
 								</button>
