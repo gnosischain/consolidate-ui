@@ -126,7 +126,7 @@ export function ValidatorsTable({
 					<input type="search" placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box backdrop-blur-sm bg-white/80 shadow-xs">
+			<div className="overflow-auto rounded-box backdrop-blur-sm bg-base-100 shadow-xs">
 				<table className="table">
 					{/* head */}
 					<thead>

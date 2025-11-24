@@ -1,7 +1,6 @@
 import Link from "next/link";
 import WalletModal from "./WalletModal";
 import { Boldonse } from "next/font/google";
-import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 
 const boldonse = Boldonse({
@@ -13,13 +12,21 @@ const boldonse = Boldonse({
 export default function Navbar() {
 	return (
 		<div className="navbar sticky top-0 z-50 bg-base-200 border-b border-base-content/20 px-4 sm:px-8 shadow-xs">
-			<div className={`flex items-center text-secondary flex-1 font-bold ${boldonse.className}`}>
-				<Image src="/logo.svg" alt="Gnosis" width={30} height={30} className="mr-2" />
+			<div className={`flex items-center flex-1 font-bold text-secondary  ${boldonse.className}`}>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 111 111"
+					aria-hidden="true"
+					focusable="false"
+					className="fill-current mr-2 w-8 h-8"
+				>
+					<path d="M18.6578 48.7043C18.6578 45.377 19.7531 42.3458 21.6477 39.9461L41.6974 59.9885C39.2541 61.883 36.2206 62.9783 32.9367 62.9783C25.0188 62.9783 18.6164 56.5762 18.6578 48.7043ZM78.3042 62.9347C86.1808 62.976 92.5831 56.5762 92.5831 48.6607C92.5831 45.377 91.4878 42.3458 89.5932 39.9025L69.5435 59.9449C71.9432 61.8417 74.9767 62.9347 78.3042 62.9347ZM55.5585 65.5456L11.9179 21.9245C13.1395 20.3676 14.4462 18.8497 15.7942 17.4191C25.8179 6.93406 39.9292 0.364258 55.5998 0.364258C71.2703 0.364258 85.423 6.93406 95.4054 17.4168C96.7947 18.8061 98.1014 20.3653 99.1968 21.8809L55.5585 65.5456ZM21.774 21.5456L55.5998 55.3568L89.4256 21.5456C80.4536 12.4935 68.4894 7.52422 55.5998 7.52422C42.7101 7.52422 30.7896 12.4912 21.774 21.5456ZM55.5585 110.391C85.9282 110.391 110.571 85.758 110.571 55.3981C110.656 44.9131 107.749 35.1858 102.694 26.8915L93.8071 35.776C96.7557 39.3123 98.5239 43.7764 98.5239 48.7457C98.5239 59.9036 89.4669 68.958 78.3042 68.958C73.3761 68.958 68.8683 67.1898 65.3296 64.2413L55.5998 73.9686L45.87 64.2413C42.3312 67.1898 37.8671 68.958 32.8954 68.958C21.7326 68.958 12.6757 59.9058 12.6757 48.7457C12.6757 43.82 14.4439 39.3146 17.3925 35.776L12.8456 31.2293L8.50772 26.8915C3.45337 35.2295 0.546143 44.9544 0.546143 55.3981C0.543846 85.7993 25.1864 110.391 55.5585 110.391Z" />
+				</svg>
 				<span className="hidden sm:inline">VALIDATORS</span>
 			</div>
 			<div className="flex items-center gap-x-4">
 				{/* <Link href='/explorer' className="hover:text-black/70 font-medium">Explorer</Link> */}
-				<Link href='https://www.validategnosis.com/' target="_blank" rel="noopener noreferrer" className="hover:text-black/70 flex font-medium items-center gap-x-1">Get Started <ExternalLink className="w-4 h-4" /></Link>
+				<Link href='https://www.validategnosis.com/' target="_blank" rel="noopener noreferrer" className="hover:text-secondary/70 flex font-medium items-center gap-x-1">Get Started <ExternalLink className="w-4 h-4" /></Link>
 				<WalletModal />
 			</div>
 		</div>
