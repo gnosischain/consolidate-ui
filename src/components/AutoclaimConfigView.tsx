@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useAutoclaim from "../hooks/useAutoclaim";
 import { NetworkConfig } from "../types/network";
-import type { ModalView } from "./WalletModal";
 import { SECOND_IN_DAY, ZERO_ADDRESS } from "../constants/misc";
 import { formatEther, isAddress } from "viem";
 
 interface AutoclaimConfigViewProps {
     network: NetworkConfig;
     address: `0x${string}`;
-    handleViewChange: (view: ModalView) => void;
 }
 
-export function AutoclaimConfigView({ network, address, handleViewChange }: AutoclaimConfigViewProps) {
+export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewProps) {
     const {
         register,
         setActionContract,
@@ -23,21 +21,20 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         forwardingAddress,
         actionContract,
         transactionLoading,
+        isRegistered,
     } = useAutoclaim(network, address);
     const [timeValue, setTimeValue] = useState(1);
     const [claimAction, setClaimAction] = useState<`0x${string}`>(ZERO_ADDRESS);
     const [amountValue, setAmountValue] = useState("1");
     const [forwardingAddressValue, setForwardingAddressValue] = useState<string>("");
 
-    const isRegister = userConfig?.[4] === 1 ? true : false;
-
     useEffect(() => {
-        if (!isRegister && network.payClaimActionAddress) {
+        if (!isRegistered && network.payClaimActionAddress) {
             setClaimAction(network.payClaimActionAddress);
         } else if (actionContract) {
             setClaimAction(actionContract);
         }
-    }, [actionContract, isRegister, network.payClaimActionAddress]);
+    }, [actionContract, isRegistered, network.payClaimActionAddress]);
 
     useEffect(() => {
         if (userConfig) {
@@ -47,10 +44,10 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
     }, [userConfig]);
 
     useEffect(() => {
-        if (forwardingAddress && forwardingAddress !== ZERO_ADDRESS && isRegister) {
+        if (forwardingAddress && forwardingAddress !== ZERO_ADDRESS && isRegistered) {
             setForwardingAddressValue(forwardingAddress);
         }
-    }, [forwardingAddress, isRegister]);
+    }, [forwardingAddress, isRegistered]);
 
 
     const handleClaimActionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +85,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
         };
 
         // Case 1: New user registration
-        if (!isRegister) {
+        if (!isRegistered) {
             if (isGnosisPaySelected) {
                 if (!isAddress(forwardingAddressValue)) {
                     return actions;
@@ -128,7 +125,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
 
         return actions;
     }, [
-        isRegister,
+        isRegistered,
         claimAction,
         network.payClaimActionAddress,
         forwardingAddressValue,
@@ -168,16 +165,9 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
             {/* Header with Back Button */}
             <div className="px-4 py-4 border-b border-base-300">
                 <div className="flex items-center justify-between">
-                    <button
-                        onClick={() => handleViewChange('main')}
-                        className="btn btn-ghost btn-sm btn-circle"
-                        aria-label="Back to wallet"
-                    >
-                        <img src="/arrow-left.svg" alt='Back' className="w-4 h-4" />
-                    </button>
                     <h3 className="font-semibold text-base">Autoclaim Registry</h3>
-                    {isRegister && (
-                        <div className="badge badge-success badge-sm mt-1">Active</div>
+                    {isRegistered && (
+                        <div className="badge badge-accent badge-sm mt-1">Active</div>
                     )}
                 </div>
             </div>
@@ -278,7 +268,7 @@ export function AutoclaimConfigView({ network, address, handleViewChange }: Auto
                 >
                     {buttonText}
                 </button>
-                {isRegister && (
+                {isRegistered && (
                     <div>
                         <button
                             className="btn btn-ghost btn-xs mt-4"

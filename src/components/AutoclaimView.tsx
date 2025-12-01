@@ -1,31 +1,26 @@
 import { NetworkConfig } from "../types/network";
-import { ModalView } from "./WalletModal";
+import { AutoclaimConfigView } from "./AutoclaimConfigView";
+import { NetworkView } from "./NetworkView";
+import { useModal } from "../context/ModalContext";
 
 interface AutoclaimViewProps {
     network: NetworkConfig;
-    handleViewChange: (view: ModalView) => void;
+    address: `0x${string}`;
 }
 
-export function AutoclaimView({ network, handleViewChange }: AutoclaimViewProps) {
+export function AutoclaimView({ network, address }: AutoclaimViewProps) {
+    const { openModal } = useModal();
     return (
         <>
             {/* Header with Back Button */}
             <div className="px-4 py-4 border-b border-base-300">
                 <div className="flex items-center justify-between">
-                    <button
-                        onClick={() => handleViewChange('main')}
-                        className="btn btn-ghost btn-sm btn-circle"
-                        aria-label="Back to wallet"
-                    >
-                        <img src="/arrow-left.svg" alt='Back' className="w-4 h-4" />
-                    </button>
                     <h3 className="font-semibold text-base">Autoclaim Registry</h3>
                 </div>
             </div>
 
             {/* Autoclaim Content */}
             <div className="px-6 py-4">
-                <p className="text-xs text-warning italic">under development</p>
                 <div className="text-center py-8">
                     <div className="w-16 h-16 mx-auto mb-4 bg-base-200 rounded-full flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
@@ -42,7 +37,7 @@ export function AutoclaimView({ network, handleViewChange }: AutoclaimViewProps)
                                 <p className="text-xs text-base-content/70 mb-1">Registry Address</p>
                                 <p className="font-mono text-sm break-all">{network.claimRegistryAddress}</p>
                             </div>
-                            <button className="btn btn-primary btn-sm w-full mt-4" onClick={() => handleViewChange('autoclaim-config')}>
+                            <button className="btn btn-primary btn-sm w-full mt-4" onClick={() => openModal(<AutoclaimConfigView network={network} address={address} />)}>
                                 Configure Autoclaim
                             </button>
                         </div>
@@ -54,7 +49,7 @@ export function AutoclaimView({ network, handleViewChange }: AutoclaimViewProps)
                                 Autoclaim registry not available for this network.
                             </p>
                         </div>
-                        <button className="btn btn-primary btn-xs mt-4" onClick={() => handleViewChange('network')}>
+                        <button className="btn btn-primary btn-xs mt-4" onClick={() => openModal(<NetworkView currentChainId={network.chainId}/>)}>
                             Switch to Gnosis Chain
                         </button>
                         </>

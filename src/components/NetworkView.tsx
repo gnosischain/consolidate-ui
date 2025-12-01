@@ -1,28 +1,24 @@
-interface Chain {
-    id: number;
-    name: string;
-}
+import { useSwitchChain } from "wagmi";
 
 interface NetworkViewProps {
-    chains: readonly Chain[];
     currentChainId: number;
-    handleNetworkChange: (chainId: number) => void;
-    onBackToMain: () => void;
 }
 
-export function NetworkView({ chains, currentChainId, handleNetworkChange, onBackToMain }: NetworkViewProps) {
+export function NetworkView({ currentChainId }: NetworkViewProps) {
+    const { chains, switchChain } = useSwitchChain();
+
+    const handleNetworkChange = (chainId: number) => {
+		const selectedChain = chains.find((chain) => chain.id === chainId);
+		if (selectedChain) {
+			switchChain({ chainId: selectedChain.id });
+		}
+	};
+    
     return (
         <>
             {/* Header with Back Button */}
             <div className="px-4 py-4 border-b border-base-300">
                 <div className="flex items-center justify-between">
-                    <button
-                        onClick={onBackToMain}
-                        className="btn btn-ghost btn-sm btn-circle"
-                        aria-label="Back to wallet"
-                    >
-                        <img src="/arrow-left.svg" alt='Back' className="w-4 h-4" />
-                    </button>
                     <h3 className="font-semibold text-base">Select Network</h3>
                     <div className="w-8"></div> {/* Spacer for centering */}
                 </div>
@@ -41,7 +37,7 @@ export function NetworkView({ chains, currentChainId, handleNetworkChange, onBac
                             >
                                 <span className="font-medium">{chain.name}</span>
                                 {isConnected && (
-                                    <div className="badge badge-info badge-sm">
+                                    <div className="badge badge-secondary badge-soft badge-sm">
                                         Connected
                                     </div>
                                 )}

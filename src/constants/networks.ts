@@ -47,7 +47,7 @@ export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
 		payClaimActionAddress: "0x8530D4D6E187861335555B9827400248AB0a07F8",
 		dappnodeIncentiveAddress: "0x485c6Be503D32511c1282b68dD99E85f250572c3",
 		clEndpoint: 'https://rpc-gbc.gnosischain.com',
-		beaconchainApi: 'https://gnosischa.in',
+		beaconchainApi: 'https://beaconchain.gnosischain.com/',
 		chainId: gnosis.id,
 		forkVersion: "00000064",
 		cl: GNOSIS_CL,

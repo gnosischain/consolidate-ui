@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-    themes: gnosis --default;
+    themes:
+        gnosis --default,
+        gnosisDark --prefersdark;
 }
   
 @plugin "daisyui/theme" {
@@ -11,19 +13,19 @@
 
   /* Base colors - clean, modern light theme */
   --color-base-100: #ffffff; /* Pure white for cards and main content */
-  --color-base-200: #f8fafc; /* Very light gray for subtle backgrounds */
-  --color-base-300: #e2e8f0; /* Light gray for borders and dividers */
+  --color-base-200: #FFFAF3; /* Very light gray for subtle backgrounds */
+  --color-base-300: #e8e4e1; /* Light gray for borders and dividers */
   --color-base-content: #1e293b; /* Dark slate for main text */
 
-  --color-primary: #0D9488;
+  --color-primary: #3F2ACD;
   --color-primary-content: #ffffff; /* White text on primary */
 
   /* Secondary - Lighter blue for secondary elements */
-  --color-secondary: #3b82f6; /* Bright blue for secondary actions */
+  --color-secondary: #1A1751; /* Bright blue for secondary actions */
   --color-secondary-content: #ffffff; /* White text on secondary */
 
   /* Accent - Purple accent */
-  --color-accent: #8b5cf6; /* Purple accent for highlights */
+  --color-accent: #8CE8AB; /* Purple accent for highlights */
   --color-accent-content: #ffffff; /* White text on accent */
 
   /* Neutral - Clean grays for modern look */
@@ -37,8 +39,8 @@
   --color-success: oklch(65% 0.16 140); /* Natural green */
   --color-success-content: oklch(98% 0.01 140);
   
-  --color-warning: oklch(75% 0.15 70); /* Warm amber */
-  --color-warning-content: oklch(20% 0.03 70);
+  --color-warning: #FFC107; /* Warm amber */
+  --color-warning-content: #000000;
   
   --color-error: oklch(65% 0.18 20); /* Soft red */
   --color-error-content: oklch(98% 0.01 20);
@@ -46,7 +48,7 @@
   /* Border radius - modern, clean rounded corners */
   --radius-selector: 0.75rem; /* Moderate rounding for modern feel */
   --radius-field: 0.5rem; /* Clean field corners */
-  --radius-box: 0.75rem; /* Modern card rounding */
+  --radius-box: 0.5rem; /* Modern card rounding */
 
   /* Base sizes */
   --size-selector: 0.25rem;
@@ -57,5 +59,54 @@
 
   /* Effects */
   --depth: 1; /* Subtle depth for clean modern look */
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "gnosisDark";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  /* Base colors - deep, high-contrast dark theme */
+  --color-base-100: #111428; /* Card & surface */
+  --color-base-200: #1c1d3d; /* Page background */
+  --color-base-300: #1e233c; /* Borders/dividers */
+  --color-base-content: #f1f4ff; /* Primary text */
+
+  --color-primary: #8c7dff;
+  --color-primary-content: #05060f;
+
+  --color-secondary: #FFFAF3;
+  --color-secondary-content: #041017;
+
+  --color-accent: #8CE8AB;
+  --color-accent-content: #ffffff;
+
+  --color-neutral: #0c1c24;
+  --color-neutral-content: #f5fbff;
+
+  --color-info: oklch(80% 0.12 225); /* Soft cyan */
+  --color-info-content: oklch(20% 0.02 225);
+  
+  --color-success: oklch(78% 0.14 150); /* Lush green */
+  --color-success-content: oklch(20% 0.02 150);
+  
+  --color-warning: #f7c948; /* Warm amber */
+  --color-warning-content: #1a1100;
+  
+  --color-error: oklch(72% 0.2 20); /* Warm red */
+  --color-error-content: oklch(16% 0.03 20);
+
+  --radius-selector: 0.75rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+
+  --depth: 1.25; /* Slightly more depth for dark surfaces */
   --noise: 0;
 }

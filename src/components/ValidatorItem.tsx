@@ -1,12 +1,14 @@
-import { useState } from 'react';
 import { computeSelfConsolidations } from '../hooks/useConsolidate';
-import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
-import { formatEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
-import { ArrowUp, EllipsisVertical, X } from 'lucide-react';
+import { ArrowUp, Plus, Minus } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
+import { truncateAddress } from '../utils/address';
+import { CopyButton } from './CopyButton';
+import { ConsolidationSummary } from './ConsolidationSummary';
 
 interface ValidatorItemProps {
 	validator: ValidatorInfo;
@@ -19,62 +21,71 @@ export function ValidatorItem({
 	isSelected,
 	onToggle,
 }: ValidatorItemProps) {
-	const { consolidateValidators } = useConsolidateValidatorsBatch();
-	const [showActions, setShowActions] = useState(false);
+	const { openModal } = useModal();
 	return (
-		<tr className={`h-14 hover:bg-primary/5 transition-all duration-200 border-b border-base-content/5 ${
-			isSelected ? 'bg-primary/10' : ''
-		} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
+		<tr className={`h-14 hover:bg-primary/5 group transition-all duration-200 ${isSelected ? 'bg-primary/10' : ''
+			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
 			<th>
-				<input 
-					type="checkbox" 
-					className="checkbox checkbox-primary checkbox-xs" 
+				<input
+					type="checkbox"
+					className="checkbox checkbox-primary checkbox-xs"
 					checked={isSelected}
-					onChange={(e) => onToggle(validator.index, e.target.checked)} 
-					disabled={validator.filterStatus !== 'active'} 
+					onChange={(e) => onToggle(validator.index, e.target.checked)}
+					disabled={validator.filterStatus !== 'active'}
 				/>
 			</th>
-			<td className="font-medium">{validator.index}</td>
+			<td className="font-mono text-sm opacity-70">
+				#{validator.index}
+			</td>
 			<td>
-				<span className='badge badge-sm badge-ghost'>
-					Type {validator.type}
-				</span>
+				<div className="flex items-center gap-2 font-mono text-sm opacity-70">
+					{truncateAddress(validator.pubkey)}
+					<div className="opacity-0 group-hover:opacity-100 transition-opacity">
+						<CopyButton text={validator.pubkey} />
+					</div>
+				</div>
+			</td>
+			<td className="font-mono text-sm opacity-70">
+				{validator.type === 1 ? 'Standard' : validator.type === 2 ? 'Compounding' : 'Legacy'}
 			</td>
 			<td>
 				<ValidatorBadge filterStatus={validator.filterStatus} status={validator.status} />
 			</td>
-			<td className="font-semibold">{Number(formatEther(validator.balanceEth)).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></td>
+			<td className="font-semibold">
+				<div className="flex items-center gap-2">
+					<span>{(Math.floor(Number(formatEther(validator.balance)) * 100) / 100).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></span>
+					{validator.balance < parseEther('1') && validator.filterStatus !== 'exited' && (
+						<div className="badge badge-xs badge-soft badge-warning">
+							Low
+						</div>
+					)}
+				</div>
+			</td>
 
 			<td className="min-w-24">
 				{validator.filterStatus === 'active' && (
-					<div className={`flex rounded-md max-w-fit transition-all duration-300 ${showActions ? 'bg-base-200' : ''}`}>
-						<button className="btn btn-ghost btn-circle btn-sm" onClick={() => setShowActions(!showActions)}>
-							{showActions ? <X className="w-5 h-5" /> : <EllipsisVertical className="w-5 h-5" />}
-						</button>
-						{showActions && (
-							<>
-								{validator.type === 1 && (
-									<div className="tooltip" data-tip="Upgrade">
-										<button
-											className="btn btn-ghost btn-circle btn-sm"
-											onClick={() => consolidateValidators(computeSelfConsolidations([validator]))}
-										>
-											<ArrowUp className="w-4 h-4" />
-										</button>
-									</div>
-								)}
+					<div className="flex gap-x-1 transition-all duration-300 opacity-40 group-hover:opacity-100">
+						{validator.type === 1 && (
+							<div className="tooltip" data-tip="Upgrade">
+								<button
+									className="btn btn-soft btn-secondary btn-circle btn-xs"
+									onClick={() => openModal(<ConsolidationSummary consolidations={computeSelfConsolidations([validator])} />)}
+								>
+									<ArrowUp className="w-4 h-4" />
+								</button>
+							</div>
+						)}
 
-								{validator.type === 2 && (
-									<div className="tooltip" data-tip="Deposit">
-										<PartialDeposit validator={validator} />
-									</div>
-								)}
+						{validator.type === 2 && (
+							<div className="tooltip" data-tip="Deposit">
+								<button className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<PartialDeposit validator={validator} />)}><Plus className="w-4 h-4" /></button>
+							</div>
+						)}
 
-								<div className="tooltip" data-tip="Withdraw">
-									<Withdraw validator={validator} />
-								</div>
-							</>
-						)} </div>)}
+						<div className="tooltip" data-tip="Withdraw">
+							<button className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<Withdraw validator={validator} />)}><Minus className="w-4 h-4" /></button>
+						</div>
+					</div>)}
 			</td>
 		</tr>
 	);

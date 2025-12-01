@@ -1,12 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import Loader from './Loader';
-import { ConsolidateAggregate } from './ConsolidateAggregate';
+import { ValidatorsTable } from './ValidatorsTable';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
-import { Address, formatEther } from 'viem';
+import { Address } from 'viem';
 import { useWallet } from '../context/WalletContext';
-import Deposit from './Deposit';
 import { WarningModal } from './WarningModal';
+import DashboardHeader from './DashboardHeader';
+import { Settings } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
+import Image from 'next/image';
+import useAutoclaim from '../hooks/useAutoclaim';
+import { AutoclaimView } from './AutoclaimView';
+import { truncateAddress } from '../utils/address';
+import { ZERO_ADDRESS } from '../constants/misc';
 
 enum Steps {
 	SELECT = 'select',
@@ -14,16 +21,19 @@ enum Steps {
 }
 
 export default function Dashboard() {
-	const { account, network } = useWallet();
-	if (!network || !account.address) {
-		throw new Error('Network or account not found');
-	}
+	const { account, network, isMounted } = useWallet();
+	const { openModal } = useModal();
 	const { callStatusData } = useConsolidateValidatorsBatch();
+	const { isRegistered, actionContract } = useAutoclaim(network, account.address);
 
 	const { validators, loading } = useBeaconValidators(network, account.address);
 
 	const totalBalance = useMemo(() => {
-		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balanceEth, 0n);
+		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balance, 0n);
+	}, [validators]);
+
+	const totalEffectiveBalance = useMemo(() => {
+		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.effectiveBalance, 0n);
 	}, [validators]);
 
 	const [state, setState] = useState<{
@@ -35,6 +45,57 @@ export default function Dashboard() {
 		loading: false,
 		tx: '0x0',
 	});
+
+	const [currentYield, setCurrentYield] = useState<number | null>(null);
+	const [yieldLoading, setYieldLoading] = useState(true);
+
+	const actionContractLabel = useMemo(() => {
+		if (!actionContract || actionContract?.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+			return 'Enabled';
+		}
+		if (network?.payClaimActionAddress && actionContract?.toLowerCase() === network.payClaimActionAddress.toLowerCase()) {
+			return 'Gnosis Pay';
+		}
+		return truncateAddress(actionContract);
+	}, [actionContract, network?.payClaimActionAddress]);
+
+	const autoclaimStatus = useMemo(() => {
+		const defaultIcon = <Settings className="w-4 h-4 text-base-content/40" />;
+
+		if (network?.claimRegistryAddress) {
+			return {
+				status: 'AUTOCLAIM UNAVAILABLE',
+				detail: 'Switch Network',
+				icon: defaultIcon,
+			};
+		}
+
+		if (isRegistered) {
+			const isGnosisPay = actionContractLabel === 'Gnosis Pay';
+			return {
+				status: 'AUTOCLAIM ACTIVE',
+				detail: actionContractLabel,
+				icon: isGnosisPay ? (
+					<div className="bg-black h-6 w-16 rounded-lg flex items-center justify-center px-1">
+						<Image src="/gnosis-pay.svg" alt="Gnosis Pay" width={40} height={40} className="w-full h-full object-contain" />
+					</div>
+				) : (
+					defaultIcon
+				),
+			};
+		}
+
+		return {
+			status: 'AUTOCLAIM INACTIVE',
+			detail: 'Setup Autoclaim',
+			icon: defaultIcon,
+		};
+	}, [actionContractLabel, isMounted, isRegistered, network?.claimRegistryAddress]);
+
+	const handleOpenAutoclaim = useCallback(() => {
+		if (!network || !account.address) return;
+		openModal(<AutoclaimView network={network} address={account.address} />);
+	}, [account.address, network, openModal]);
 
 	useEffect(() => {
 		if (callStatusData?.status === 'success') {
@@ -52,6 +113,27 @@ export default function Dashboard() {
 		}
 	}, [callStatusData?.id, callStatusData?.status]);
 
+	useEffect(() => {
+		const fetchYield = async () => {
+			try {
+				const response = await fetch('https://dune-proxy.gnosischain.com/current-yield');
+				if (!response.ok) {
+					throw new Error('Failed to fetch yield data');
+				}
+				const data = await response.json();
+				const yieldValue = data.result.rows[0]?.yield;
+				setCurrentYield(yieldValue || null);
+			} catch (error) {
+				console.error('Error fetching yield:', error);
+				setCurrentYield(null);
+			} finally {
+				setYieldLoading(false);
+			}
+		};
+
+		fetchYield();
+	}, []);
+
 	return (
 		<>
 			{state.loading || loading ? (
@@ -61,26 +143,18 @@ export default function Dashboard() {
 				</div>
 			) : (
 				<div className='flex flex-col w-full'>
-					<WarningModal totalBalance={totalBalance} network={network} />
-					<div className='sm:bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl sm:border border-primary/20 sm:p-6 mb-6'>
-						<div className='flex justify-between items-center w-full'>
-							<div className="flex flex-col gap-2">
-								<div className="flex items-center gap-3">
-									<h1 className="text-lg sm:text-2xl font-bold">Validator Portfolio</h1>
-									<span className="hidden sm:inline badge badge-info badge-sm">{validators.filter(v => v.filterStatus === 'active').length} Active</span>
-								</div>
-								<p className="hidden sm:inline text-sm text-base-content/60">Manage your validators and track your rewards</p>
-							</div>
-							<div className="flex flex-col sm:flex-row items-center gap-4">
-								<div className="flex flex-col items-end">
-									<p className="text-xs text-base-content/60 mb-1">Total validators balance</p>
-									<p className="font-bold text-xl">{Number(formatEther(totalBalance)).toFixed(2)} GNO</p>
-								</div>
-								{(network.chainId === 100 || network.chainId === 10200) && <Deposit />}
-							</div>
-						</div>
-					</div>
-					<ConsolidateAggregate
+					{isMounted && network && <WarningModal totalBalance={totalBalance} network={network} />}
+					<DashboardHeader 
+						totalBalance={totalBalance}
+						totalEffectiveBalance={totalEffectiveBalance}
+						currentYield={currentYield}
+						yieldLoading={yieldLoading}
+						activeValidatorsCount={validators.filter(v => v.filterStatus === 'active').length}
+						isRegistered={isRegistered}
+						autoclaimStatus={autoclaimStatus}
+						handleOpenAutoclaim={handleOpenAutoclaim}
+					/>
+					<ValidatorsTable
 						validators={validators}
 					/>
 				</div>

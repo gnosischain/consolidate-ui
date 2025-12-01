@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Providers } from './providers'
 import '../index.css'
-// import Footer from '../components/Footer'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 
 export const metadata: Metadata = {
   title: 'Gnosis Launchpad',
@@ -20,9 +21,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          {children}
+          <div className="w-full flex flex-col min-h-screen bg-gradient-to-b from-base-200 from-45% to-primary/10">
+            <Navbar />
+            {children}
+          </div>
         </Providers>
-        {/* <Footer /> */}
+        <Footer />
       </body>
     </html>
   )

@@ -18,7 +18,7 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
   const { computePartialDepositAmounts, partialDeposit } = useDeposit(network, account.address);
   const [amount, setAmount] = useState(0);
 
-  const depositAmounts = useMemo(() => computePartialDepositAmounts(parseEther(amount.toString()), validators, BigInt(targetAmount)), [validators, amount, computePartialDepositAmounts, balance.balance, targetAmount]);
+  const depositAmounts = useMemo(() => computePartialDepositAmounts(parseEther(amount.toString()), validators, BigInt(targetAmount)), [validators, amount, computePartialDepositAmounts, targetAmount]);
 
   const totalDepositAmount = useMemo(() => depositAmounts.reduce((acc, amt) => acc + amt, 0n), [depositAmounts]);
 

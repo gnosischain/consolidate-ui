@@ -5,16 +5,16 @@ import {
 } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorItem } from './ValidatorItem';
-import { Search, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, Info } from 'lucide-react';
 import ActionBar from './ActionBar';
 
-interface ConsolidateSelectProps {
+interface ValidatorsTableProps {
 	validators: ValidatorInfo[];
 }
 
-export function ConsolidateAggregate({
+export function ValidatorsTable({
 	validators,
-}: ConsolidateSelectProps) {
+}: ValidatorsTableProps) {
 	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
@@ -92,10 +92,10 @@ export function ConsolidateAggregate({
 
 	const selectedValidators = useMemo<ValidatorInfo[]>(() => {
 		return filteredValidators.filter(v => selected.has(v.index));
-	  }, [filteredValidators, selected]);
+	}, [filteredValidators, selected]);
 
 	return (
-		<div className="w-full flex flex-col justify-center gap-y-2 p-2">
+		<div className="w-full flex flex-col justify-center gap-y-2">
 			{/* FILTER */}
 			<div className="flex items-center justify-between w-full">
 				<div className="flex items-center gap-x-2">
@@ -105,9 +105,9 @@ export function ConsolidateAggregate({
 						<option value="exited">Exited</option>
 						<option value="pending">Pending</option>
 					</select>
-					<select 
-						defaultValue="" 
-						className="select select-sm" 
+					<select
+						defaultValue=""
+						className="select select-sm"
 						onChange={(e) => setFilterVersion(e.target.value || undefined)}
 					>
 						<option value="">All versions</option>
@@ -126,15 +126,16 @@ export function ConsolidateAggregate({
 					<input type="search" placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box border border-base-content/15 bg-base-100 shadow-xs">
-				<table className="table table-pin-rows">
+			<div className="overflow-auto rounded-box backdrop-blur-sm bg-base-100 shadow-xs">
+				<table className="table">
 					{/* head */}
 					<thead>
-						<tr className="bg-base-200">
+						<tr className="bg-primary/15">
 							{/* TODO: Add sorting */}
 							<th><input type="checkbox" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} className="checkbox checkbox-primary checkbox-xs" /></th>
-							<th><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
-							<th><div className="flex items-center">Type <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th className="w-16"><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Pubkey <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th><div className="flex items-center">Type <span className="tooltip tooltip-right" data-tip="Standard validators rewards need to be claimed, compounding validators rewards are automatically compounded up to 64 GNOs"><Info className="w-4 h-4 opacity-50" /></span><button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Status <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th><div className="flex items-center">Balance <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
 							<th>Actions</th>

@@ -4,18 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { computeConsolidations } from "../hooks/useConsolidate";
 import { ValidatorInfo } from "../types/validators";
 import { useWallet } from "../context/WalletContext";
+import { useModal } from "../context/ModalContext";
 
-interface QuickConsolidationProps {
+interface ConsolidateProps {
     validators: ValidatorInfo[];
 }
 
-export default function QuickConsolidation({ validators }: QuickConsolidationProps) {
+export default function Consolidate({ validators }: ConsolidateProps) {
     const { network } = useWallet();
     if (!network) {
         throw new Error('Network not found');
     }
     const targetBalance = network.cl.maxBalance * 0.625;
     const [chunkSize, setChunkSize] = useState(targetBalance);
+    const { openModal } = useModal();
     const { consolidations, totalGroups, skippedValidators } = useMemo(() => {
         const type1Filtered = validators.filter(
             (v) => v.type === 1 && v.filterStatus === 'active'
@@ -24,7 +26,11 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
             (v) => v.type === 2 && v.filterStatus === 'active'
         );
 
-        const { consolidations, skippedValidators, targets } = computeConsolidations(compoundingFiltered, type1Filtered, parseEther(chunkSize.toString()));
+        const { consolidations, skippedValidators, targets } = computeConsolidations(
+            compoundingFiltered,
+            type1Filtered,
+            parseEther(chunkSize.toString())
+        );
         const totalGroups = targets.size + skippedValidators.length;
 
         return { consolidations, totalGroups, skippedValidators };
@@ -35,7 +41,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
     return (
         <>
             <div className="flex flex-col w-full">
-                <p className="text-lg font-bold">Quick consolidation</p>
+                <p className="text-lg font-bold">Consolidate</p>
                 <p className="text-xs text-base-content/70">Balance min: {chunkSize}</p>
                 <input
                     type="range"
@@ -51,36 +57,42 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                 </div>
             </div>
 
-            <div className="w-full flex flex-col bg-base-200 rounded-lg p-4 mt-8">
+            <div className="w-full flex flex-col bg-primary/5 rounded-lg p-4 mt-8">
                 <p className="font-semibold mb-2">Consolidation summary</p>
                 <div className="flex justify-between text-sm">
                     <p className="text-base-content/70">Consolidations request:</p>
-                    <p className="">{consolidations.length}</p>
+                    <p>{consolidations.length}</p>
                 </div>
-                <div className="flex justify-between text-sm ">
-                    <p className="text-base-content/70">Gas fees:</p>
-                    <p className="">{formatEther(BigInt(consolidations.length) * 1000000000000000n)} XDAI</p>
+                <div className="flex justify-between text-sm">
+                    <p className="text-base-content/70">Processing fees:</p>
+                    <p>{consolidations.length * 0.000001} GNO</p>
                 </div>
                 <div className="flex justify-between text-sm mt-2 border-t border-base-content/5 pt-2 mb-6">
                     <p className="text-base-content/70">Validators remaining:</p>
-                    <p className="">{totalGroups}</p>
+                    <p>{totalGroups}</p>
                 </div>
 
                 {skippedValidators.length > 0 && (
-                    <div className="mt-2">
+                    <div className="mt-2 mb-4">
                         <p className="text-warning text-sm">
                             {skippedValidators.length} validators skipped
                         </p>
                         <ul className="list-disc list-inside text-xs mt-1">
                             {skippedValidators.map((v) => (
                                 <li key={v.index}>
-                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
+                                    {v.index} ({Number(formatEther(v.balance)).toFixed(2)} GNO)
                                 </li>
                             ))}
                         </ul>
                     </div>
                 )}
-                <ConsolidationSummary consolidations={consolidations} />
+                <button
+                    className="btn btn-primary"
+                    onClick={() => openModal(<ConsolidationSummary consolidations={consolidations} />)}
+                    disabled={consolidations.length === 0}
+                >
+                    View Details
+                </button>
             </div>
         </>
     );
