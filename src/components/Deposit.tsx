@@ -12,7 +12,7 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { setDepositData, depositData, approve, isApproved, deposit, depositSuccess, approveSuccess, error, approveLoading, depositLoading } = useDeposit(network, account.address);
+  const { setDepositData, depositData, approve, allowance, deposit, depositSuccess, approveSuccess, error, approveLoading, depositLoading } = useDeposit(network, account.address);
   const { closeModal } = useModal();
 
   useTransactionToast({
@@ -50,8 +50,8 @@ export default function Deposit() {
         <label className="label">{file?.name}</label>
       </fieldset>
       <div className="mt-8 flex w-full justify-end">
-        <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => isApproved ? deposit() : approve(depositData.totalDepositAmount)}>
-          {isApproved ? 'Deposit ' : 'Approve ' + formatEther(depositData.totalDepositAmount) + ' GNO'}
+        <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => allowance >= depositData.totalDepositAmount ? deposit() : approve(depositData.totalDepositAmount)}>
+          {allowance >= depositData.totalDepositAmount ? 'Deposit ' : 'Approve ' + formatEther(depositData.totalDepositAmount) + ' GNO'}
         </button>
       </div>
     </>
