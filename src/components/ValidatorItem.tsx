@@ -82,8 +82,8 @@ export function ValidatorItem({
 							</div>
 						)}
 
-						<div className="tooltip" data-tip="Withdraw">
-							<button className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<Withdraw validator={validator} />)}><Minus className="w-4 h-4" /></button>
+						<div className="tooltip" data-tip="Withdraw (Coming soon)">
+							<button disabled={true} className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<Withdraw validator={validator} />)}><Minus className="w-4 h-4" /></button>
 						</div>
 					</div>)}
 			</td>
