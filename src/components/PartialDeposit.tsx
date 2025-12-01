@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatEther, parseEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
