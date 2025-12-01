@@ -1,5 +1,4 @@
 import { Boldonse } from "next/font/google";
-import Image from "next/image";
 
 const boldonse = Boldonse({
 	subsets: ["latin"],
