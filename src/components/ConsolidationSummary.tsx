@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { Consolidation } from '../types/validators';
 import { formatEther } from 'viem';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
+import { useModal } from '../context/ModalContext';
+import { useTransactionToast } from '../hooks/useTransactionToast';
 
 interface ConsolidationSummaryProps {
     consolidations: Consolidation[];
@@ -10,8 +12,18 @@ interface ConsolidationSummaryProps {
 const BATCH_SIZE = 200;
 
 export function ConsolidationSummary({ consolidations }: ConsolidationSummaryProps) {
+    const { consolidateValidators, isConfirming, isConfirmed, error } = useConsolidateValidatorsBatch();
+    const { closeModal } = useModal();
 
-    const { consolidateValidators } = useConsolidateValidatorsBatch();
+    useTransactionToast({
+        isLoading: isConfirming,
+        isSuccess: isConfirmed,
+        error,
+        loadingMessage: 'Consolidating...',
+        successMessage: 'Consolidation successful',
+        onSuccess: closeModal,
+    });
+
     const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
 
     const batches = useMemo(() => {

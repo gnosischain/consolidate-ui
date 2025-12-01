@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
-import { toast } from "react-hot-toast";
 import { useModal } from "../context/ModalContext";
+import { useTransactionToast } from "../hooks/useTransactionToast";
 
 export default function Deposit() {
 
@@ -14,39 +14,23 @@ export default function Deposit() {
   }
   const { setDepositData, depositData, approve, isApproved, deposit, depositSuccess, approveSuccess, error, approveLoading, depositLoading } = useDeposit(network, account.address);
   const { closeModal } = useModal();
-  // Handle success toasts
-  useEffect(() => {
-    if (approveSuccess) {
-      toast.success('Approval successful');
-    }
-  }, [approveSuccess]);
 
-  useEffect(() => {
-    if (depositSuccess) {
-      toast.success('Deposit successful');
-      closeModal();
-    }
-  }, [depositSuccess]);
+  useTransactionToast({
+    isLoading: approveLoading,
+    isSuccess: approveSuccess,
+    error: null,
+    loadingMessage: 'Approving...',
+    successMessage: 'Approval successful',
+  });
 
-  // Handle loading toasts
-  useEffect(() => {
-    if (approveLoading) {
-      toast.loading('Approving...');
-    }
-  }, [approveLoading]);
-
-  useEffect(() => {
-    if (depositLoading) {
-      toast.loading('Depositing...');
-    }
-  }, [depositLoading]);
-
-  // Handle error toast
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message.substring(0, 50));
-    }
-  }, [error]);
+  useTransactionToast({
+    isLoading: depositLoading,
+    isSuccess: depositSuccess,
+    error,
+    loadingMessage: 'Depositing...',
+    successMessage: 'Deposit successful',
+    onSuccess: closeModal,
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

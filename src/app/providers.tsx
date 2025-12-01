@@ -16,7 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <WalletProvider>
           <ModalProvider>
             {children}
-            <Toaster toastOptions={{ position: 'bottom-right', duration: 3000 }} />
+            <Toaster toastOptions={{ position: 'bottom-right', duration: 3000, style: { backgroundColor: 'var(--color-base-200)', color: 'var(--color-base-content)', borderRadius: '12px' } }} />
           </ModalProvider>
         </WalletProvider>
       </QueryClientProvider>

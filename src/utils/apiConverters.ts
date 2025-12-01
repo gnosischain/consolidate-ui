@@ -9,7 +9,8 @@ export function apiToValidatorInfo(apiValidator: APIValidatorInfo): ValidatorInf
   return {
     index: apiValidator.index,
     pubkey: apiValidator.pubkey as Address,
-    balanceEth: BigInt(apiValidator.balanceEth), // Convert string back to BigInt
+    balance: BigInt(apiValidator.balance), // Convert string back to BigInt
+    effectiveBalance: BigInt(apiValidator.effectiveBalance), // Convert string back to BigInt
     withdrawal_credentials: apiValidator.withdrawal_credentials as Address,
     type: apiValidator.type as 0 | 1 | 2,
     status: apiValidator.status,

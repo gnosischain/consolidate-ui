@@ -1,131 +1,55 @@
-export default function LandingPage() {
-	const actions = [
-		{
-			icon: (
-				<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-				</svg>
-			),
-			title: 'Consolidate',
-			description: 'Merge multiple validators into efficient 0x02 credentials',
-			color: 'from-blue-500 to-cyan-500',
-		},
-		{
-			icon: (
-				<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-				</svg>
-			),
-			title: 'Withdraw',
-			description: 'Trigger partial or full validator withdrawal operations',
-			color: 'from-purple-500 to-pink-500',
-		},
-		{
-			icon: (
-				<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
-				</svg>
-			),
-			title: 'Top-up',
-			description: 'Add funds to existing validators in a single transaction',
-			color: 'from-green-500 to-emerald-500',
-		},
-	];
+import { Boldonse } from "next/font/google";
+import Image from "next/image";
 
+const boldonse = Boldonse({
+	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
+});
+
+export default function LandingPage() {
 	return (
-		<div className="w-full flex flex-col items-center py-12 px-4 max-w-7xl mx-auto">
-			<div className="grid md:grid-cols-2 gap-12 items-center w-full mb-24">
-				<div className="space-y-6">
-					<div className="inline-block">
-						<span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold">
-							Gnosis Validator Management
-						</span>
-					</div>
-					<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-						Your Validators,
-						<br />
-						<span className="text-primary">Your Control</span>
+		<div className="absolute inset-0 z-30 flex items-center justify-center bg-base-300/20 backdrop-blur-xs px-4">
+
+			{/* Content */}
+			<div className="relative flex flex-col items-center justify-center px-4 py-20">
+
+				{/* Hero Title */}
+				<div className="flex flex-col items-center justify-center mb-10">
+					<svg width="600" height="150" viewBox="0 0 878 230" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-secondary">
+						<path d="M101.244 101.188V136.382H166.15C158.07 160.903 136.437 180.52 103.844 180.52C67.4986 180.52 41.8343 151.383 41.8343 114.749C41.8343 78.1156 68.6505 48.9781 106.148 48.9781C123.26 48.9781 137.545 54.7463 148.209 64.1708C152.555 68.1501 158.506 75.0265 160.67 84.2939H202.653C202.653 84.2939 202.923 73.4383 195.864 59.6418C195.864 59.6418 195.855 59.6244 195.846 59.6156C191.666 51.4652 184.921 42.285 174.039 33.7156C173.969 33.6633 173.899 33.6109 173.83 33.5586C155.914 18.7149 132.161 10.0234 104.123 10.0234C44.1206 10.0322 0 55.6102 0 114.749C0 173.888 44.1206 219.466 103.835 219.466C163.55 219.466 207.976 175.04 207.976 117.35V101.197H101.244V101.188Z" />
+						<path d="M711.998 217.74V11.7617H752.672V217.731H711.998V217.74Z" />
+						<path d="M543.967 100.834C543.967 93.8875 541.681 87.5783 537.728 82.5693L495.902 124.378C500.999 128.331 507.317 130.617 514.176 130.617C530.695 130.608 544.055 117.266 543.967 100.834ZM419.555 130.512C403.124 130.599 389.763 117.248 389.763 100.729C389.763 93.8787 392.05 87.5608 396.003 82.4646L437.828 124.273C432.819 128.226 426.502 130.512 419.555 130.512ZM387.224 73.8603C381.072 81.2429 377.381 90.5452 377.381 100.912C377.381 124.186 396.273 143.07 419.555 143.07C429.835 143.07 439.233 139.378 446.616 133.226L466.913 153.515L487.211 133.226C494.594 139.378 503.905 143.07 514.272 143.07C537.554 143.07 556.446 124.186 556.446 100.912C556.446 90.6412 552.755 81.2342 546.612 73.8603L565.146 55.3342C575.697 72.7172 581.753 93.0061 581.753 114.796C581.753 178.211 530.354 229.505 467.001 229.505C403.647 229.505 352.249 178.124 352.249 114.796C352.074 92.9276 358.139 72.6386 368.681 55.3342L387.215 73.8603H387.224ZM467.001 135.957L558.034 44.9672C555.486 41.7122 552.772 38.5533 549.945 35.5776C529.037 13.7005 499.602 0 466.913 0C434.224 0 404.712 13.7005 383.882 35.5689C380.985 38.466 378.253 41.721 375.967 44.8712L467.001 135.949V135.957ZM537.475 44.1818L466.922 114.709L396.369 44.1818C415.079 25.2979 440.036 14.9396 466.922 14.9396C493.808 14.9396 518.67 25.2979 537.475 44.1818Z" />
+						<path d="M221.447 11.7617H258.674L299.391 134.01H301.87L298.641 11.7617H339.114V217.731H301.887L261.17 95.2386H258.691L261.92 217.731H221.447V11.7617Z" />
+						<path d="M684.492 124.372C680.67 118.613 676.219 113.481 671.132 108.987L641.096 81.7347C636.855 77.8253 633.8 74.0729 631.933 70.4514C630.065 66.8387 629.132 63.1736 629.132 59.4649C629.132 55.3635 630.231 52.0911 632.439 49.6477C634.647 47.2043 637.614 45.9826 641.349 45.9826C645.755 45.9826 648.984 47.2566 651.018 49.796C653.051 52.3354 654.072 56.0529 654.072 60.9309V73.9856H693.559V62.9816C693.559 54.1941 692.538 46.5236 690.504 39.9788C688.471 33.434 685.33 28.0149 681.089 23.7128C676.848 19.2187 671.376 15.8503 664.674 13.5989C657.972 11.3562 651.358 10.2305 641.349 10.2305C633.032 10.2305 625.484 11.3562 618.695 13.5989C611.906 15.8503 606.138 19.2187 601.391 23.7128C597.15 28.0149 593.755 33.3816 591.207 39.8305C588.659 46.2793 587.385 53.7055 587.385 62.1003C587.385 69.7184 588.528 76.8043 590.823 83.3491C593.118 89.8939 596.294 95.95 600.37 101.517C604.445 107.085 609.105 112.312 614.367 117.199L643.129 143.282C647.03 147 649.909 150.708 651.785 154.417C653.653 158.134 654.587 162.62 654.587 167.899C654.587 172.786 653.4 176.643 651.026 179.471C648.644 182.307 645.337 183.72 641.104 183.72C636.872 183.72 633.547 182.211 631.174 179.174C628.791 176.146 627.613 172.097 627.613 167.009V146.354H588.126V164.077C588.126 173.065 589.147 181.024 591.181 187.961C593.214 194.899 596.268 200.615 600.343 205.109C604.925 209.996 610.693 213.608 617.648 215.956C624.603 218.303 631.261 219.472 641.104 219.472C650.093 219.472 657.99 218.207 664.77 215.659C671.559 213.12 677.328 209.507 682.075 204.812C686.656 200.126 690.173 194.41 692.634 187.665C695.094 180.928 696.325 173.161 696.325 164.365C696.325 156.747 695.304 149.617 693.271 142.968C691.237 136.327 688.305 130.123 684.492 124.363V124.372Z" />
+						<path d="M865.897 124.372C862.075 118.613 857.625 113.481 852.537 108.987L822.501 81.7347C818.26 77.8253 815.206 74.0729 813.338 70.4514C811.471 66.8387 810.537 63.1736 810.537 59.4649C810.537 55.3635 811.637 52.0911 813.844 49.6477C816.052 47.2043 819.019 45.9826 822.754 45.9826C827.161 45.9826 830.39 47.2566 832.423 49.796C834.456 52.3354 835.477 56.0529 835.477 60.9309V73.9856H874.964V62.9816C874.964 54.1941 873.943 46.5236 871.91 39.9788C869.876 33.434 866.735 28.0149 862.494 23.7128C858.253 19.2187 852.781 15.8503 846.08 13.5989C839.378 11.3562 832.763 10.2305 822.754 10.2305C814.438 10.2305 806.889 11.3562 800.1 13.5989C793.311 15.8503 787.543 19.2187 782.796 23.7128C778.555 28.0149 775.16 33.3816 772.612 39.8305C770.064 46.2793 768.79 53.7055 768.79 62.1003C768.79 69.7184 769.933 76.8043 772.228 83.3491C774.523 89.8939 777.7 95.95 781.775 101.517C785.85 107.085 790.51 112.312 795.772 117.199L824.534 143.282C828.435 147 831.315 150.708 833.191 154.417C835.058 158.134 835.992 162.62 835.992 167.899C835.992 172.786 834.805 176.643 832.432 179.471C830.049 182.307 826.742 183.72 822.51 183.72C818.277 183.72 814.953 182.211 812.579 179.174C810.197 176.146 809.019 172.097 809.019 167.009V146.354H769.532V164.077C769.532 173.065 770.553 181.024 772.586 187.961C774.619 194.899 777.674 200.615 781.749 205.109C786.33 209.996 792.098 213.608 799.053 215.956C806.008 218.303 812.666 219.472 822.51 219.472C831.498 219.472 839.395 218.207 846.176 215.659C852.965 213.12 858.733 209.507 863.48 204.812C868.061 200.126 871.578 194.41 874.039 187.665C876.5 180.928 877.73 173.161 877.73 164.365C877.73 156.747 876.709 149.617 874.676 142.968C872.643 136.327 869.711 130.123 865.897 124.363V124.372Z" />
+						<rect width="14.2356" height="14.2357" transform="translate(658.108 125.129)" />
+					</svg>
+
+					{/* <Image src="/gnosis-purple.svg" alt="Gnosis" width={600} height={600} /> */}
+					<h1 className={`text-6xl md:text-9xl font-bold mb-8 text-accent ${boldonse.className}`}>
+						VALIDATORS
 					</h1>
-					<p className="text-lg text-base-content/70 leading-relaxed">
-						A selection-first approach to managing validator operations. Choose your validators, 
-						pick your action, execute in batch.
+					<p className="text-xl md:text-2xl text-base-content/70 max-w-2xl font-medium">
+						Manage your validators on Gnosis Chain
 					</p>
 				</div>
 
-				<div className="hidden md:block relative">
-					<div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-8 border border-primary/20">
-						<div className="space-y-4">
-							<div className="flex items-center gap-3 bg-base-100 p-4 rounded-xl shadow-sm">
-								<div className="w-3 h-3 rounded-full bg-success"></div>
-								<div className="text-sm">Select validators from your portfolio</div>
-							</div>
-							<div className="flex justify-center">
-								<svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-								</svg>
-							</div>
-							<div className="flex items-center gap-3 bg-base-100 p-4 rounded-xl shadow-sm">
-								<div className="w-3 h-3 rounded-full bg-info"></div>
-								<div className="text-sm">Choose action: Consolidate, Withdraw, or Top-up</div>
-							</div>
-							<div className="flex justify-center">
-								<svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-								</svg>
-							</div>
-							<div className="flex items-center gap-3 bg-base-100 p-4 rounded-xl shadow-sm">
-								<div className="w-3 h-3 rounded-full bg-warning"></div>
-								<div className="text-sm">Execute batch operation efficiently</div>
-							</div>
-						</div>
-					</div>
+				{/* CTA Button */}
+				<div className="mb-24 flex flex-col items-center justify-center border-t border-base-content/10 pt-10 px-4">
+					<span className="text-lg font-semibold text-base-content">Connect your wallet to view your validators</span>
+					<p className="text-sm text-gray-500">
+						New here? <a href="https://www.validategnosis.com/" target="_blank" rel="noopener noreferrer" className="underline">Learn about Gnosis validators</a>
+					</p>
 				</div>
-			</div>
 
-			<div className="w-full mb-16">
-				<h2 className="text-3xl font-bold text-center mb-4">Powerful Batch Actions</h2>
-				<p className="text-center text-base-content/60 mb-12 max-w-2xl mx-auto">
-					Execute operations across multiple validators simultaneously with our intuitive dashboard controls
-				</p>
-				<div className="grid md:grid-cols-3 gap-6">
-					{actions.map((action, index) => (
-						<div
-							key={index}
-							className="group relative overflow-hidden bg-base-100 rounded-2xl p-6 border border-base-content/10 hover:border-transparent transition-all duration-300"
-						>
-							<div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-							<div className="relative z-10">
-								<div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${action.color} text-white mb-4`}>
-									{action.icon}
-								</div>
-								<h3 className="text-xl font-bold mb-2">{action.title}</h3>
-								<p className="text-base-content/70">{action.description}</p>
-							</div>
-						</div>
-					))}
+				{/* Footer Note */}
+				<div className="mt-16 text-center">
+					<p className="text-sm text-base-content/50">
+						Powered by <span className="font-bold text-accent">Gnosis Chain</span>
+					</p>
 				</div>
-			</div>
-
-			<div className="w-full max-w-3xl bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 text-center border border-primary/20 mb-12">
-				<h3 className="text-2xl font-bold mb-3">Ready to Optimize Your Validators?</h3>
-				<p className="text-base-content/70 mb-6">
-					Connect your wallet to access your validator portfolio and start managing with ease
-				</p>
-				<div className="inline-flex items-center gap-2 px-6 py-3 bg-base-100 rounded-full border-2 border-primary/30">
-					<svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-					</svg>
-					<span className="font-semibold">Click <span className="text-primary">Connect</span> in the top right to begin</span>
-				</div>
-			</div>
-
-			<div className="max-w-2xl text-center">
-				<p className="text-sm text-base-content/60 leading-relaxed">
-					<span className="font-semibold text-base-content">Non-custodial by design.</span> You maintain complete control 
-					over your validators and assets. All operations execute directly from your connected wallet.
-				</p>
 			</div>
 		</div>
 	);
 }
-

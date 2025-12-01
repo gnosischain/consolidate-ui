@@ -56,7 +56,6 @@ export function useWithdraw(network: NetworkConfig) {
 		[network, sendCalls, canBatch, sendTransaction],
 	);
 
-	// Combine errors from different sources
 	const combinedError = error || sendCallsError || sendTransactionError || null;
 
 	return { 

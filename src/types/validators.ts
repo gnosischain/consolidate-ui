@@ -12,7 +12,8 @@ export type CredentialType = 0 | 1 | 2;
 export interface ValidatorInfo {
     index: number;
     pubkey: Address;
-    balanceEth: bigint;
+    balance: bigint;
+    effectiveBalance: bigint;
     withdrawal_credentials: Address;
     type: CredentialType;
     status: ValidatorStatus;

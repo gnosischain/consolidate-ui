@@ -6,11 +6,11 @@ import { ValidatorInfo } from "../types/validators";
 import { useWallet } from "../context/WalletContext";
 import { useModal } from "../context/ModalContext";
 
-interface QuickConsolidationProps {
+interface ConsolidateProps {
     validators: ValidatorInfo[];
 }
 
-export default function QuickConsolidation({ validators }: QuickConsolidationProps) {
+export default function Consolidate({ validators }: ConsolidateProps) {
     const { network } = useWallet();
     if (!network) {
         throw new Error('Network not found');
@@ -41,7 +41,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
     return (
         <>
             <div className="flex flex-col w-full">
-                <p className="text-lg font-bold">Quick consolidation</p>
+                <p className="text-lg font-bold">Consolidate</p>
                 <p className="text-xs text-base-content/70">Balance min: {chunkSize}</p>
                 <input
                     type="range"
@@ -57,7 +57,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                 </div>
             </div>
 
-            <div className="w-full flex flex-col bg-base-200 rounded-lg p-4 mt-8">
+            <div className="w-full flex flex-col bg-primary/5 rounded-lg p-4 mt-8">
                 <p className="font-semibold mb-2">Consolidation summary</p>
                 <div className="flex justify-between text-sm">
                     <p className="text-base-content/70">Consolidations request:</p>
@@ -80,7 +80,7 @@ export default function QuickConsolidation({ validators }: QuickConsolidationPro
                         <ul className="list-disc list-inside text-xs mt-1">
                             {skippedValidators.map((v) => (
                                 <li key={v.index}>
-                                    {v.index} ({Number(formatEther(v.balanceEth)).toFixed(2)} GNO)
+                                    {v.index} ({Number(formatEther(v.balance)).toFixed(2)} GNO)
                                 </li>
                             ))}
                         </ul>

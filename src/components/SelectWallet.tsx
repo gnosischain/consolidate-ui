@@ -25,14 +25,14 @@ export function SelectWallet() {
 	return (
 		<>
 			<h1 className="text-2xl font-bold">Select Wallet</h1>
-			<p className="text-xs text-warning text-left mb-4">
-				We recommand to use a wallet supporting batch transaction before proceeding.
+			<p className="text-xs opacity-80 text-left mb-4">
+				We recommand to use a wallet supporting batch transaction
 			</p>
 			<div className="list gap-y-2">
 				{isMounted ? uniqueConnectors.map((connector) => {
 					return (
 						<button
-							className="list-row flex w-full justify-between items-center btn"
+							className="list-row flex w-full justify-between items-center btn btn-ghost"
 							key={connector.uid}
 							onClick={() =>
 								connect({
@@ -43,7 +43,6 @@ export function SelectWallet() {
 						>
 							{connector.name}
 							{connector.name.toLowerCase() === 'safe' ? (<a href='https://app.safe.global/' target="_blank" rel="noopener noreferrer" className="text-xs flex items-center text-black/50">Open via Safe UI <img src='/external.svg' className='w-3 h-3 ml-1' /></a>) : null}
-							{connector.name.toLowerCase() === 'rabby wallet' ? (<span className="badge badge-xs badge-warning">Batch with safe</span>) : null}
 							{!acceptedConnectors.includes(connector.name.toLowerCase()) ? (
 								<span className="badge badge-xs badge-warning">Not support batch</span>
 							) : null}

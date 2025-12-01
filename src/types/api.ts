@@ -5,7 +5,8 @@ import { FilterStatus } from "./validators";
 export interface APIValidatorInfo {
     index: number;
     pubkey: string;
-    balanceEth: string; // String for JSON serialization
+    balance: string; // String for JSON serialization
+    effectiveBalance: string; // String for JSON serialization
     withdrawal_credentials: string;
     type: number;
     status: ValidatorStatus;
