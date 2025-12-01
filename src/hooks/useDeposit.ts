@@ -31,7 +31,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const { isSuccess: depositSuccess, isLoading: depositLoading, error: depositTxError } = useWaitForTransactionReceipt({
     hash: depositHash,
   });
-  const [isApproved, setIsApproved] = useState(false);
   
   const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
   if (!graphqlUrl) {
@@ -44,16 +43,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
     functionName: "allowance",
     args: contractConfig?.tokenAddress && contractConfig?.depositAddress ? [address, contractConfig.depositAddress] : undefined,
   });
-
-  useEffect(() => {
-    if (allowance && totalDepositAmount > 0n && contractConfig?.cl?.multiplier) {
-      const requiredAmount = totalDepositAmount;
-      setIsApproved(allowance >= requiredAmount);
-    } else {
-      setIsApproved(false);
-    }
-  }, [allowance, totalDepositAmount, contractConfig?.cl?.multiplier]);
-
 
   const setDepositData = useCallback(
     async (file: File) => {
@@ -204,7 +193,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
     depositData: { deposits, credentialType, totalDepositAmount },
     setDepositData,
     approve,
-    isApproved,
+    allowance: allowance || 0n,
   };
 }
 

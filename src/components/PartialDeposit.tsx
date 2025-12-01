@@ -11,7 +11,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { approve, isApproved, partialDeposit, approveLoading, approveSuccess, error, depositLoading, depositSuccess } = useDeposit(network, account.address);
+  const { approve, allowance, partialDeposit, approveLoading, approveSuccess, error, depositLoading, depositSuccess } = useDeposit(network, account.address);
   const [amount, setAmount] = useState(0n);
   const { closeModal } = useModal();
 
@@ -57,13 +57,13 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
         {(() => {
           const isDisabled = amount === 0n;
           const handleClick = () => {
-            if (isApproved) {
+            if (allowance >= amount) {
               partialDeposit([amount], [validator])
             } else {
               return approve(amount);
             }
           };
-          const buttonText = isApproved
+          const buttonText = allowance >= amount
             ? `Deposit ${formatEther(amount)} GNO`
             : `Approve ${formatEther(amount)} GNO`;
 
