@@ -1,8 +1,8 @@
 import { useState } from "react";
 import Consolidate from "./Consolidate";
 import { ValidatorInfo } from "../types/validators";
-import WithdrawBatch from "./WithdrawBatch";
-import PartialDepositBatch from "./PartialDepositBatch";
+// import WithdrawBatch from "./WithdrawBatch";
+// import PartialDepositBatch from "./PartialDepositBatch";
 import { useModal } from "../context/ModalContext";
 
 interface ActionBarProps {
@@ -23,7 +23,7 @@ export default function ActionBar({ selected }: ActionBarProps) {
                 <div role="tablist" className="hidden sm:inline tabs tabs-md tabs-box">
                     <input type="radio" name="tab" className="tab" aria-label="Consolidate" checked={tab === 'consolidate'} onChange={() => setTab('consolidate')} />
                     {/* <input type="radio" name="tab" className="tab" aria-label="Withdraw" checked={tab === 'withdraw'} onChange={() => setTab('withdraw')} /> */}
-                    <input type="radio" name="tab" className="tab" aria-label="Top up" checked={tab === 'topup'} onChange={() => setTab('topup')} />
+                    {/* <input type="radio" name="tab" className="tab" aria-label="Top up" checked={tab === 'topup'} onChange={() => setTab('topup')} /> */}
                 </div>
                 <select defaultValue="consolidate" className="select select-sm sm:hidden" onChange={(e) => setTab(e.target.value as 'consolidate' | 'withdraw' | 'topup')}>
 					<option value="consolidate">Consolidate</option>
@@ -34,8 +34,8 @@ export default function ActionBar({ selected }: ActionBarProps) {
                     className="btn btn-soft btn-primary" 
                     onClick={() => {
                         if (tab === 'consolidate') openModal(<Consolidate validators={selected} />);
-                        else if (tab === 'withdraw') openModal(<WithdrawBatch validators={selected} />);
-                        else openModal(<PartialDepositBatch validators={selected} />);
+                        // else if (tab === 'withdraw') openModal(<WithdrawBatch validators={selected} />);
+                        // else openModal(<PartialDepositBatch validators={selected} />);
                     }}
                 >
                     Continue
