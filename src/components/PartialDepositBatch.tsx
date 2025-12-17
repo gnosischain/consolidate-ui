@@ -3,6 +3,8 @@ import { ValidatorInfo } from "../types/validators";
 import { formatEther, parseEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
+import { useTransactionToast } from "../hooks/useTransactionToast";
+import { useModal } from "../context/ModalContext";
 
 interface PartialDepositProps {
   validators: ValidatorInfo[];
@@ -11,16 +13,29 @@ interface PartialDepositProps {
 export default function PartialDeposit({ validators }: PartialDepositProps) {
   const { network, balance, account } = useWallet();
   const [targetAmount, setTargetAmount] = useState(0);
+  const { closeModal } = useModal();
+  
   if (!network || !account.address) {
     throw new Error('Network not found');
   }
 
-  const { computePartialDepositAmounts, partialDeposit } = useDeposit(network, account.address);
+  const { computePartialDepositAmounts, partialDeposit, isPending, isSuccess, error, allowance } = useDeposit(network, account.address);
   const [amount, setAmount] = useState(0);
+
+  useTransactionToast({
+    isPending,
+    isSuccess,
+    error,
+    loadingMessage: 'Processing deposit...',
+    successMessage: 'Batch deposit successful',
+    onSuccess: closeModal,
+  });
 
   const depositAmounts = useMemo(() => computePartialDepositAmounts(parseEther(amount.toString()), validators, BigInt(targetAmount)), [validators, amount, computePartialDepositAmounts, targetAmount]);
 
   const totalDepositAmount = useMemo(() => depositAmounts.reduce((acc, amt) => acc + amt, 0n), [depositAmounts]);
+
+  const needsApproval = allowance < totalDepositAmount;
 
   return (
     <>
@@ -58,9 +73,16 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
         <p className="text-sm text-gray-500">Top up: {depositAmounts.length} validator(s)</p>
       </div>
       <div className="mt-8 flex w-full justify-end">
-        <button className="btn btn-primary" disabled={totalDepositAmount === 0n} onClick={() =>
-          partialDeposit(depositAmounts, validators)}>
-          {'Deposit ' + Number(formatEther(totalDepositAmount)).toFixed(2) + ' GNO'}
+        <button 
+          className="btn btn-primary" 
+          disabled={totalDepositAmount === 0n || isPending} 
+          onClick={() => partialDeposit(depositAmounts, validators)}
+        >
+          {isPending 
+            ? 'Processing...' 
+            : needsApproval
+              ? `Approve & Deposit ${Number(formatEther(totalDepositAmount)).toFixed(2)} GNO`
+              : `Deposit ${Number(formatEther(totalDepositAmount)).toFixed(2)} GNO`}
         </button>
       </div>
     </>

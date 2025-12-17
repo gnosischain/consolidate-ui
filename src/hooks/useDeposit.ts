@@ -1,37 +1,32 @@
-import { useCallback, useState, useEffect } from "react";
-import {
-  useWriteContract,
-  useWaitForTransactionReceipt,
-  useReadContract,
-} from "wagmi";
-import { parseGwei } from "viem";
-import useBalance from "./useBalance";
-import { NetworkConfig } from "../types/network";
-import { DepositRequest, DepositDataJson } from "../types/deposit";
-import { CredentialType, ValidatorInfo } from "../types/validators";
-import { buildDepositRoot, generateDepositData, generateSignature } from "../utils/deposit";
-import { validateDepositData } from "../utils/depositValidation";
-import { computePartialDepositAmounts } from "../utils/depositCalculations";
-import DEPOSIT_ABI from "../utils/abis/deposit";
-import ERC677ABI from "../utils/abis/erc677";
+import { useCallback, useState, useEffect } from 'react';
+import { useReadContract } from 'wagmi';
+import { parseGwei, encodeFunctionData } from 'viem';
+import useBalance from './useBalance';
+import { NetworkConfig } from '../types/network';
+import { DepositRequest, DepositDataJson } from '../types/deposit';
+import { CredentialType, ValidatorInfo } from '../types/validators';
+import { buildDepositRoot, generateDepositData, generateSignature } from '../utils/deposit';
+import { validateDepositData } from '../utils/depositValidation';
+import { computePartialDepositAmounts } from '../utils/depositCalculations';
+import DEPOSIT_ABI from '../utils/abis/deposit';
+import ERC677ABI from '../utils/abis/erc677';
+import { useTransaction, TransactionCall } from './useTransaction';
 
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
   const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
   const [validationError, setValidationError] = useState<Error | null>(null);
-  
   const { balance, refetchBalance } = useBalance(contractConfig, address);
-  const { data: approveHash, error: approveContractError, writeContract: writeApproveContract } = useWriteContract();
-  const { data: depositHash, error: depositContractError, writeContract: writeDepositContract } = useWriteContract();
-  
-  const { isSuccess: approveSuccess, isLoading: approveLoading, error: approveTxError } = useWaitForTransactionReceipt({
-    hash: approveHash,
-  });
-  const { isSuccess: depositSuccess, isLoading: depositLoading, error: depositTxError } = useWaitForTransactionReceipt({
-    hash: depositHash,
-  });
-  
+
+  const {
+    execute,
+    isPending,
+    isSuccess,
+    error: txError,
+    progress,
+  } = useTransaction();
+
   const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
   if (!graphqlUrl) {
     throw new Error('Environment variable NEXT_PUBLIC_GRAPHQL_URL is not defined');
@@ -59,7 +54,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         }
 
         if (balance === undefined) {
-          throw new Error("Balance not loaded correctly.");
+          throw new Error('Balance not loaded correctly.');
         }
 
         const { deposits, credentialType, totalDepositAmount } = await validateDepositData(
@@ -80,36 +75,74 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         setTotalDepositAmount(0n);
       }
     },
-    [balance, contractConfig]
+    [balance, contractConfig, graphqlUrl]
+  );
+
+  // Helper to build approve call
+  const buildApproveCall = useCallback(
+    (amount: bigint): TransactionCall => {
+      const callData = encodeFunctionData({
+        abi: ERC677ABI,
+        functionName: 'approve',
+        args: [contractConfig.depositAddress!, amount],
+      });
+      return {
+        to: contractConfig.tokenAddress!,
+        data: callData,
+      };
+    },
+    [contractConfig]
+  );
+
+  // Helper to build deposit call from deposit data
+  const buildDepositCall = useCallback(
+    (depositData: ReturnType<typeof generateDepositData>): TransactionCall => {
+      const callData = encodeFunctionData({
+        abi: DEPOSIT_ABI,
+        functionName: 'batchDeposit',
+        args: [
+          depositData.pubkeys,
+          depositData.withdrawal_credentials,
+          depositData.signatures,
+          depositData.deposit_data_roots,
+          depositData.amounts,
+        ],
+      });
+      return {
+        to: contractConfig.depositAddress!,
+        data: callData,
+      };
+    },
+    [contractConfig]
   );
 
   const deposit = useCallback(async () => {
-    if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      const depositsFormatted = deposits.map(d => ({
-        ...d,
-        amount: BigInt(parseGwei(d.amount.toString()) / contractConfig.cl.multiplier),
-      }));
-      const data = generateDepositData(depositsFormatted);
-      
-      writeDepositContract({
-        address: contractConfig.depositAddress,
-        abi: DEPOSIT_ABI,
-        functionName: "batchDeposit",
-        args: [
-          data.pubkeys,
-          data.withdrawal_credentials,
-          data.signatures,
-          data.deposit_data_roots,
-          data.amounts,
-        ],
-      });
-    }
-  }, [contractConfig, deposits, writeDepositContract]);
+    if (!contractConfig?.tokenAddress || !contractConfig?.depositAddress) return;
 
-  const partialDeposit = useCallback(async (amounts: bigint[], validators: ValidatorInfo[]) => {
-    if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      const deposits = validators.map((validator, index) => {
-        const deposit: DepositRequest = {
+    const depositsFormatted = deposits.map((d) => ({
+      ...d,
+      amount: BigInt(parseGwei(d.amount.toString()) / contractConfig.cl.multiplier),
+    }));
+    const data = generateDepositData(depositsFormatted);
+    const depositCall = buildDepositCall(data);
+
+    const calls: TransactionCall[] = [];
+
+    // Add approve if needed
+    if ((allowance || 0n) < totalDepositAmount) {
+      calls.push(buildApproveCall(totalDepositAmount));
+    }
+
+    calls.push(depositCall);
+    execute(calls);
+  }, [contractConfig, deposits, totalDepositAmount, allowance, buildApproveCall, buildDepositCall, execute]);
+
+  const partialDeposit = useCallback(
+    async (amounts: bigint[], validators: ValidatorInfo[]) => {
+      if (!contractConfig?.tokenAddress || !contractConfig?.depositAddress) return;
+
+      const depositsData = validators.map((validator, index) => {
+        const depositReq: DepositRequest = {
           pubkey: validator.pubkey as `0x${string}`,
           withdrawal_credentials: validator.withdrawal_credentials as `0x${string}`,
           signature: generateSignature(96),
@@ -117,82 +150,60 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
         };
 
         const deposit_data_root = buildDepositRoot(
-          deposit.pubkey, 
-          deposit.withdrawal_credentials, 
-          deposit.signature, 
-          deposit.amount
+          depositReq.pubkey,
+          depositReq.withdrawal_credentials,
+          depositReq.signature,
+          depositReq.amount
         );
 
         return {
-          ...deposit,
-          amount: deposit.amount,
-          pubkey: validator.pubkey.replace("0x", ""),
-          signature: deposit.signature.replace("0x", ""),
-          deposit_data_root: deposit_data_root.replace("0x", ""),
-          withdrawal_credentials: validator.withdrawal_credentials.replace("0x", ""),
-          deposit_message_root: "0x0000000000000000000000000000000000000000000000000000000000000000",
+          ...depositReq,
+          amount: depositReq.amount,
+          pubkey: validator.pubkey.replace('0x', ''),
+          signature: depositReq.signature.replace('0x', ''),
+          deposit_data_root: deposit_data_root.replace('0x', ''),
+          withdrawal_credentials: validator.withdrawal_credentials.replace('0x', ''),
+          deposit_message_root: '0x0000000000000000000000000000000000000000000000000000000000000000',
           fork_version: contractConfig.forkVersion,
         };
       });
 
-      const data = generateDepositData(deposits);
+      const data = generateDepositData(depositsData);
+      const depositCall = buildDepositCall(data);
 
-      writeDepositContract({
-        address: contractConfig.depositAddress,
-        abi: DEPOSIT_ABI,
-        functionName: "batchDeposit",
-        args: [
-          data.pubkeys,
-          data.withdrawal_credentials,
-          data.signatures,
-          data.deposit_data_roots,
-          data.amounts,
-        ],
-      });
-    }
-  }, [contractConfig, writeDepositContract]);
+      const totalAmount = amounts.reduce((acc, amt) => acc + amt, 0n);
+      const calls: TransactionCall[] = [];
 
+      // Add approve if needed
+      if ((allowance || 0n) < totalAmount) {
+        calls.push(buildApproveCall(totalAmount));
+      }
 
-  const approve = useCallback(async (amount: bigint) => {
-    if (contractConfig && contractConfig.tokenAddress && contractConfig.depositAddress) {
-      writeApproveContract({
-        address: contractConfig.tokenAddress,
-        abi: ERC677ABI,
-        functionName: "approve",
-        args: [contractConfig.depositAddress, amount],
-      });
-    }
-  }, [contractConfig, writeApproveContract]);
-
+      calls.push(depositCall);
+      execute(calls);
+    },
+    [contractConfig, allowance, buildApproveCall, buildDepositCall, execute]
+  );
+  
   useEffect(() => {
-    if (approveSuccess) {
-      refetchAllowance();
-    }
-  }, [approveSuccess, refetchAllowance]);
-
-  useEffect(() => {
-    if (depositSuccess) {
+    if (isSuccess) {
       refetchBalance();
       refetchAllowance();
     }
-  }, [depositSuccess, refetchBalance, refetchAllowance]);
+  }, [isSuccess, refetchBalance, refetchAllowance]);
 
-  // Combine all errors
-  const error = validationError || approveContractError || depositContractError || approveTxError || depositTxError || null;
+  const error = validationError || txError || null;
 
   return {
     deposit,
     partialDeposit,
     computePartialDepositAmounts,
-    approveSuccess,
-    approveLoading,
-    depositSuccess,
-    depositLoading,
+    isPending,
+    isSuccess,
     error,
-    depositHash,
+    progress,
     depositData: { deposits, credentialType, totalDepositAmount },
     setDepositData,
-    approve,
     allowance: allowance || 0n,
   };
 }

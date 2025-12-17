@@ -18,7 +18,7 @@ export default function Dashboard() {
 	const { openModal } = useModal();
 	const { isRegistered, actionContract } = useAutoclaim(network, account.address);
 
-	const { validators, loading } = useBeaconValidators(network, account.address);
+	const { validators } = useBeaconValidators(network, account.address);
 
 	const totalBalance = useMemo(() => {
 		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balance, 0n);

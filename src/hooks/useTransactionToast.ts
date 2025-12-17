@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 
 interface UseTransactionToastParams {
-  isLoading: boolean;
+  isPending: boolean;
   isSuccess: boolean;
   error: Error | null;
   loadingMessage: string;
@@ -11,7 +11,7 @@ interface UseTransactionToastParams {
 }
 
 export function useTransactionToast({
-  isLoading,
+  isPending,
   isSuccess,
   error,
   loadingMessage,
@@ -22,7 +22,7 @@ export function useTransactionToast({
 
   // Handle loading state
   useEffect(() => {
-    if (isLoading) {
+    if (isPending) {
       toastId.current = toast.loading(loadingMessage);
     } else {
       if (toastId.current) {
@@ -30,7 +30,7 @@ export function useTransactionToast({
         toastId.current = undefined;
       }
     }
-  }, [isLoading, loadingMessage]);
+  }, [isPending, loadingMessage]);
 
   // Handle success state
   useEffect(() => {
@@ -47,4 +47,3 @@ export function useTransactionToast({
     }
   }, [error]);
 }
-
