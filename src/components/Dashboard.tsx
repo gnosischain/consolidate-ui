@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import Loader from './Loader';
 import { ValidatorsTable } from './ValidatorsTable';
-import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useBeaconValidators } from '../hooks/useBeaconValidators';
-import { Address } from 'viem';
 import { useWallet } from '../context/WalletContext';
 import { WarningModal } from './WarningModal';
+import { BatchInfo } from './BatchInfo';
 import DashboardHeader from './DashboardHeader';
 import { Settings } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
@@ -15,15 +13,9 @@ import { AutoclaimView } from './AutoclaimView';
 import { truncateAddress } from '../utils/address';
 import { ZERO_ADDRESS } from '../constants/misc';
 
-enum Steps {
-	SELECT = 'select',
-	SUMMARY = 'summary',
-}
-
 export default function Dashboard() {
-	const { account, network, isMounted } = useWallet();
+	const { account, network, isMounted, canBatch, canBatchLoading } = useWallet();
 	const { openModal } = useModal();
-	const { callStatusData } = useConsolidateValidatorsBatch();
 	const { isRegistered, actionContract } = useAutoclaim(network, account.address);
 
 	const { validators, loading } = useBeaconValidators(network, account.address);
@@ -35,16 +27,6 @@ export default function Dashboard() {
 	const totalEffectiveBalance = useMemo(() => {
 		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.effectiveBalance, 0n);
 	}, [validators]);
-
-	const [state, setState] = useState<{
-		step: Steps;
-		loading: boolean;
-		tx: Address;
-	}>({
-		step: Steps.SELECT,
-		loading: false,
-		tx: '0x0',
-	});
 
 	const [currentYield, setCurrentYield] = useState<number | null>(null);
 	const [yieldLoading, setYieldLoading] = useState(true);
@@ -61,6 +43,15 @@ export default function Dashboard() {
 
 	const autoclaimStatus = useMemo(() => {
 		const defaultIcon = <Settings className="w-4 h-4 text-base-content/40" />;
+
+		// Return consistent default during SSR to avoid hydration mismatch
+		if (!isMounted) {
+			return {
+				status: 'AUTOCLAIM INACTIVE',
+				detail: 'Setup Autoclaim',
+				icon: defaultIcon,
+			};
+		}
 
 		if (network?.claimRegistryAddress) {
 			return {
@@ -98,22 +89,6 @@ export default function Dashboard() {
 	}, [account.address, network, openModal]);
 
 	useEffect(() => {
-		if (callStatusData?.status === 'success') {
-			console.log('Transaction confirmed');
-			setState((prev) => ({
-				...prev,
-				step: Steps.SUMMARY,
-				loading: false,
-				tx: callStatusData.id as Address,
-			}));
-		} else {
-			if (callStatusData?.status === 'pending') {
-				setState((prev) => ({ ...prev, loading: true }));
-			}
-		}
-	}, [callStatusData?.id, callStatusData?.status]);
-
-	useEffect(() => {
 		const fetchYield = async () => {
 			try {
 				const response = await fetch('https://dune-proxy.gnosischain.com/current-yield');
@@ -135,30 +110,22 @@ export default function Dashboard() {
 	}, []);
 
 	return (
-		<>
-			{state.loading || loading ? (
-				<div className="w-full flex flex-col items-center justify-center gap-y-2 p-2">
-					<Loader />
-					<p className="mt-2">Loading...</p>
-				</div>
-			) : (
-				<div className='flex flex-col w-full'>
-					{isMounted && network && <WarningModal totalBalance={totalBalance} network={network} />}
-					<DashboardHeader 
-						totalBalance={totalBalance}
-						totalEffectiveBalance={totalEffectiveBalance}
-						currentYield={currentYield}
-						yieldLoading={yieldLoading}
-						activeValidatorsCount={validators.filter(v => v.filterStatus === 'active').length}
-						isRegistered={isRegistered}
-						autoclaimStatus={autoclaimStatus}
-						handleOpenAutoclaim={handleOpenAutoclaim}
-					/>
-					<ValidatorsTable
-						validators={validators}
-					/>
-				</div>
-			)}
-		</>
+		<div className='flex flex-col w-full'>
+			{isMounted && network && <WarningModal totalBalance={totalBalance} network={network} />}
+			{isMounted && account.isConnected && <BatchInfo canBatch={canBatch} canBatchLoading={canBatchLoading} />}
+			<DashboardHeader
+				totalBalance={totalBalance}
+				totalEffectiveBalance={totalEffectiveBalance}
+				currentYield={currentYield}
+				yieldLoading={yieldLoading}
+				activeValidatorsCount={validators.filter(v => v.filterStatus === 'active').length}
+				isRegistered={isRegistered}
+				autoclaimStatus={autoclaimStatus}
+				handleOpenAutoclaim={handleOpenAutoclaim}
+			/>
+			<ValidatorsTable
+				validators={validators}
+			/>
+		</div>
 	);
 }
