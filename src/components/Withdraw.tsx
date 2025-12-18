@@ -4,7 +4,6 @@ import { formatEther, parseEther } from "viem";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { useWallet } from "../context/WalletContext";
 import { useModal } from "../context/ModalContext";
-import { useTransactionToast } from "../hooks/useTransactionToast";
 
 interface WithdrawProps {
   validator: ValidatorInfo;
@@ -15,18 +14,8 @@ export default function Withdraw({ validator }: WithdrawProps) {
   if (!network) {
     throw new Error('Network not found');
   }
-
-  const { withdrawValidators, isConfirming, isConfirmed, error } = useWithdraw(network);
   const { closeModal } = useModal();
-
-  useTransactionToast({
-    isLoading: isConfirming,
-    isSuccess: isConfirmed,
-    error,
-    loadingMessage: 'Withdrawing...',
-    successMessage: 'Withdrawal successful',
-    onSuccess: closeModal,
-  });
+  const { withdrawValidators, isPending } = useWithdraw(network, { onSuccess: closeModal });
 
   const [amount, setAmount] = useState(validator.type === 1 ? validator.balance : 0n);
 
@@ -78,8 +67,8 @@ export default function Withdraw({ validator }: WithdrawProps) {
               amount: amount === validator.balance ? 0n : amount,
             },
           ])}
-          disabled={amount === 0n}>
-          {amount === validator.balance ? 'Exit validator' : 'Withdraw ' + formatEther(amount) + ' GNO'}
+          disabled={amount === 0n || isPending}>
+          {isPending ? 'Processing...' : (amount === validator.balance ? 'Exit validator' : 'Withdraw ' + formatEther(amount) + ' GNO')}
         </button>
       </div>
     </>

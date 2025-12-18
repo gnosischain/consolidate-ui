@@ -16,7 +16,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <WalletProvider>
           <ModalProvider>
             {children}
-            <Toaster toastOptions={{ position: 'bottom-right', duration: 3000, style: { backgroundColor: 'var(--color-base-200)', color: 'var(--color-base-content)', borderRadius: '12px' } }} />
+            <Toaster toastOptions={{
+              position: 'bottom-right',
+              style: {
+                backgroundColor: 'var(--color-base-200)',
+                color: 'var(--color-base-content)',
+                borderRadius: '12px',
+                border: '1px solid var(--color-base-100)',
+              },
+              success: { duration: 3000 },
+              error: { duration: 5000 },
+            }} />
           </ModalProvider>
         </WalletProvider>
       </QueryClientProvider>

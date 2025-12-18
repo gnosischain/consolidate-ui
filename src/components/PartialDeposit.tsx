@@ -3,7 +3,6 @@ import { formatEther, parseEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 import { ValidatorInfo } from "../types/validators";
-import { useTransactionToast } from "../hooks/useTransactionToast";
 import { useModal } from "../context/ModalContext";
 
 export default function PartialDeposit({ validator }: { validator: ValidatorInfo }) {
@@ -11,26 +10,11 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { approve, allowance, partialDeposit, approveLoading, approveSuccess, error, depositLoading, depositSuccess } = useDeposit(network, account.address);
-  const [amount, setAmount] = useState(0n);
   const { closeModal } = useModal();
+  const { partialDeposit, isPending, allowance } = useDeposit(network, account.address, closeModal);
+  const [amount, setAmount] = useState(0n);
 
-  useTransactionToast({
-    isLoading: approveLoading,
-    isSuccess: approveSuccess,
-    error: null,
-    loadingMessage: 'Approving...',
-    successMessage: 'Approval successful',
-  });
-
-  useTransactionToast({
-    isLoading: depositLoading,
-    isSuccess: depositSuccess,
-    error,
-    loadingMessage: 'Depositing...',
-    successMessage: 'Deposit successful',
-    onSuccess: closeModal,
-  });
+  const needsApproval = allowance < amount;
 
   return (
     <>
@@ -38,7 +22,6 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
         <h3 className="text-lg font-bold">Partial deposit {validator?.index}</h3>
       </div>
       <p className="text-sm text-gray-500">Balance: {Number(formatEther(balance.balance)).toFixed(2)} GNO</p>
-      {/* <p className="text-[10px] text-gray-500">Pubkey: {validator?.pubkey}</p> */}
 
       <fieldset className="fieldset mt-2 w-full gap-y-2">
         <legend className="fieldset-legend">Amount to deposit <button className="btn btn-xs" onClick={() => setAmount(balance.balance)}>Max</button></legend>
@@ -54,29 +37,17 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
       </fieldset>
 
       <div className="mt-8 flex w-full justify-end">
-        {(() => {
-          const isDisabled = amount === 0n;
-          const handleClick = () => {
-            if (allowance >= amount) {
-              partialDeposit([amount], [validator])
-            } else {
-              return approve(amount);
-            }
-          };
-          const buttonText = allowance >= amount
-            ? `Deposit ${formatEther(amount)} GNO`
-            : `Approve ${formatEther(amount)} GNO`;
-
-          return (
-            <button
-              className="btn btn-primary"
-              disabled={isDisabled}
-              onClick={handleClick}
-            >
-              {buttonText}
-            </button>
-          );
-        })()}
+        <button
+          className="btn btn-primary"
+          disabled={amount === 0n || isPending}
+          onClick={() => partialDeposit([amount], [validator])}
+        >
+          {isPending
+            ? 'Processing...'
+            : needsApproval
+              ? `Approve & Deposit ${formatEther(amount)} GNO`
+              : `Deposit ${formatEther(amount)} GNO`}
+        </button>
       </div>
     </>
   );

@@ -1,45 +1,18 @@
-import { useState, useMemo } from 'react';
 import { Consolidation } from '../types/validators';
 import { formatEther } from 'viem';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useModal } from '../context/ModalContext';
-import { useTransactionToast } from '../hooks/useTransactionToast';
 
 interface ConsolidationSummaryProps {
     consolidations: Consolidation[];
 }
 
-const BATCH_SIZE = 200;
-
 export function ConsolidationSummary({ consolidations }: ConsolidationSummaryProps) {
-    const { consolidateValidators, isConfirming, isConfirmed, error } = useConsolidateValidatorsBatch();
     const { closeModal } = useModal();
-
-    useTransactionToast({
-        isLoading: isConfirming,
-        isSuccess: isConfirmed,
-        error,
-        loadingMessage: 'Consolidating...',
-        successMessage: 'Consolidation successful',
-        onSuccess: closeModal,
-    });
-
-    const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
-
-    const batches = useMemo(() => {
-        const batchCount = Math.ceil(consolidations.length / BATCH_SIZE);
-        const batches = Array.from({ length: batchCount }, (_, i) => {
-            const start = i * BATCH_SIZE;
-            return consolidations.slice(start, start + BATCH_SIZE);
-        });
-        return batches;
-    }, [consolidations]);
+    const { consolidateValidators, isPending } = useConsolidateValidatorsBatch({ onSuccess: closeModal });
 
     const handleConsolidate = async () => {
-        if (currentBatchIndex < batches.length) {
-            await consolidateValidators(batches[currentBatchIndex]);
-            setCurrentBatchIndex(prev => prev + 1);
-        }
+        await consolidateValidators(consolidations);
     };
 
     return (
@@ -86,18 +59,9 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
             <button
                 onClick={handleConsolidate}
                 className="btn btn-primary mt-6"
-                disabled={currentBatchIndex >= batches.length}
             >
-                {currentBatchIndex >= batches.length
-                    ? "All Consolidations Complete"
-                    : `Consolidate Batch ${currentBatchIndex + 1}/${batches.length}`
-                }
+                {isPending ? 'Consolidating...' : 'Consolidate'}
             </button>
-            {batches.length > 1 && (
-                <p className="text-xs mt-2">
-                    Processing in batches of {BATCH_SIZE} consolidations
-                </p>
-            )}
         </>
     )
 }

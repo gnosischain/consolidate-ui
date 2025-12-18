@@ -3,34 +3,15 @@ import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 import { useModal } from "../context/ModalContext";
-import { useTransactionToast } from "../hooks/useTransactionToast";
 
 export default function Deposit() {
-
   const [file, setFile] = useState<File | null>(null);
   const { balance, network, account } = useWallet();
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { setDepositData, depositData, approve, allowance, deposit, depositSuccess, approveSuccess, error, approveLoading, depositLoading } = useDeposit(network, account.address);
   const { closeModal } = useModal();
-
-  useTransactionToast({
-    isLoading: approveLoading,
-    isSuccess: approveSuccess,
-    error: null,
-    loadingMessage: 'Approving...',
-    successMessage: 'Approval successful',
-  });
-
-  useTransactionToast({
-    isLoading: depositLoading,
-    isSuccess: depositSuccess,
-    error,
-    loadingMessage: 'Depositing...',
-    successMessage: 'Deposit successful',
-    onSuccess: closeModal,
-  });
+  const { setDepositData, depositData, deposit, isPending, allowance } = useDeposit(network, account.address, closeModal);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,6 +20,8 @@ export default function Deposit() {
       setDepositData(file);
     }
   };
+
+  const needsApproval = allowance < depositData.totalDepositAmount;
 
   return (
     <>
@@ -50,8 +33,16 @@ export default function Deposit() {
         <label className="label">{file?.name}</label>
       </fieldset>
       <div className="mt-8 flex w-full justify-end">
-        <button className="btn btn-primary" disabled={depositData.totalDepositAmount === 0n} onClick={() => allowance >= depositData.totalDepositAmount ? deposit() : approve(depositData.totalDepositAmount)}>
-          {allowance >= depositData.totalDepositAmount ? 'Deposit ' : 'Approve ' + formatEther(depositData.totalDepositAmount) + ' GNO'}
+        <button 
+          className="btn btn-primary" 
+          disabled={depositData.totalDepositAmount === 0n || isPending} 
+          onClick={deposit}
+        >
+          {isPending 
+            ? 'Processing...' 
+            : needsApproval 
+              ? `Approve & Deposit ${formatEther(depositData.totalDepositAmount)} GNO`
+              : `Deposit ${formatEther(depositData.totalDepositAmount)} GNO`}
         </button>
       </div>
     </>
