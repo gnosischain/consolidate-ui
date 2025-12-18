@@ -69,7 +69,6 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
     if (currentCalls.length === 0) return 'Processing...';
     
     if (canBatch) {
-      // For batched transactions, show a summary
       const titles = currentCalls
         .map(c => c.title)
         .filter(Boolean);
@@ -81,14 +80,18 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
       const uniqueTitles = [...new Set(titles)];
       return `Processing ${uniqueTitles.join(', ')}`;
     } else {
-      // For sequential transactions, show progress
       const { currentIndex, total } = progress;
       const currentTitle = currentCalls[currentIndex]?.title || 'Transaction';
-      return `${currentIndex + 1}/${total}: Processing ${currentTitle}`;
+      return `${total > 1 ? `${currentIndex + 1}/${total}: ` : '' } ${currentTitle}`;
     }
   }, [canBatch, currentCalls, progress]);
 
-  // Handle toast for pending state
+  useEffect(() => {
+    if (isConfirmed && progress.status === 'pending') {
+      setProgress(prev => ({ ...prev, status: 'success' }));
+    }
+  }, [isConfirmed, progress.status]);
+
   useEffect(() => {
     if (isPending && currentCalls.length > 0) {
       const message = getToastMessage();
@@ -119,11 +122,11 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
     }
   }, [isSuccess, currentCalls, options]);
 
-  // Handle error toast
   useEffect(() => {
     const combinedError = sendCallsError || sendTxError;
     if (combinedError) {
       toast.error(combinedError.message.substring(0, 50));
+      setProgress(prev => ({ ...prev, status: 'error' }));
     }
   }, [sendCallsError, sendTxError]);
 
