@@ -4,7 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 function setThemeCookie(theme: string) {
-    document.cookie = `theme=${theme};path=/;max-age=31536000`; // 1 year
+    document.cookie = `theme=${theme};path=/;max-age=31536000;Secure;SameSite=Lax`; // 1 year
 }
 
 export function ThemeToggle() {
