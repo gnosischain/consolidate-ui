@@ -91,7 +91,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, optio
       return {
         to: contractConfig.tokenAddress!,
         data: callData,
-        title: 'Approve',
+        title: 'Approve GNO',
       };
     },
     [contractConfig]
@@ -114,7 +114,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, optio
       return {
         to: contractConfig.depositAddress!,
         data: callData,
-        title: 'Deposit',
+        title: 'Deposit GNO to contract',
       };
     },
     [contractConfig]
