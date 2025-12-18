@@ -19,6 +19,9 @@ export function ThemeToggle() {
     const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = e.target.checked;
         const theme = isChecked ? 'gnosisDark' : 'gnosis';
+        if (typeof document !== 'undefined') {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
         setIsDark(isChecked);
         setThemeCookie(theme);
     };
