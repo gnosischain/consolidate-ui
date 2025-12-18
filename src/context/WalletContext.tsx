@@ -47,7 +47,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       isConnected: isMounted && account.isConnected,
       address: account.address,
     },
-    canBatch: capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported',
+    canBatch: capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported' || capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'ready',
     canBatchLoading: capabilities.isLoading,
     chainId,
     chainName,
