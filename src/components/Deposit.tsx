@@ -11,7 +11,7 @@ export default function Deposit() {
     throw new Error('Network or account not found');
   }
   const { closeModal } = useModal();
-  const { setDepositData, depositData, deposit, isPending, allowance } = useDeposit(network, account.address, { onSuccess: closeModal });
+  const { setDepositData, depositData, deposit, isPending, allowance } = useDeposit(network, account.address, closeModal);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

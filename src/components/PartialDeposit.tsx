@@ -11,7 +11,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
     throw new Error('Network or account not found');
   }
   const { closeModal } = useModal();
-  const { partialDeposit, isPending, allowance } = useDeposit(network, account.address, { onSuccess: closeModal });
+  const { partialDeposit, isPending, allowance } = useDeposit(network, account.address, closeModal);
   const [amount, setAmount] = useState(0n);
 
   const needsApproval = allowance < amount;

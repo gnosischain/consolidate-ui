@@ -6,14 +6,14 @@ import { Address, encodeFunctionData, parseUnits } from 'viem';
 import { SECOND_IN_DAY } from '../constants/misc';
 import payClaimActionABI from '../utils/abis/payClaimAction';
 import ERC677ABI from '../utils/abis/erc677';
-import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
+import { useTransaction, TransactionCall } from './useTransaction';
 
-function useAutoclaim(contractConfig?: NetworkConfig, address?: Address, options?: UseTransactionOptions) {
+function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
     const {
         execute,
         isPending: transactionLoading,
     } = useTransaction({
-        ...options, onSuccess: () => {
+        onSuccess: () => {
             refetchUserConfig();
             refetchActionContract();
             refetchForwardingAddress();

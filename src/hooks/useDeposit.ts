@@ -10,9 +10,9 @@ import { validateDepositData } from '../utils/depositValidation';
 import { computePartialDepositAmounts } from '../utils/depositCalculations';
 import DEPOSIT_ABI from '../utils/abis/deposit';
 import ERC677ABI from '../utils/abis/erc677';
-import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
+import { useTransaction, TransactionCall } from './useTransaction';
 
-function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, options?: UseTransactionOptions) {
+function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, closeModal: () => void) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
   const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
@@ -23,7 +23,8 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, optio
     execute,
     isPending,
   } = useTransaction({
-    ...options, onSuccess: () => {
+    onSuccess: () => {
+      closeModal();
       refetchBalance();
       refetchAllowance();
     }
