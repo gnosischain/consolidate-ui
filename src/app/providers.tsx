@@ -21,7 +21,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
               style: {
                 backgroundColor: 'var(--color-base-200)',
                 color: 'var(--color-base-content)',
-                borderRadius: '12px'
+                borderRadius: '12px',
+                border: '1px solid var(--color-base-100)',
               },
               success: { duration: 3000 },
               error: { duration: 5000 },

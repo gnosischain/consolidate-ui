@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { useReadContract } from 'wagmi';
 import { parseGwei, encodeFunctionData } from 'viem';
 import useBalance from './useBalance';
@@ -10,9 +10,9 @@ import { validateDepositData } from '../utils/depositValidation';
 import { computePartialDepositAmounts } from '../utils/depositCalculations';
 import DEPOSIT_ABI from '../utils/abis/deposit';
 import ERC677ABI from '../utils/abis/erc677';
-import { useTransaction, TransactionCall } from './useTransaction';
+import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
 
-function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
+function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, options?: UseTransactionOptions) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
   const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
@@ -22,10 +22,12 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const {
     execute,
     isPending,
-    isSuccess,
-    error: txError,
-    progress,
-  } = useTransaction();
+  } = useTransaction({
+    ...options, onSuccess: () => {
+      refetchBalance();
+      refetchAllowance();
+    }
+  });
 
   const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
   if (!graphqlUrl) {
@@ -42,7 +44,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
   const setDepositData = useCallback(
     async (file: File) => {
       setValidationError(null);
-      
+
       if (!file) return;
 
       try {
@@ -89,6 +91,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
       return {
         to: contractConfig.tokenAddress!,
         data: callData,
+        title: 'Approve',
       };
     },
     [contractConfig]
@@ -111,6 +114,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
       return {
         to: contractConfig.depositAddress!,
         data: callData,
+        title: 'Deposit',
       };
     },
     [contractConfig]
@@ -184,24 +188,15 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
     },
     [contractConfig, allowance, buildApproveCall, buildDepositCall, execute]
   );
-  
-  useEffect(() => {
-    if (isSuccess) {
-      refetchBalance();
-      refetchAllowance();
-    }
-  }, [isSuccess, refetchBalance, refetchAllowance]);
 
-  const error = validationError || txError || null;
+  const error = validationError || null;
 
   return {
     deposit,
     partialDeposit,
     computePartialDepositAmounts,
     isPending,
-    isSuccess,
     error,
-    progress,
     depositData: { deposits, credentialType, totalDepositAmount },
     setDepositData,
     allowance: allowance || 0n,

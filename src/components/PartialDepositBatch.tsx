@@ -3,7 +3,6 @@ import { ValidatorInfo } from "../types/validators";
 import { formatEther, parseEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
-import { useTransactionToast } from "../hooks/useTransactionToast";
 import { useModal } from "../context/ModalContext";
 
 interface PartialDepositProps {
@@ -19,17 +18,8 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
     throw new Error('Network not found');
   }
 
-  const { computePartialDepositAmounts, partialDeposit, isPending, isSuccess, error, allowance } = useDeposit(network, account.address);
+  const { computePartialDepositAmounts, partialDeposit, isPending, allowance } = useDeposit(network, account.address, { onSuccess: closeModal });
   const [amount, setAmount] = useState(0);
-
-  useTransactionToast({
-    isPending,
-    isSuccess,
-    error,
-    loadingMessage: 'Processing deposit...',
-    successMessage: 'Batch deposit successful',
-    onSuccess: closeModal,
-  });
 
   const depositAmounts = useMemo(() => computePartialDepositAmounts(parseEther(amount.toString()), validators, BigInt(targetAmount)), [validators, amount, computePartialDepositAmounts, targetAmount]);
 

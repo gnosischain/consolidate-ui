@@ -3,7 +3,6 @@ import { formatEther } from "viem";
 import { useWallet } from "../context/WalletContext";
 import useDeposit from "../hooks/useDeposit";
 import { useModal } from "../context/ModalContext";
-import { useTransactionToast } from "../hooks/useTransactionToast";
 
 export default function Deposit() {
   const [file, setFile] = useState<File | null>(null);
@@ -11,17 +10,8 @@ export default function Deposit() {
   if (!network || !account.address) {
     throw new Error('Network or account not found');
   }
-  const { setDepositData, depositData, deposit, isPending, isSuccess, error, allowance } = useDeposit(network, account.address);
   const { closeModal } = useModal();
-
-  useTransactionToast({
-    isPending,
-    isSuccess,
-    error,
-    loadingMessage: 'Processing deposit...',
-    successMessage: 'Deposit successful',
-    onSuccess: closeModal,
-  });
+  const { setDepositData, depositData, deposit, isPending, allowance } = useDeposit(network, account.address, { onSuccess: closeModal });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

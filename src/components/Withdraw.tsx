@@ -4,7 +4,6 @@ import { formatEther, parseEther } from "viem";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { useWallet } from "../context/WalletContext";
 import { useModal } from "../context/ModalContext";
-import { useTransactionToast } from "../hooks/useTransactionToast";
 
 interface WithdrawProps {
   validator: ValidatorInfo;
@@ -15,18 +14,8 @@ export default function Withdraw({ validator }: WithdrawProps) {
   if (!network) {
     throw new Error('Network not found');
   }
-
-  const { withdrawValidators, isPending, isSuccess, error } = useWithdraw(network);
   const { closeModal } = useModal();
-
-  useTransactionToast({
-    isPending,
-    isSuccess,
-    error,
-    loadingMessage: 'Withdrawing...',
-    successMessage: 'Withdrawal successful',
-    onSuccess: closeModal,
-  });
+  const { withdrawValidators, isPending } = useWithdraw(network, { onSuccess: closeModal });
 
   const [amount, setAmount] = useState(validator.type === 1 ? validator.balance : 0n);
 

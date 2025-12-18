@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useReadContract } from 'wagmi';
 import { NetworkConfig } from '../types/network';
 import claimRegistryABI from '../utils/abis/claimRegistry';
@@ -6,15 +6,19 @@ import { Address, encodeFunctionData, parseUnits } from 'viem';
 import { SECOND_IN_DAY } from '../constants/misc';
 import payClaimActionABI from '../utils/abis/payClaimAction';
 import ERC677ABI from '../utils/abis/erc677';
-import { useTransaction, TransactionCall } from './useTransaction';
+import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
 
-function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
+function useAutoclaim(contractConfig?: NetworkConfig, address?: Address, options?: UseTransactionOptions) {
     const {
         execute,
         isPending: transactionLoading,
-        isSuccess: transactionSuccess,
-        error: transactionError,
-    } = useTransaction();
+    } = useTransaction({
+        ...options, onSuccess: () => {
+            refetchUserConfig();
+            refetchActionContract();
+            refetchForwardingAddress();
+        }
+    });
 
     const { data: userConfig, refetch: refetchUserConfig } = useReadContract({
         address: contractConfig?.claimRegistryAddress,
@@ -59,6 +63,7 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
                 const call: TransactionCall = {
                     to: contractConfig.claimRegistryAddress,
                     data: callData,
+                    title: 'Register Autoclaim',
                 };
 
                 execute([call]);
@@ -79,6 +84,7 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
                 const call: TransactionCall = {
                     to: contractConfig.claimRegistryAddress,
                     data: callData,
+                    title: 'Set Action Contract',
                 };
 
                 execute([call]);
@@ -100,6 +106,7 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
                 const call: TransactionCall = {
                     to: contractConfig.claimRegistryAddress,
                     data: callData,
+                    title: 'Update Config',
                 };
 
                 execute([call]);
@@ -119,6 +126,7 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
             const call: TransactionCall = {
                 to: contractConfig.claimRegistryAddress,
                 data: callData,
+                title: 'Unregister Autoclaim',
             };
 
             execute([call]);
@@ -137,6 +145,7 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
                 const call: TransactionCall = {
                     to: contractConfig.payClaimActionAddress,
                     data: callData,
+                    title: 'Set Forwarding Address',
                 };
 
                 execute([call]);
@@ -156,20 +165,12 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
             const call: TransactionCall = {
                 to: contractConfig.tokenAddress,
                 data: callData,
+                title: 'Approve',
             };
 
             execute([call]);
         }
     }, [contractConfig, execute]);
-
-    useEffect(() => {
-        if (transactionSuccess) {
-            console.log('Transaction successful, refetching all data');
-            refetchUserConfig();
-            refetchActionContract();
-            refetchForwardingAddress();
-        }
-    }, [transactionSuccess, refetchUserConfig, refetchActionContract, refetchForwardingAddress]);
 
     const isRegistered = userConfig?.[4] === 1;
 
@@ -183,9 +184,7 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
         userConfig,
         actionContract,
         forwardingAddress,
-        transactionSuccess,
         transactionLoading,
-        transactionError,
         isRegistered,
     };
 }

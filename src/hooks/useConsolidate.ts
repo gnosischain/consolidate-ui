@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { concat, parseEther } from 'viem';
 import { Consolidation, ValidatorInfo, CredentialType } from '../types/validators';
 import { useWallet } from '../context/WalletContext';
-import { useTransaction, TransactionCall } from './useTransaction';
+import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
 
 interface ComputedConsolidation {
   consolidations: Consolidation[];
@@ -68,29 +68,26 @@ export function computeConsolidations(
   return { consolidations, skippedValidators, targets };
 }
 
-export function useConsolidateValidatorsBatch() {
+export function useConsolidateValidatorsBatch(options?: UseTransactionOptions) {
   const { network } = useWallet();
-  const [localError, setLocalError] = useState<Error | null>(null);
-  const { execute, progress, isPending, isSuccess, error: txError } = useTransaction();
+  const { execute, isPending } = useTransaction(options);
 
   const consolidateValidators = useCallback(
     (consolidations: Consolidation[]) => {
-      setLocalError(null);
 
       if (consolidations.length === 0) {
-        setLocalError(new Error('No consolidation possible with given chunk size'));
         return;
       }
 
       if (!network?.consolidateAddress) {
-        setLocalError(new Error('Network consolidation address not available'));
         return;
       }
 
-      const calls: TransactionCall[] = consolidations.map(({ sourceKey, targetKey }) => ({
+      const calls: TransactionCall[] = consolidations.map(({ sourceKey, targetKey, sourceIndex, targetIndex }) => ({
         to: network.consolidateAddress,
         data: concat([sourceKey, targetKey]),
         value: parseEther('0.000001'),
+        title: sourceIndex === targetIndex ? 'Self Consolidate' : 'Consolidate',
       }));
 
       execute(calls);
@@ -98,14 +95,9 @@ export function useConsolidateValidatorsBatch() {
     [network, execute]
   );
 
-  const error = localError || txError;
-
   return {
     consolidateValidators,
-    progress,
     isPending,
-    isSuccess,
-    error
   };
 }
 

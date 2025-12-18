@@ -2,24 +2,14 @@ import { Consolidation } from '../types/validators';
 import { formatEther } from 'viem';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useModal } from '../context/ModalContext';
-import { useTransactionToast } from '../hooks/useTransactionToast';
 
 interface ConsolidationSummaryProps {
     consolidations: Consolidation[];
 }
 
 export function ConsolidationSummary({ consolidations }: ConsolidationSummaryProps) {
-    const { consolidateValidators, isPending, isSuccess, error } = useConsolidateValidatorsBatch();
     const { closeModal } = useModal();
-
-    useTransactionToast({
-        isPending,
-        isSuccess,
-        error,
-        loadingMessage: 'Consolidating...',
-        successMessage: 'Consolidation successful',
-        onSuccess: closeModal,
-    });
+    const { consolidateValidators, isPending } = useConsolidateValidatorsBatch({ onSuccess: closeModal });
 
     const handleConsolidate = async () => {
         await consolidateValidators(consolidations);
