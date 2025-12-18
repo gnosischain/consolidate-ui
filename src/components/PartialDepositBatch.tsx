@@ -18,7 +18,7 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
     throw new Error('Network not found');
   }
 
-  const { computePartialDepositAmounts, partialDeposit, isPending, allowance } = useDeposit(network, account.address, { onSuccess: closeModal });
+  const { computePartialDepositAmounts, partialDeposit, isPending, allowance } = useDeposit(network, account.address, closeModal);
   const [amount, setAmount] = useState(0);
 
   const depositAmounts = useMemo(() => computePartialDepositAmounts(parseEther(amount.toString()), validators, BigInt(targetAmount)), [validators, amount, computePartialDepositAmounts, targetAmount]);
