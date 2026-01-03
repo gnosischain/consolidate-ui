@@ -35,3 +35,5 @@ build/
 *.njsproj
 *.sln
 *.sw?
+
+next-env.d.ts

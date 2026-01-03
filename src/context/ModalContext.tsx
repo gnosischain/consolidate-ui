@@ -2,7 +2,7 @@ import { createContext, useContext, useRef, useState, ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 
 interface ModalContextType {
-    openModal: (content: ReactNode) => void;
+    openModal: (content: ReactNode, options?: { className?: string }) => void;
     closeModal: () => void;
     goBack: () => void;
 }
@@ -13,10 +13,12 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const [stack, setStack] = useState<ReactNode[]>([]);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [modalClassName, setModalClassName] = useState<string>('');
 
-    const openModal = (content: ReactNode) => {
+    const openModal = (content: ReactNode, options?: { className?: string }) => {
         setIsTransitioning(true);
         setStack(prev => [...prev, content]);
+        setModalClassName(options?.className || '');
         if (dialogRef.current && !dialogRef.current.classList.contains('modal-open')) {
             dialogRef.current.classList.add('modal-open');
         }
@@ -25,6 +27,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
 
     const closeModal = () => {
         setStack([]);
+        setModalClassName('');
         if (dialogRef.current) {
             dialogRef.current.classList.remove('modal-open');
         }
@@ -44,7 +47,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         <ModalContext.Provider value={{ openModal, closeModal, goBack }}>
             {children}
             <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
-                <div className="modal-box">
+                <div className={`modal-box ${modalClassName}`}>
                     {showBackButton && (
                         <button
                             onClick={goBack}
