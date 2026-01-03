@@ -11,11 +11,11 @@ export default function LandingPage() {
 		<div className="absolute inset-0 z-30 flex items-center justify-center bg-base-300/20 backdrop-blur-xs px-4">
 
 			{/* Content */}
-			<div className="relative flex flex-col items-center justify-center px-4 py-20">
+			<div className="relative flex flex-col items-center justify-center md:px-4 py-4 md:py-20">
 
 				{/* Hero Title */}
-				<div className="flex flex-col items-center justify-center mb-10">
-					<svg width="600" height="150" viewBox="0 0 878 230" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-secondary">
+				<div className="flex flex-col items-center justify-center mb-2 md:mb-10">
+					<svg viewBox="0 0 878 230" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-secondary w-[300px] sm:w-[400px] md:w-[600px] h-auto">
 						<path d="M101.244 101.188V136.382H166.15C158.07 160.903 136.437 180.52 103.844 180.52C67.4986 180.52 41.8343 151.383 41.8343 114.749C41.8343 78.1156 68.6505 48.9781 106.148 48.9781C123.26 48.9781 137.545 54.7463 148.209 64.1708C152.555 68.1501 158.506 75.0265 160.67 84.2939H202.653C202.653 84.2939 202.923 73.4383 195.864 59.6418C195.864 59.6418 195.855 59.6244 195.846 59.6156C191.666 51.4652 184.921 42.285 174.039 33.7156C173.969 33.6633 173.899 33.6109 173.83 33.5586C155.914 18.7149 132.161 10.0234 104.123 10.0234C44.1206 10.0322 0 55.6102 0 114.749C0 173.888 44.1206 219.466 103.835 219.466C163.55 219.466 207.976 175.04 207.976 117.35V101.197H101.244V101.188Z" />
 						<path d="M711.998 217.74V11.7617H752.672V217.731H711.998V217.74Z" />
 						<path d="M543.967 100.834C543.967 93.8875 541.681 87.5783 537.728 82.5693L495.902 124.378C500.999 128.331 507.317 130.617 514.176 130.617C530.695 130.608 544.055 117.266 543.967 100.834ZM419.555 130.512C403.124 130.599 389.763 117.248 389.763 100.729C389.763 93.8787 392.05 87.5608 396.003 82.4646L437.828 124.273C432.819 128.226 426.502 130.512 419.555 130.512ZM387.224 73.8603C381.072 81.2429 377.381 90.5452 377.381 100.912C377.381 124.186 396.273 143.07 419.555 143.07C429.835 143.07 439.233 139.378 446.616 133.226L466.913 153.515L487.211 133.226C494.594 139.378 503.905 143.07 514.272 143.07C537.554 143.07 556.446 124.186 556.446 100.912C556.446 90.6412 552.755 81.2342 546.612 73.8603L565.146 55.3342C575.697 72.7172 581.753 93.0061 581.753 114.796C581.753 178.211 530.354 229.505 467.001 229.505C403.647 229.505 352.249 178.124 352.249 114.796C352.074 92.9276 358.139 72.6386 368.681 55.3342L387.215 73.8603H387.224ZM467.001 135.957L558.034 44.9672C555.486 41.7122 552.772 38.5533 549.945 35.5776C529.037 13.7005 499.602 0 466.913 0C434.224 0 404.712 13.7005 383.882 35.5689C380.985 38.466 378.253 41.721 375.967 44.8712L467.001 135.949V135.957ZM537.475 44.1818L466.922 114.709L396.369 44.1818C415.079 25.2979 440.036 14.9396 466.922 14.9396C493.808 14.9396 518.67 25.2979 537.475 44.1818Z" />
@@ -25,18 +25,17 @@ export default function LandingPage() {
 						<rect width="14.2356" height="14.2357" transform="translate(658.108 125.129)" />
 					</svg>
 
-					{/* <Image src="/gnosis-purple.svg" alt="Gnosis" width={600} height={600} /> */}
-					<h1 className={`text-6xl md:text-9xl font-bold mb-8 text-accent ${boldonse.className}`}>
+					<h1 className={`text-5xl sm:text-6xl md:text-9xl font-bold mb-8 text-accent ${boldonse.className}`}>
 						VALIDATORS
 					</h1>
-					<p className="text-xl md:text-2xl text-base-content/70 max-w-2xl font-medium">
+					<p className="hidden md:block text-xl md:text-2xl text-base-content/70 max-w-2xl font-medium">
 						Manage your validators on Gnosis Chain
 					</p>
 				</div>
 
 				{/* CTA Button */}
-				<div className="mb-24 flex flex-col items-center justify-center border-t border-base-content/10 pt-10 px-4">
-					<span className="text-lg font-semibold text-base-content">Connect your wallet to view your validators</span>
+				<div className="mb-24 flex flex-col items-center justify-center border-t border-base-content/10 md:pt-10 md:px-4">
+					<span className="text-lg font-semibold text-base-content text-nowrap">Connect your wallet to view your validators</span>
 					<p className="text-sm text-gray-500">
 						New here? <a href="https://www.validategnosis.com/" target="_blank" rel="noopener noreferrer" className="underline">Learn about Gnosis validators</a>
 					</p>
