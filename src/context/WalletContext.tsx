@@ -31,8 +31,8 @@ const WalletContext = createContext<WalletContextType | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
-  useAutoConnect();
   const account = useConnection();
+  useAutoConnect(isMounted && !account.isConnected);
   const capabilities = useCapabilities( {account: account.address});
   const chainId = account?.chainId;
   const chainName = account?.chain?.name;
