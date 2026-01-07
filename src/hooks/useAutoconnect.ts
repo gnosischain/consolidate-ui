@@ -1,11 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useConnectors } from 'wagmi';
 
 const AUTOCONNECTED_CONNECTOR_IDS = ['safe'];
 
 function useAutoConnect(enabled: boolean = true) {
     const connectors = useConnectors();
-    const attemptedConnectors = useRef<Set<string>>(new Set());
 
     useEffect(() => {
         if (!enabled) return;
@@ -14,12 +13,9 @@ function useAutoConnect(enabled: boolean = true) {
         if (!isInIframe) return;
 
         AUTOCONNECTED_CONNECTOR_IDS.forEach((connectorId) => {
-            if (attemptedConnectors.current.has(connectorId)) return;
 
             const connectorInstance = connectors.find((c) => c.id === connectorId);
-
-            if (connectorInstance && connectorInstance.status !== 'connected') {
-                attemptedConnectors.current.add(connectorId);
+            if (connectorInstance) {
                 connectorInstance.connect().catch((error: Error) => {
                     console.error(`[useAutoConnect] Failed to connect ${connectorId}:`, error);
                 });
