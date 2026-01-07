@@ -2,6 +2,7 @@ import { createContext, useContext, ReactNode, useEffect, useState } from 'react
 import { useCapabilities, useConnection } from 'wagmi';
 import { NETWORK_CONFIG } from '../constants/networks';
 import useBalance from '../hooks/useBalance';
+import { useAutoConnect } from '../hooks/useAutoconnect';
 import { NetworkConfig } from '../types/network';
 import { Address } from 'viem';
 
@@ -30,6 +31,7 @@ const WalletContext = createContext<WalletContextType | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
+  useAutoConnect();
   const account = useConnection();
   const capabilities = useCapabilities( {account: account.address});
   const chainId = account?.chainId;
