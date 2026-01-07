@@ -1,6 +1,6 @@
 {
     "name": "Gnosis Validator Launchpad",
-    "description": "This is an app for upgrade and consolidate validators",
+    "description": "Manage your validator on Gnosis Chain",
     "iconPath": "/logo.svg",
     "icons": [
       {
