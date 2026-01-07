@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Address } from 'viem';
 import { APIValidatorInfo } from '../types/api';
-import { ValidatorIndex, ValidatorInfo } from '../types/validators';
+import { ValidatorIndex, ValidatorInfo, ValidatorPendingInfo } from '../types/validators';
 import { NetworkConfig } from '../types/network';
 import { apiToValidatorInfo } from '../utils/apiConverters';
 import { BeaconApiValidatorsResponse } from '../types/beaconApi';
 
 const LIMIT = 200;
+
+interface APIPendingStates {
+	pendingWithdrawals: Array<{ validator_index: number; amount: string; withdrawable_epoch: string }>;
+	pendingDeposits: Array<{ pubkey: string; amount: string }>;
+	pendingConsolidations: Array<{ source_index: number; target_index: number }>;
+}
 
 export function useBeaconValidators(network: NetworkConfig | undefined, address: Address | undefined) {
 	const [validators, setValidators] = useState<ValidatorInfo[]>([]);
@@ -17,26 +23,106 @@ export function useBeaconValidators(network: NetworkConfig | undefined, address:
 		if (!network || !address) {
 			return;
 		}
+
+		const fetchPendingStates = async (): Promise<APIPendingStates | null> => {
+			try {
+				const params = new URLSearchParams({
+					clEndpoint: network.clEndpoint,
+					clMultiplier: network.cl.multiplier.toString(),
+				});
+
+				const res = await fetch(`/api/pending-states?${params}`);
+				if (!res.ok) {
+					console.warn('Failed to fetch pending states');
+					return null;
+				}
+
+				const json: { data: APIPendingStates } = await res.json();
+				return json.data;
+			} catch (err) {
+				console.warn('Error fetching pending states:', err);
+				return null;
+			}
+		};
+
+		const enrichWithPendingInfo = (
+			validators: ValidatorInfo[],
+			pendingStates: APIPendingStates | null
+		): ValidatorInfo[] => {
+			if (!pendingStates) return validators;
+
+			console.log('pendingStates', pendingStates.pendingWithdrawals);
+
+			const withdrawalsByIndex = new Map<number, { amount: string; withdrawable_epoch: string }>();
+			for (const w of pendingStates.pendingWithdrawals) {
+				withdrawalsByIndex.set(w.validator_index, w);
+			}
+
+			console.log('withdrawalsByIndex', withdrawalsByIndex);
+
+			const depositsByPubkey = new Map<string, { amount: string }>();
+			for (const d of pendingStates.pendingDeposits) {
+				depositsByPubkey.set(d.pubkey.toLowerCase(), d);
+			}
+
+			const consolidationsBySource = new Map<number, { target_index: number }>();
+			const consolidationsByTarget = new Map<number, { source_index: number }>();
+			for (const c of pendingStates.pendingConsolidations) {
+				consolidationsBySource.set(c.source_index, { target_index: c.target_index });
+				consolidationsByTarget.set(c.target_index, { source_index: c.source_index });
+			}
+
+			return validators.map((v) => {
+				const withdrawal = withdrawalsByIndex.get(v.index);
+				const deposit = depositsByPubkey.get(v.pubkey.toLowerCase());
+				const consolidationAsSource = consolidationsBySource.get(v.index);
+				const consolidationAsTarget = consolidationsByTarget.get(v.index);
+
+				console.log('withdrawal', withdrawal);
+
+				const pendingInfo: ValidatorPendingInfo = {
+					hasPendingWithdrawal: !!withdrawal,
+					pendingWithdrawalAmount: withdrawal ? BigInt(withdrawal.amount) : undefined,
+					withdrawableEpoch: withdrawal?.withdrawable_epoch,
+					hasPendingDeposit: !!deposit,
+					pendingDepositAmount: deposit ? BigInt(deposit.amount) : undefined,
+					hasPendingConsolidation: !!consolidationAsSource || !!consolidationAsTarget,
+					isConsolidationSource: !!consolidationAsSource,
+					isConsolidationTarget: !!consolidationAsTarget,
+					consolidationTargetIndex: consolidationAsSource?.target_index,
+					consolidationSourceIndex: consolidationAsTarget?.source_index,
+				};
+
+				return { ...v, pendingInfo };
+			});
+		};
 		
 		const fetchValidators = async () => {
 			setLoading(true);
 
 			try {
-				const params = new URLSearchParams({
-					address: address,
-					clEndpoint: network.clEndpoint,
-					clMultiplier: network.cl.multiplier.toString(),
-				});
+				const [validatorsRes, pendingStates] = await Promise.all([
+					(async () => {
+						const params = new URLSearchParams({
+							address: address,
+							clEndpoint: network.clEndpoint,
+							clMultiplier: network.cl.multiplier.toString(),
+						});
 
-				const res = await fetch(`/api/beacon-states?${params}`);
-				if (!res.ok) {
-					const errorData = await res.json();
-					throw new Error(errorData.error || `HTTP ${res.status} - ${res.statusText}`);
-				}
+						const res = await fetch(`/api/beacon-states?${params}`);
+						if (!res.ok) {
+							const errorData = await res.json();
+							throw new Error(errorData.error || `HTTP ${res.status} - ${res.statusText}`);
+						}
 
-				const json: { data: APIValidatorInfo[] } = await res.json();
-				const validators = json.data.map(apiToValidatorInfo);
-				setValidators(validators);
+						const json: { data: APIValidatorInfo[] } = await res.json();
+						return json.data.map(apiToValidatorInfo);
+					})(),
+					fetchPendingStates(),
+				]);
+
+				const enrichedValidators = enrichWithPendingInfo(validatorsRes, pendingStates);
+				setValidators(enrichedValidators);
 			} catch (err) {
 				setError(err);
 			} finally {
@@ -69,6 +155,8 @@ export function useBeaconValidators(network: NetworkConfig | undefined, address:
 					setValidators([]);
 					return;
 				}
+
+				// Fetch validator details and pending states
 				const batches = chunkArray(
 					allValidators.map((v) => v.pubkey),
 					50,
@@ -80,7 +168,11 @@ export function useBeaconValidators(network: NetworkConfig | undefined, address:
 					detailed.push(...batchDetails);
 					await new Promise(res => setTimeout(res, 500));
 				}
-				setValidators(detailed);
+
+				// Fetch pending states and enrich validators
+				const pendingStates = await fetchPendingStates();
+				const enrichedValidators = enrichWithPendingInfo(detailed, pendingStates);
+				setValidators(enrichedValidators);
 
 			} catch (err) {
 				setError(err as Error);
@@ -150,5 +242,3 @@ const fetchValidatorsByAddress = async (network: NetworkConfig, address: string,
 		index: d.validatorindex,
 	}));
 };
-
-

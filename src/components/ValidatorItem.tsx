@@ -4,7 +4,7 @@ import { ValidatorBadge } from './ValidatorBadge';
 import Withdraw from './Withdraw';
 import { formatEther, parseEther } from 'viem';
 import PartialDeposit from './PartialDeposit';
-import { ArrowUp, Plus, Minus } from 'lucide-react';
+import { ArrowUp, Plus, Minus, ArrowRightLeft } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 import { truncateAddress } from '../utils/address';
 import { CopyButton } from './CopyButton';
@@ -22,6 +22,8 @@ export function ValidatorItem({
 	onToggle,
 }: ValidatorItemProps) {
 	const { openModal } = useModal();
+	const { pendingInfo } = validator;
+	
 	return (
 		<tr className={`h-14 hover:bg-primary/5 group transition-all duration-200 ${isSelected ? 'bg-primary/10' : ''
 			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
@@ -53,10 +55,44 @@ export function ValidatorItem({
 			</td>
 			<td className="font-semibold">
 				<div className="flex items-center gap-2">
-					<span>{(Math.floor(Number(formatEther(validator.balance)) * 100) / 100).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></span>
+					{(Math.floor(Number(formatEther(validator.balance)) * 100) / 100).toFixed(2)}
+					<span className="text-xs text-base-content/60">GNO</span>
 					{validator.balance < parseEther('1') && validator.filterStatus !== 'exited' && (
 						<div className="badge badge-xs badge-soft badge-warning">
 							Low
+						</div>
+					)}
+					{/* Pending state indicators */}
+					{pendingInfo?.hasPendingWithdrawal && (
+						<div
+							className="tooltip flex items-center text-warning"
+							data-tip={`Withdrawing at epoch ${pendingInfo.withdrawableEpoch}`}
+						>
+							<span className="text-xs font-medium">
+								-{pendingInfo.pendingWithdrawalAmount
+									? (Math.floor(Number(formatEther(pendingInfo.pendingWithdrawalAmount)) * 1000) / 1000).toFixed(3)
+									: '?'} GNO
+							</span>
+						</div>
+					)}
+					{pendingInfo?.hasPendingDeposit && (
+						<div className="tooltip" data-tip={`Pending deposit: ${pendingInfo.pendingDepositAmount ? (Math.floor(Number(formatEther(pendingInfo.pendingDepositAmount)) * 1000) / 1000).toFixed(3) : '?'} GNO`}>
+							<div className="badge badge-xs badge-soft badge-success gap-1">
+								<Plus className="w-3 h-3" />
+								Deposit
+							</div>
+						</div>
+					)}
+					{pendingInfo?.hasPendingConsolidation && (
+						<div className="tooltip" data-tip={
+							pendingInfo.isConsolidationSource
+								? `Consolidating to validator #${pendingInfo.consolidationTargetIndex}`
+								: `Receiving consolidation from validator #${pendingInfo.consolidationSourceIndex}`
+						}>
+							<div className={`badge badge-xs badge-soft gap-1 ${pendingInfo.isConsolidationSource ? 'badge-warning' : 'badge-primary'}`}>
+								<ArrowRightLeft className="w-3 h-3" />
+								{pendingInfo.isConsolidationSource ? 'Source' : 'Target'}
+							</div>
 						</div>
 					)}
 				</div>

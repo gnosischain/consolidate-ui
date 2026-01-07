@@ -35,3 +35,28 @@ export interface BeaconChainResponse {
         withdrawal_credentials: Address;
     }
 }
+
+export interface PendingPartialWithdrawal {
+	validator_index: number;
+	amount: string;
+	withdrawable_epoch: string;
+}
+
+export interface PendingDeposit {
+	pubkey: Address;
+	withdrawal_credentials: Address;
+	amount: string;
+	signature: Address;
+	slot: string;
+}
+
+export interface PendingConsolidation {
+	source_index: number;
+	target_index: number;
+}
+
+export interface PendingStates {
+	pendingWithdrawals: PendingPartialWithdrawal[];
+	pendingDeposits: PendingDeposit[];
+	pendingConsolidations: PendingConsolidation[];
+}

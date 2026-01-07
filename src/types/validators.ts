@@ -9,6 +9,19 @@ export enum FilterStatus {
 
 export type CredentialType = 0 | 1 | 2;
 
+export interface ValidatorPendingInfo {
+	hasPendingWithdrawal: boolean;
+	pendingWithdrawalAmount?: bigint;
+	withdrawableEpoch?: string;
+	hasPendingDeposit: boolean;
+	pendingDepositAmount?: bigint;
+	hasPendingConsolidation: boolean;
+	isConsolidationSource: boolean;
+	isConsolidationTarget: boolean;
+	consolidationTargetIndex?: number;
+	consolidationSourceIndex?: number;
+}
+
 export interface ValidatorInfo {
     index: number;
     pubkey: Address;
@@ -18,6 +31,7 @@ export interface ValidatorInfo {
     type: CredentialType;
     status: ValidatorStatus;
     filterStatus: FilterStatus;
+    pendingInfo?: ValidatorPendingInfo;
 }
 
 export interface ValidatorIndex {
