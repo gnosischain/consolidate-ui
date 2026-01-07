@@ -11,7 +11,7 @@ export default function Deposit() {
     throw new Error('Network or account not found');
   }
   const { closeModal } = useModal();
-  const { setDepositData, depositData, deposit, isPending, allowance } = useDeposit(network, account.address, closeModal);
+  const { setDepositData, depositData, deposit, isPending, allowance, error } = useDeposit(network, account.address, closeModal);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,7 +30,7 @@ export default function Deposit() {
       <fieldset className="fieldset">
         <legend className="fieldset-legend">Upload deposit data file</legend>
         <input type="file" className="file-input" onChange={handleFileChange} />
-        <label className="label">{file?.name}</label>
+        <label className={`label ${error ? 'text-red-500' : ''}`}>{ error ? error.message : file?.name}</label>
       </fieldset>
       <div className="mt-8 flex w-full justify-end">
         <button 
