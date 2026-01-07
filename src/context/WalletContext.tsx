@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, useContext, ReactNode, useEffect, useState, useMemo } from 'react';
 import { useCapabilities, useConnection } from 'wagmi';
 import { NETWORK_CONFIG } from '../constants/networks';
 import useBalance from '../hooks/useBalance';
@@ -44,7 +44,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setIsMounted(true);
   }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     account: {
       isConnected: isMounted && account.isConnected,
       address: account.address,
@@ -57,7 +57,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     isWrongNetwork: isMounted && isWrongNetwork,
     balance,
     isMounted,
-  };
+  }), [isMounted, account.isConnected, account.address, capabilities?.data, capabilities.isLoading, chainId, chainName, network, isWrongNetwork, balance]);
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }
