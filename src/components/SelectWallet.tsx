@@ -2,10 +2,10 @@
 
 import { ExternalLink } from 'lucide-react';
 import { gnosis } from 'viem/chains';
-import { Connector, useConnect } from 'wagmi';
+import { Connector, useConnectors } from 'wagmi';
 
 export function SelectWallet() {
-	const { connectors, connect } = useConnect();
+	const connectors = useConnectors();
 
 	const uniqueConnectors = connectors.reduce<Connector[]>((acc, connector) => {
 		const names = acc.map((c) => c.name);
@@ -16,6 +16,8 @@ export function SelectWallet() {
 	}, []);
 
 	const acceptedConnectors = ['metamask', 'rabby wallet'];
+
+	const availableConnectors = uniqueConnectors.filter((connector) => acceptedConnectors.includes(connector.name.toLowerCase()));
 
 	return (
 		<div className="flex flex-col md:flex-row md:min-h-[340px] w-full max-w-[640px] rounded-box overflow-hidden">
@@ -37,21 +39,18 @@ export function SelectWallet() {
 				<h2 className="md:hidden text-xl font-bold mb-4">Connect Wallet</h2>
 
 				<h3 className="text-sm font-semibold text-primary mb-3">
-					Available Wallets ({uniqueConnectors.length})
+					Available Wallets ({availableConnectors.length})
 				</h3>
 
 				{/* Wallet List */}
 				<div className="flex flex-col gap-2 flex-1">
 					{
-						uniqueConnectors.map((connector) => (
+						availableConnectors.map((connector) => (
 							<button
 								className="flex items-center gap-3 px-3 py-2.5 bg-primary/20 hover:bg-primary/30 active:bg-primary/40 border border-primary/30 rounded-lg transition-all w-full"
 								key={connector.uid}
 								onClick={() =>
-									connect({
-										connector: connector,
-										chainId: gnosis.id,
-									})
+									connector.connect({chainId: gnosis.id})
 								}
 							>
 								{/* Icon */}
@@ -73,21 +72,14 @@ export function SelectWallet() {
 								<span className="text-base-content font-medium text-sm">
 									{connector.name}
 								</span>
-
-								{/* Warning badge */}
-								{!acceptedConnectors.includes(connector.name.toLowerCase()) && (
-									<span className="ml-auto text-[10px] px-1.5 py-0.5 bg-warning/20 text-warning rounded font-medium">
-										No batch
-									</span>
-								)}
 							</button>
 						))}
 				</div>
 
 				{/* Safe UI Note */}
 				<div className="pt-3 border-t border-base-300">
-					<a 
-						className="text-[11px] text-base-content/40 hover:text-base-content/60 transition-colors inline-flex items-center gap-1" 
+					<a
+						className="text-[11px] text-base-content/40 hover:text-base-content/60 transition-colors inline-flex items-center gap-1"
 						href="https://app.safe.global/"
 						target="_blank"
 						rel="noopener noreferrer"

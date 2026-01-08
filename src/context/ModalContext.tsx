@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, ReactNode } from "react";
+import { createContext, useContext, useRef, useState, ReactNode, useCallback, useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 
 interface ModalContextType {
@@ -15,7 +15,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [modalClassName, setModalClassName] = useState<string>('');
 
-    const openModal = (content: ReactNode, options?: { className?: string }) => {
+    const openModal = useCallback((content: ReactNode, options?: { className?: string }) => {
         setIsTransitioning(true);
         setStack(prev => [...prev, content]);
         setModalClassName(options?.className || '');
@@ -23,28 +23,30 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             dialogRef.current.classList.add('modal-open');
         }
         setTimeout(() => setIsTransitioning(false), 100);
-    };
+    }, []);
 
-    const closeModal = () => {
+    const closeModal = useCallback(() => {
         setStack([]);
         setModalClassName('');
         if (dialogRef.current) {
             dialogRef.current.classList.remove('modal-open');
         }
         setIsTransitioning(false);
-    };
+    }, []);
 
-    const goBack = () => {
+    const goBack = useCallback(() => {
         setIsTransitioning(true);
         setStack(prev => prev.length > 1 ? prev.slice(0, -1) : prev);
         setTimeout(() => setIsTransitioning(false), 100);
-    };
+    }, []);
 
     const currentContent = stack[stack.length - 1];
     const showBackButton = stack.length > 1;
 
+    const contextValue = useMemo(() => ({ openModal, closeModal, goBack }), [openModal, closeModal, goBack]);
+
     return (
-        <ModalContext.Provider value={{ openModal, closeModal, goBack }}>
+        <ModalContext.Provider value={contextValue}>
             {children}
             <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
                 <div className={`modal-box ${modalClassName}`}>

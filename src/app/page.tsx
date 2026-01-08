@@ -15,10 +15,10 @@ function App() {
 	}
 
 	useEffect(() => {
-		if (account) {
+		if (account.isConnected) {
 			closeModal();
 		}
-	}, [account]);
+	}, [account.isConnected, closeModal]);
 
 	return (
 		<>
