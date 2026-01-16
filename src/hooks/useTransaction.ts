@@ -45,7 +45,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
   const isBatchPending = sendCallsStatus === 'pending' || (!!callsData && callStatusData?.status !== 'success' && callStatusData?.status !== 'failure');
   const isSinglePending = sendTxStatus === 'pending' || isTxPending;
 
-  const isPending = canBatch ? isBatchPending : isSinglePending;
+  const isPending = currentCalls.length > 0 && (canBatch ? isBatchPending : isSinglePending);
   const isSuccess = canBatch
     ? callStatusData?.status === 'success'
     : isTxConfirmed;
@@ -97,6 +97,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 
       toast.success(successMessage);
       options?.onSuccess?.();
+      setCurrentCalls([]);
     }
   }, [isSuccess, currentCalls, options]);
 
@@ -105,6 +106,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
     if (isError && currentCalls.length > 0) {
       const errorMsg = sendCallsError?.message || sendTxError?.message || 'Transaction failed';
       toast.error(errorMsg.substring(0, 50));
+      setCurrentCalls([]);
     }
   }, [isError, sendCallsError, sendTxError, currentCalls.length]);
 
