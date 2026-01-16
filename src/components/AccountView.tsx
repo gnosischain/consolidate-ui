@@ -5,18 +5,12 @@ import { ChevronRight } from "lucide-react";
 import { NetworkView } from "./NetworkView";
 import { useModal } from "../context/ModalContext";
 import { AutoclaimView } from "./AutoclaimView";
-import { NetworkConfig } from "../types/network";
+import { useWallet } from "../context/WalletContext";
 
-interface AccountViewProps {
-    address: `0x${string}`;
-    canBatch: boolean;
-    connectedChain: string;
-    chainId: number;
-    network: NetworkConfig;
-}
-
-export function AccountView({ address, canBatch, connectedChain, chainId, network }: AccountViewProps) {
-    const { disconnect } = useDisconnect();
+export function AccountView() {
+    const { account, canBatch, chainName, network } = useWallet();
+    const address = account.address!;
+    const disconnect = useDisconnect();
     const { openModal } = useModal();
 
     return (
@@ -50,20 +44,20 @@ export function AccountView({ address, canBatch, connectedChain, chainId, networ
             <div className="px-6 py-4 space-y-3">
                 <button
                     className="btn btn-ghost w-full flex justify-between"
-                    onClick={() => openModal(<AutoclaimView network={network} address={address} />)}
+                    onClick={() => openModal(<AutoclaimView network={network!} address={address} />)}
                 >
                     Autoclaim Registry
                     <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                     className="btn btn-ghost w-full flex justify-between"
-                    onClick={() => openModal(<NetworkView currentChainId={chainId} />)}
+                    onClick={() => openModal(<NetworkView />)}
                 >
-                    Network: {connectedChain}
+                    Network: {chainName}
                     <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
-                    onClick={() => disconnect()}
+                    onClick={() => disconnect.mutate()}
                     className="btn btn-outline btn-error btn-sm w-full gap-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">

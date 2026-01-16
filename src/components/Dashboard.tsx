@@ -53,7 +53,7 @@ export default function Dashboard() {
 			};
 		}
 
-		if (network?.claimRegistryAddress) {
+		if (!network?.claimRegistryAddress) {
 			return {
 				status: 'AUTOCLAIM UNAVAILABLE',
 				detail: 'Switch Network',

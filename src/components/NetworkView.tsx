@@ -1,26 +1,23 @@
-import { useSwitchChain } from "wagmi";
+import { useChains, useSwitchChain } from "wagmi";
+import { useWallet } from "../context/WalletContext";
 
-interface NetworkViewProps {
-    currentChainId: number;
-}
-
-export function NetworkView({ currentChainId }: NetworkViewProps) {
-    const { chains, switchChain } = useSwitchChain();
+export function NetworkView() {
+    const { chainId } = useWallet();
+    const switchChain = useSwitchChain()
+    const chains = useChains();
 
     const handleNetworkChange = (chainId: number) => {
 		const selectedChain = chains.find((chain) => chain.id === chainId);
 		if (selectedChain) {
-			switchChain({ chainId: selectedChain.id });
+			switchChain.mutate({ chainId: selectedChain.id });
 		}
 	};
     
     return (
         <>
-            {/* Header with Back Button */}
             <div className="px-4 py-4 border-b border-base-300">
                 <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-base">Select Network</h3>
-                    <div className="w-8"></div> {/* Spacer for centering */}
                 </div>
             </div>
 
@@ -28,7 +25,7 @@ export function NetworkView({ currentChainId }: NetworkViewProps) {
             <div className="px-4 py-4">
                 <div className="space-y-2">
                     {chains.map((chain) => {
-                        const isConnected = chain.id === currentChainId;
+                        const isConnected = chain.id === chainId;
                         return (
                             <button
                                 key={chain.id}

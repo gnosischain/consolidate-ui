@@ -49,7 +49,7 @@ export function AutoclaimView({ network, address }: AutoclaimViewProps) {
                                 Autoclaim registry not available for this network.
                             </p>
                         </div>
-                        <button className="btn btn-primary btn-xs mt-4" onClick={() => openModal(<NetworkView currentChainId={network.chainId}/>)}>
+                        <button className="btn btn-primary btn-xs mt-4" onClick={() => openModal(<NetworkView />)}>
                             Switch to Gnosis Chain
                         </button>
                         </>

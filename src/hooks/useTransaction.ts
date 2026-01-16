@@ -11,17 +11,6 @@ export interface TransactionCall {
   title?: string;
 }
 
-export type TransactionStatus = 'idle' | 'pending' | 'success' | 'error';
-
-export interface TransactionProgress {
-  /** Current transaction index being processed (0-based) */
-  currentIndex: number;
-  /** Total number of transactions */
-  total: number;
-  /** Current status */
-  status: TransactionStatus;
-}
-
 export interface UseTransactionOptions {
   onSuccess?: () => void;
 }
@@ -31,21 +20,15 @@ interface UseTransactionReturn {
   isPending: boolean;
 }
 
-const initialProgress: TransactionProgress = {
-  currentIndex: 0,
-  total: 0,
-  status: 'idle',
-};
-
 export function useTransaction(options?: UseTransactionOptions): UseTransactionReturn {
   const { canBatch } = useWallet();
-  const { data: callsData, mutate: mutateCalls, error: sendCallsError } = useSendCalls();
-  const { data: txHash, mutate: mutateTransaction, error: sendTxError } = useSendTransaction();
-  
-  const { isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({
+  const { data: callsData, mutate: mutateCalls, error: sendCallsError, status: sendCallsStatus } = useSendCalls();
+  const { data: txHash, mutate: mutateTransaction, error: sendTxError, status: sendTxStatus } = useSendTransaction();
+
+  const { isSuccess: isTxConfirmed, isPending: isTxPending } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-  
+
   const { data: callStatusData } = useCallsStatus({
     id: callsData?.id || '',
     query: {
@@ -53,45 +36,40 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
       refetchInterval: (data) => data.state.data?.status === 'success' ? false : 1000,
     },
   });
-  
-  const [progress, setProgress] = useState<TransactionProgress>(initialProgress);
+
   const [currentCalls, setCurrentCalls] = useState<TransactionCall[]>([]);
   const toastId = useRef<string | undefined>(undefined);
   const hasCalledOnSuccess = useRef(false);
 
-  const isConfirmed = isTxConfirmed || callStatusData?.status === 'success';
-  
-  const isPending = progress.status === 'pending';
-  const isSuccess = progress.status === 'success' || isConfirmed;
+  // Derive status directly from wagmi hooks
+  const isBatchPending = sendCallsStatus === 'pending' || (!!callsData && callStatusData?.status !== 'success' && callStatusData?.status !== 'failure');
+  const isSinglePending = sendTxStatus === 'pending' || isTxPending;
 
-  // Generate toast message based on current state
+  const isPending = currentCalls.length > 0 && (canBatch ? isBatchPending : isSinglePending);
+  const isSuccess = canBatch
+    ? callStatusData?.status === 'success'
+    : isTxConfirmed;
+  const isError = sendCallsError || sendTxError || callStatusData?.status === 'failure';
+
+  // Generate toast message
   const getToastMessage = useCallback(() => {
     if (currentCalls.length === 0) return 'Processing...';
-    
+
     if (canBatch) {
-      const titles = currentCalls
-        .map(c => c.title)
-        .filter(Boolean);
-      
-      if (titles.length === 0) {
-        return `Processing batch (${currentCalls.length} transactions)`;
-      }
-      
+      const titles = currentCalls.map(c => c.title).filter(Boolean);
       const uniqueTitles = [...new Set(titles)];
-      return `Processing ${uniqueTitles.join(', ')}`;
+      if (uniqueTitles.length === 0) {
+        return `Processing batch (${currentCalls.length} transactions)...`;
+      }
+      return `Processing ${uniqueTitles.join(', ')}...`;
     } else {
-      const { currentIndex, total } = progress;
-      const currentTitle = currentCalls[currentIndex]?.title || 'Transaction';
-      return `${total > 1 ? `${currentIndex + 1}/${total}: ` : '' } ${currentTitle}`;
+      const total = currentCalls.length;
+      const currentTitle = currentCalls[0]?.title || 'Transaction';
+      return `${total > 1 ? `1/${total}: ` : ''}${currentTitle}`;
     }
-  }, [canBatch, currentCalls, progress]);
+  }, [currentCalls, canBatch]);
 
-  useEffect(() => {
-    if (isConfirmed && progress.status === 'pending') {
-      setProgress(prev => ({ ...prev, status: 'success' }));
-    }
-  }, [isConfirmed, progress.status]);
-
+  // Show/dismiss loading toast based on isPending
   useEffect(() => {
     if (isPending && currentCalls.length > 0) {
       const message = getToastMessage();
@@ -104,43 +82,42 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
       toast.dismiss(toastId.current);
       toastId.current = undefined;
     }
-  }, [isPending, getToastMessage, currentCalls.length]);
+  }, [isPending, currentCalls.length, getToastMessage]);
 
-  // Handle success toast and callback
+  // Handle success
   useEffect(() => {
     if (isSuccess && currentCalls.length > 0 && !hasCalledOnSuccess.current) {
       hasCalledOnSuccess.current = true;
-      
+
       const titles = currentCalls.map(c => c.title).filter(Boolean);
       const uniqueTitles = [...new Set(titles)];
       const successMessage = uniqueTitles.length > 0
         ? `${uniqueTitles.join(', ')} successful`
         : 'Transaction successful';
-      
+
       toast.success(successMessage);
       options?.onSuccess?.();
+      setCurrentCalls([]);
     }
   }, [isSuccess, currentCalls, options]);
 
+  // Handle errors
   useEffect(() => {
-    const combinedError = sendCallsError || sendTxError;
-    if (combinedError) {
-      toast.error(combinedError.message.substring(0, 50));
-      setProgress(prev => ({ ...prev, status: 'error' }));
+    if (isError && currentCalls.length > 0) {
+      const errorMsg = sendCallsError?.message || sendTxError?.message || 'Transaction failed';
+      toast.error(errorMsg.substring(0, 50));
+      setCurrentCalls([]);
     }
-  }, [sendCallsError, sendTxError]);
+  }, [isError, sendCallsError, sendTxError, currentCalls.length]);
 
   const execute = useCallback(
     (callsInput: TransactionCall[]) => {
       setCurrentCalls(callsInput);
-      setProgress({ currentIndex: 0, total: callsInput.length, status: 'pending' });
       hasCalledOnSuccess.current = false;
 
       if (canBatch) {
-        console.log('Executing batch of', callsInput.length, 'calls...');
         mutateCalls({ calls: callsInput, capabilities: {} });
       } else {
-        console.log('Executing', callsInput.length, 'calls in parallel...');
         callsInput.forEach((call) => {
           mutateTransaction({
             to: call.to,
