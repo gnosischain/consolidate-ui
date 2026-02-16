@@ -3,21 +3,29 @@ import { parseGwei } from 'viem';
 import { BeaconChainResponse } from '../../../types/beacon';
 import { APIValidatorInfo } from '../../../types/api';
 import { STATUS_TO_FILTER } from '../../../utils/status';
+import { NETWORK_CONFIG } from '../../../constants/networks';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const address = searchParams.get('address');
-    const clEndpoint = searchParams.get('clEndpoint');
-    const clMultiplier = searchParams.get('clMultiplier') || '1';
+    const chainId = searchParams.get('chainId');
 
     if (!address) {
       return NextResponse.json({ error: 'Address parameter is required' }, { status: 400 });
     }
 
-    if (!clEndpoint) {
-      return NextResponse.json({ error: 'clEndpoint parameter is required' }, { status: 400 });
+    if (!chainId) {
+      return NextResponse.json({ error: 'chainId parameter is required' }, { status: 400 });
     }
+
+    const networkConfig = NETWORK_CONFIG[Number(chainId)];
+    if (!networkConfig) {
+      return NextResponse.json({ error: 'Unsupported chainId' }, { status: 400 });
+    }
+
+    const clEndpoint = networkConfig.clEndpoint;
+    const multiplier = networkConfig.cl.multiplier;
 
     // Normalize the address: remove 0x prefix and lowercase
     const addrHex = address.toLowerCase().replace(/^0x/, '');
@@ -35,7 +43,6 @@ export async function GET(request: NextRequest) {
 
     const json = await res.json();
     const data: BeaconChainResponse[] = json.data;
-    const multiplier = BigInt(clMultiplier);
 
     const filtered: APIValidatorInfo[] = data
       .filter((v: { validator: { withdrawal_credentials: string }; index: number }) => {

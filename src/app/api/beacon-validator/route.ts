@@ -3,24 +3,30 @@ import { Address, parseGwei } from 'viem';
 import { APIValidatorInfo } from '../../../types/api';
 import { BeaconChainResponse } from '../../../types/beacon';
 import { STATUS_TO_FILTER } from '../../../utils/status';
+import { NETWORK_CONFIG } from '../../../constants/networks';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const pubkeys = searchParams.get('pubkeys');
-    const clEndpoint = searchParams.get('clEndpoint');
-    const clMultiplier = searchParams.get('clMultiplier') || '1';
+    const chainId = searchParams.get('chainId');
 
     if (!pubkeys) {
       return NextResponse.json({ error: 'Pubkeys parameter is required' }, { status: 400 });
     }
 
-    if (!clEndpoint) {
-      return NextResponse.json({ error: 'clEndpoint parameter is required' }, { status: 400 });
+    if (!chainId) {
+      return NextResponse.json({ error: 'chainId parameter is required' }, { status: 400 });
     }
 
+    const networkConfig = NETWORK_CONFIG[Number(chainId)];
+    if (!networkConfig) {
+      return NextResponse.json({ error: 'Unsupported chainId' }, { status: 400 });
+    }
+
+    const clEndpoint = networkConfig.clEndpoint;
+    const multiplier = networkConfig.cl.multiplier;
     const pubkeyList = pubkeys.split(',');
-    const multiplier = BigInt(clMultiplier);
     const validators: APIValidatorInfo[] = [];
 
     for (const pubkey of pubkeyList) {

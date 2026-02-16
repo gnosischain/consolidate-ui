@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BeaconApiValidatorsResponse } from '../../../types/beaconApi';
+import { NETWORK_CONFIG } from '../../../constants/networks';
 
 const LIMIT = 200;
 
@@ -8,16 +9,26 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const address = searchParams.get('address');
     const offset = parseInt(searchParams.get('offset') || '0');
-    const beaconchainApiUrl = searchParams.get('beaconchainApiUrl');
+    const chainId = searchParams.get('chainId');
 
     if (!address) {
       return NextResponse.json({ error: 'Address parameter is required' }, { status: 400 });
     }
 
-    if (!beaconchainApiUrl) {
-      return NextResponse.json({ error: 'BeaconchainApiUrl parameter is required' }, { status: 400 });
+    if (!chainId) {
+      return NextResponse.json({ error: 'chainId parameter is required' }, { status: 400 });
     }
 
+    const networkConfig = NETWORK_CONFIG[Number(chainId)];
+    if (!networkConfig) {
+      return NextResponse.json({ error: 'Unsupported chainId' }, { status: 400 });
+    }
+
+    if (!networkConfig.beaconchainApi) {
+      return NextResponse.json({ error: 'BeaconchainApi not configured for this network' }, { status: 400 });
+    }
+
+    const beaconchainApiUrl = networkConfig.beaconchainApi;
     const apiKey = process.env.BEACONCHAIN_API_KEY;
     
     const url = new URL(`/api/v1/validator/withdrawalCredentials/${address}`, beaconchainApiUrl);

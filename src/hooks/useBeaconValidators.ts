@@ -43,8 +43,7 @@ export function useBeaconValidators(
 			try {
 				const params = new URLSearchParams({
 					address: address,
-					clEndpoint: network.clEndpoint,
-					clMultiplier: network.cl.multiplier.toString(),
+					chainId: network.chainId.toString(),
 				});
 
 				const res = await fetch(`/api/beacon-states?${params}`);
@@ -126,14 +125,17 @@ export function useBeaconValidators(
 
 				const deposits0x01 = response0x01.data?.SBCDepositContract_DepositEvent || [];
 				const deposits0x02 = response0x02.data?.SBCDepositContract_DepositEvent || [];
-				const allDeposits: { pubkey: string; index: number }[] = [...deposits0x01, ...deposits0x02];
+				const allDeposits = [...deposits0x01, ...deposits0x02];
+				const uniqueDeposits = allDeposits.filter(
+					(deposit, index, self) => self.findIndex((d) => d.pubkey === deposit.pubkey) === index
+				);
 
-				if (allDeposits.length === 0) {
+				if (uniqueDeposits.length === 0) {
 					setValidators([]);
 					return;
 				}
 
-				const pubkeys = allDeposits.map((d) => d.pubkey);
+				const pubkeys = uniqueDeposits.map((d) => d.pubkey);
 				const batches = chunkArray(pubkeys, 10);
 				const detailed: ValidatorInfo[] = [];
 
@@ -173,8 +175,7 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: string[]): Promise<ValidatorInfo[]> => {
 	const params = new URLSearchParams({
 		pubkeys: pubkeys.join(','),
-		beaconchainApiUrl: network.beaconchainApi || '',
-		clMultiplier: network.cl.multiplier.toString(),
+		chainId: network.chainId.toString(),
 	});
 
 	const resp = await fetch(`/api/validator-details?${params}`);
@@ -190,8 +191,7 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 const fetchBeaconValidatorBatch = async (network: NetworkConfig, pubkeys: string[]): Promise<ValidatorInfo[]> => {
 	const params = new URLSearchParams({
 		pubkeys: pubkeys.join(','),
-		clEndpoint: network.clEndpoint,
-		clMultiplier: network.cl.multiplier.toString(),
+		chainId: network.chainId.toString(),
 	});
 
 	const resp = await fetch(`/api/beacon-validator?${params}`);
@@ -208,7 +208,7 @@ const fetchValidatorsByAddress = async (network: NetworkConfig, address: string,
 	const params = new URLSearchParams({
 		address: address,
 		offset: String(offset),
-		beaconchainApiUrl: network.beaconchainApi || '',
+		chainId: network.chainId.toString(),
 	});
 
 	const resp = await fetch(`/api/validators?${params}`);
