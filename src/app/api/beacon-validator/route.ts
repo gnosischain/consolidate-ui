@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
           status: v.status,
         });
       } catch (err) {
-        console.warn(`Error fetching validator ${pubkey}:`, err);
+        console.warn('Error fetching validator', pubkey, err);
       }
     }
 
