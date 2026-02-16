@@ -12,6 +12,12 @@ import DEPOSIT_ABI from '../utils/abis/deposit';
 import ERC677ABI from '../utils/abis/erc677';
 import { useTransaction, TransactionCall } from './useTransaction';
 
+export const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL!;
+
+if (!GRAPHQL_URL) {
+  throw new Error('Environment variable NEXT_PUBLIC_GRAPHQL_URL is not defined');
+}
+
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, closeModal: () => void) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
   const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
@@ -29,11 +35,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
       refetchAllowance();
     }
   });
-
-  const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
-  if (!graphqlUrl) {
-    throw new Error('Environment variable NEXT_PUBLIC_GRAPHQL_URL is not defined');
-  }
 
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: contractConfig?.tokenAddress,
@@ -64,7 +65,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
           data,
           balance,
           contractConfig,
-          graphqlUrl
+          GRAPHQL_URL
         );
 
         setDeposits(deposits);
@@ -78,7 +79,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
         setTotalDepositAmount(0n);
       }
     },
-    [balance, contractConfig, graphqlUrl]
+    [balance, contractConfig]
   );
 
   // Helper to build approve call

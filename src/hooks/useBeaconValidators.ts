@@ -5,10 +5,29 @@ import { ValidatorIndex, ValidatorInfo } from '../types/validators';
 import { NetworkConfig } from '../types/network';
 import { apiToValidatorInfo } from '../utils/apiConverters';
 import { BeaconApiValidatorsResponse } from '../types/beaconApi';
+import { fetchGraphQL } from '../utils/graphql';
+import { GRAPHQL_URL } from './useDeposit';
+
+const GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS = `
+query GetDepositsByWithdrawalCredentials($withdrawal_credentials: String!, $chainId: Int!) {
+  SBCDepositContract_DepositEvent(
+    where: { 
+      withdrawal_credentials: { _eq: $withdrawal_credentials },
+      chainId: { _eq: $chainId }
+    }
+  ) {
+    pubkey
+	index
+  }
+}
+`;
 
 const LIMIT = 200;
 
-export function useBeaconValidators(network: NetworkConfig | undefined, address: Address | undefined) {
+export function useBeaconValidators(
+	network: NetworkConfig | undefined,
+	address: Address | undefined,
+) {
 	const [validators, setValidators] = useState<ValidatorInfo[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<unknown>(null);
@@ -17,7 +36,7 @@ export function useBeaconValidators(network: NetworkConfig | undefined, address:
 		if (!network || !address) {
 			return;
 		}
-		
+
 		const fetchValidators = async () => {
 			setLoading(true);
 
@@ -81,7 +100,50 @@ export function useBeaconValidators(network: NetworkConfig | undefined, address:
 					await new Promise(res => setTimeout(res, 500));
 				}
 				setValidators(detailed);
+			} catch (err) {
+				setError(err as Error);
+			} finally {
+				setLoading(false);
+			}
+		};
 
+		const fetchValidatorsIndexer = async () => {
+			setLoading(true);
+			try {
+				const withdrawalCredentials0x01 = "0x010000000000000000000000" + address.slice(2).toLowerCase();
+				const withdrawalCredentials0x02 = "0x020000000000000000000000" + address.slice(2).toLowerCase();
+				
+				const [response0x01, response0x02] = await Promise.all([
+					fetchGraphQL(GRAPHQL_URL, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
+						withdrawal_credentials: withdrawalCredentials0x01,
+						chainId: network.chainId,
+					}),
+					fetchGraphQL(GRAPHQL_URL, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
+						withdrawal_credentials: withdrawalCredentials0x02,
+						chainId: network.chainId,
+					}),
+				]);
+
+				const deposits0x01 = response0x01.data?.SBCDepositContract_DepositEvent || [];
+				const deposits0x02 = response0x02.data?.SBCDepositContract_DepositEvent || [];
+				const allDeposits: { pubkey: string; index: number }[] = [...deposits0x01, ...deposits0x02];
+
+				if (allDeposits.length === 0) {
+					setValidators([]);
+					return;
+				}
+
+				const pubkeys = allDeposits.map((d) => d.pubkey);
+				const batches = chunkArray(pubkeys, 10);
+				const detailed: ValidatorInfo[] = [];
+
+				for (const pubkeyBatch of batches) {
+					const batchDetails = await fetchBeaconValidatorBatch(network, pubkeyBatch);
+					detailed.push(...batchDetails);
+					await new Promise(res => setTimeout(res, 200));
+				}
+
+				setValidators(detailed);
 			} catch (err) {
 				setError(err as Error);
 			} finally {
@@ -90,7 +152,8 @@ export function useBeaconValidators(network: NetworkConfig | undefined, address:
 		};
 
 		if (network.beaconchainApi) {
-			fetchValidatorsApi();
+			// fetchValidatorsApi();
+			fetchValidatorsIndexer();
 		} else {
 			fetchValidators();
 		}
@@ -118,6 +181,23 @@ const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: strin
 	if (!resp.ok) {
 		const errorData = await resp.json();
 		throw new Error(errorData.error || `Error ${resp.status} on GET /api/validator-details`);
+	}
+
+	const body: { data: APIValidatorInfo[] } = await resp.json();
+	return body.data.map(apiToValidatorInfo);
+};
+
+const fetchBeaconValidatorBatch = async (network: NetworkConfig, pubkeys: string[]): Promise<ValidatorInfo[]> => {
+	const params = new URLSearchParams({
+		pubkeys: pubkeys.join(','),
+		clEndpoint: network.clEndpoint,
+		clMultiplier: network.cl.multiplier.toString(),
+	});
+
+	const resp = await fetch(`/api/beacon-validator?${params}`);
+	if (!resp.ok) {
+		const errorData = await resp.json();
+		throw new Error(errorData.error || `Error ${resp.status} on GET /api/beacon-validator`);
 	}
 
 	const body: { data: APIValidatorInfo[] } = await resp.json();
