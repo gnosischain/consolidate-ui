@@ -62,49 +62,49 @@ export function useBeaconValidators(
 			}
 		};
 
-		const fetchValidatorsApi = async () => {
-			setLoading(true);
+		// const fetchValidatorsApi = async () => {
+		// 	setLoading(true);
 
-			try {
-				const allValidators: ValidatorIndex[] = [];
-				let offset = 0;
-				let keepGoing = true;
+		// 	try {
+		// 		const allValidators: ValidatorIndex[] = [];
+		// 		let offset = 0;
+		// 		let keepGoing = true;
 
-				while (keepGoing) {
-					const list = await fetchValidatorsByAddress(network, address, offset);
+		// 		while (keepGoing) {
+		// 			const list = await fetchValidatorsByAddress(network, address, offset);
 
-					allValidators.push(...list);
+		// 			allValidators.push(...list);
 
-					if (list.length === LIMIT && offset < 2000) {
-						offset += LIMIT;
-						await new Promise(res => setTimeout(res, 500));
-					} else {
-						keepGoing = false;
-					}
-				}
+		// 			if (list.length === LIMIT && offset < 2000) {
+		// 				offset += LIMIT;
+		// 				await new Promise(res => setTimeout(res, 500));
+		// 			} else {
+		// 				keepGoing = false;
+		// 			}
+		// 		}
 
-				if (allValidators.length === 0) {
-					setValidators([]);
-					return;
-				}
-				const batches = chunkArray(
-					allValidators.map((v) => v.pubkey),
-					50,
-				);
+		// 		if (allValidators.length === 0) {
+		// 			setValidators([]);
+		// 			return;
+		// 		}
+		// 		const batches = chunkArray(
+		// 			allValidators.map((v) => v.pubkey),
+		// 			50,
+		// 		);
 
-				const detailed: ValidatorInfo[] = [];
-				for (const pubkeyBatch of batches) {
-					const batchDetails = await fetchValidatorDetailsBatch(network, pubkeyBatch);
-					detailed.push(...batchDetails);
-					await new Promise(res => setTimeout(res, 500));
-				}
-				setValidators(detailed);
-			} catch (err) {
-				setError(err as Error);
-			} finally {
-				setLoading(false);
-			}
-		};
+		// 		const detailed: ValidatorInfo[] = [];
+		// 		for (const pubkeyBatch of batches) {
+		// 			const batchDetails = await fetchValidatorDetailsBatch(network, pubkeyBatch);
+		// 			detailed.push(...batchDetails);
+		// 			await new Promise(res => setTimeout(res, 500));
+		// 		}
+		// 		setValidators(detailed);
+		// 	} catch (err) {
+		// 		setError(err as Error);
+		// 	} finally {
+		// 		setLoading(false);
+		// 	}
+		// };
 
 		const fetchValidatorsIndexer = async () => {
 			setLoading(true);
