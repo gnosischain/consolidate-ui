@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Address } from 'viem';
 import { APIValidatorInfo } from '../types/api';
-import { ValidatorIndex, ValidatorInfo } from '../types/validators';
+import { ValidatorInfo } from '../types/validators';
 import { NetworkConfig } from '../types/network';
 import { apiToValidatorInfo } from '../utils/apiConverters';
-import { BeaconApiValidatorsResponse } from '../types/beaconApi';
+// import { BeaconApiValidatorsResponse } from '../types/beaconApi';
 import { fetchGraphQL } from '../utils/graphql';
 import { GRAPHQL_URL } from './useDeposit';
 
@@ -22,7 +22,7 @@ query GetDepositsByWithdrawalCredentials($withdrawal_credentials: String!, $chai
 }
 `;
 
-const LIMIT = 200;
+// const LIMIT = 200;
 
 export function useBeaconValidators(
 	network: NetworkConfig | undefined,
@@ -111,7 +111,7 @@ export function useBeaconValidators(
 			try {
 				const withdrawalCredentials0x01 = "0x010000000000000000000000" + address.slice(2).toLowerCase();
 				const withdrawalCredentials0x02 = "0x020000000000000000000000" + address.slice(2).toLowerCase();
-				
+
 				const [response0x01, response0x02] = await Promise.all([
 					fetchGraphQL(GRAPHQL_URL, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
 						withdrawal_credentials: withdrawalCredentials0x01,
@@ -172,21 +172,21 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 	return chunks;
 }
 
-const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: string[]): Promise<ValidatorInfo[]> => {
-	const params = new URLSearchParams({
-		pubkeys: pubkeys.join(','),
-		chainId: network.chainId.toString(),
-	});
+// const fetchValidatorDetailsBatch = async (network: NetworkConfig, pubkeys: string[]): Promise<ValidatorInfo[]> => {
+// 	const params = new URLSearchParams({
+// 		pubkeys: pubkeys.join(','),
+// 		chainId: network.chainId.toString(),
+// 	});
 
-	const resp = await fetch(`/api/validator-details?${params}`);
-	if (!resp.ok) {
-		const errorData = await resp.json();
-		throw new Error(errorData.error || `Error ${resp.status} on GET /api/validator-details`);
-	}
+// 	const resp = await fetch(`/api/validator-details?${params}`);
+// 	if (!resp.ok) {
+// 		const errorData = await resp.json();
+// 		throw new Error(errorData.error || `Error ${resp.status} on GET /api/validator-details`);
+// 	}
 
-	const body: { data: APIValidatorInfo[] } = await resp.json();
-	return body.data.map(apiToValidatorInfo);
-};
+// 	const body: { data: APIValidatorInfo[] } = await resp.json();
+// 	return body.data.map(apiToValidatorInfo);
+// };
 
 const fetchBeaconValidatorBatch = async (network: NetworkConfig, pubkeys: string[]): Promise<ValidatorInfo[]> => {
 	const params = new URLSearchParams({
@@ -204,31 +204,31 @@ const fetchBeaconValidatorBatch = async (network: NetworkConfig, pubkeys: string
 	return body.data.map(apiToValidatorInfo);
 };
 
-const fetchValidatorsByAddress = async (network: NetworkConfig, address: string, offset: number): Promise<ValidatorIndex[]> => {
-	const params = new URLSearchParams({
-		address: address,
-		offset: String(offset),
-		chainId: network.chainId.toString(),
-	});
+// const fetchValidatorsByAddress = async (network: NetworkConfig, address: string, offset: number): Promise<ValidatorIndex[]> => {
+// 	const params = new URLSearchParams({
+// 		address: address,
+// 		offset: String(offset),
+// 		chainId: network.chainId.toString(),
+// 	});
 
-	const resp = await fetch(`/api/validators?${params}`);
-	if (!resp.ok) {
-		const errorData = await resp.json();
-		throw new Error(
-			errorData.error || `Failed to fetch from /api/validators – status ${resp.status}`
-		);
-	}
+// 	const resp = await fetch(`/api/validators?${params}`);
+// 	if (!resp.ok) {
+// 		const errorData = await resp.json();
+// 		throw new Error(
+// 			errorData.error || `Failed to fetch from /api/validators – status ${resp.status}`
+// 		);
+// 	}
 
-	const body: {
-		data: BeaconApiValidatorsResponse[] | BeaconApiValidatorsResponse;
-	} = await resp.json();
+// 	const body: {
+// 		data: BeaconApiValidatorsResponse[] | BeaconApiValidatorsResponse;
+// 	} = await resp.json();
 
-	const rows = Array.isArray(body.data) ? body.data : [body.data];
+// 	const rows = Array.isArray(body.data) ? body.data : [body.data];
 
-	return rows.map((d) => ({
-		pubkey: d.publickey,
-		index: d.validatorindex,
-	}));
-};
+// 	return rows.map((d) => ({
+// 		pubkey: d.publickey,
+// 		index: d.validatorindex,
+// 	}));
+// };
 
 

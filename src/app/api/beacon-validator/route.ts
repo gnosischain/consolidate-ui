@@ -15,6 +15,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Pubkeys parameter is required' }, { status: 400 });
     }
 
+    if (pubkeys.split(',').length > 1000) {
+      return NextResponse.json({ error: 'Pubkeys must be less than 1000' }, { status: 400 });
+    }
+
     if (!chainId) {
       return NextResponse.json({ error: 'chainId parameter is required' }, { status: 400 });
     }
