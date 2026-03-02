@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
 
     const clEndpoint = networkConfig.clEndpoint;
     const multiplier = networkConfig.cl.multiplier;
-    const pubkeyList = pubkeys.split(',');
+    const PUBKEY_REGEX = /^0x[0-9a-fA-F]{96}$/;
+    const pubkeyList = pubkeys.split(',').map(p => p.trim()).filter(Boolean);
+    if (!pubkeyList.every(p => PUBKEY_REGEX.test(p))) {
+      return NextResponse.json({ error: 'One or more pubkeys are invalid' }, { status: 400 });
+    }
     const validators: APIValidatorInfo[] = [];
 
     for (const pubkey of pubkeyList) {
