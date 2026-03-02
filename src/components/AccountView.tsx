@@ -11,7 +11,7 @@ export function AccountView() {
     const { account, canBatch, chainName, network } = useWallet();
     const address = account.address!;
     const disconnect = useDisconnect();
-    const { openModal } = useModal();
+    const { openModal, closeModal } = useModal();
 
     return (
         <>
@@ -57,7 +57,10 @@ export function AccountView() {
                     <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
-                    onClick={() => disconnect.mutate()}
+                    onClick={() => {
+                        disconnect.mutate();
+                        closeModal();
+                    }}
                     className="btn btn-outline btn-error btn-sm w-full gap-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">

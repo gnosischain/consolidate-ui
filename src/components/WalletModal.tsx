@@ -10,12 +10,12 @@ import { useModal } from "../context/ModalContext";
 export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config';
 
 export default function WalletModal() {
-	const { account, chainId, chainName, network } = useWallet();
+	const { account } = useWallet();
 	const { openModal } = useModal();
 
 	return (
 		<>
-			{account.isConnected && account.address && network && chainId && chainName ? (
+			{account.address ? (
 				<button
 					className="btn btn-soft btn-primary flex items-center gap-2"
 					onClick={() => openModal(<AccountView />)}
