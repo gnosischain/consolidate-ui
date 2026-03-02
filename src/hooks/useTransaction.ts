@@ -1,3 +1,5 @@
+//TODO : refactor this logic to handle tx queue directly from the Button Component
+
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { useSendCalls, useSendTransaction, useWaitForTransactionReceipt, useCallsStatus } from 'wagmi';
 import { Address } from 'viem';
@@ -33,7 +35,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
     id: callsData?.id || '',
     query: {
       enabled: !!callsData,
-      refetchInterval: (data) => data.state.data?.status === 'success' ? false : 1000,
+      refetchInterval: (data) => data.state.data?.status === 'success' || data.state.data?.status === 'failure' ? false : 1000,
     },
   });
 
