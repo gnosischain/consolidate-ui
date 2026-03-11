@@ -37,9 +37,14 @@ export async function GET(request: NextRequest) {
     }
     const validators: APIValidatorInfo[] = [];
 
+    const allowedOrigin = new URL(clEndpoint).origin;
+
     for (const pubkey of pubkeyList) {
       try {
-        const url = `${clEndpoint}/eth/v1/beacon/states/finalized/validators/${pubkey}`;
+        const url = new URL(`/eth/v1/beacon/states/finalized/validators/${encodeURIComponent(pubkey)}`, clEndpoint);
+        if (url.origin !== allowedOrigin) {
+          continue;
+        }
         const resp = await fetch(url);
 
         if (!resp.ok) {
