@@ -44,7 +44,10 @@ export function AccountView() {
             <div className="px-6 py-4 space-y-3">
                 <button
                     className="btn btn-ghost w-full flex justify-between"
-                    onClick={() => openModal(<AutoclaimView network={network!} address={address} />)}
+                    onClick={() => {
+                        if (!network?.claimRegistryAddress) return;
+                        openModal(<AutoclaimView network={network} address={address} />);
+                    }}
                 >
                     Autoclaim Registry
                     <ChevronRight className="w-4 h-4" />
