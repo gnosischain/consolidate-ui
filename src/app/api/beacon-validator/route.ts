@@ -47,7 +47,6 @@ export async function GET(request: NextRequest) {
       const url = new URL('/eth/v1/beacon/states/finalized/validators', clEndpoint);
 
       url.searchParams.set('id', chunk.join(','));
-      url.searchParams.set('status', 'active');
 
       if (url.origin === allowedOrigin) {
         fetchPromises.push(
@@ -55,10 +54,6 @@ export async function GET(request: NextRequest) {
             .then(res => {
               if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
               return res.json();
-            })
-            .catch(err => {
-              console.warn('Error fetching validator batch', err);
-              return null;
             })
         );
       }

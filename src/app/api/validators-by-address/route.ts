@@ -81,10 +81,6 @@ export async function GET(request: NextRequest) {
                             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                             return res.json();
                         })
-                        .catch(err => {
-                            console.warn('Error fetching validator batch from Beacon node', err);
-                            return null;
-                        })
                 );
             }
         }
