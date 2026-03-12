@@ -6,17 +6,10 @@ import { NetworkConfig } from '../types/network';
 import { DepositRequest, DepositDataJson } from '../types/deposit';
 import { CredentialType, ValidatorInfo } from '../types/validators';
 import { buildDepositRoot, generateDepositData, generateSignature } from '../utils/deposit';
-import { validateDepositData } from '../utils/depositValidation';
 import { computePartialDepositAmounts } from '../utils/depositCalculations';
 import DEPOSIT_ABI from '../utils/abis/deposit';
 import ERC677ABI from '../utils/abis/erc677';
 import { useTransaction, TransactionCall } from './useTransaction';
-
-export const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL!;
-
-if (!GRAPHQL_URL) {
-  throw new Error('Environment variable NEXT_PUBLIC_GRAPHQL_URL is not defined');
-}
 
 function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, closeModal: () => void) {
   const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
@@ -50,9 +43,9 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
       if (!file) return;
 
       try {
-        let data: DepositDataJson[] = [];
+        let parsedData: DepositDataJson[] = [];
         try {
-          data = JSON.parse(await file.text());
+          parsedData = JSON.parse(await file.text());
         } catch (error) {
           throw new Error(`Failed to parse JSON file. Please check the file format. ${error}`);
         }
@@ -61,16 +54,26 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
           throw new Error('Balance not loaded correctly.');
         }
 
-        const { deposits, credentialType, totalDepositAmount } = await validateDepositData(
-          data,
-          balance,
-          contractConfig,
-          GRAPHQL_URL
-        );
+        const response = await fetch('/api/validate-deposit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            depositDataJson: parsedData,
+            balance: balance.toString(),
+            chainId: contractConfig.chainId,
+          })
+        });
 
-        setDeposits(deposits);
-        setCredentialType(credentialType);
-        setTotalDepositAmount(totalDepositAmount);
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || 'Validation failed on server');
+        }
+
+        const { data } = await response.json();
+
+        setDeposits(data.deposits);
+        setCredentialType(data.credentialType);
+        setTotalDepositAmount(BigInt(data.totalDepositAmount));
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
         setValidationError(err);

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from "react";
 import { useWallet } from "../context/WalletContext";
 import { truncateAddress } from "../utils/address";
 import { SelectWallet } from "./SelectWallet";
@@ -12,10 +13,15 @@ export type ModalView = 'main' | 'autoclaim' | 'network' | 'autoclaim-config';
 export default function WalletModal() {
 	const { account } = useWallet();
 	const { openModal } = useModal();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	return (
 		<>
-			{account.address ? (
+			{mounted && account.address ? (
 				<button
 					className="btn btn-soft btn-primary flex items-center gap-2"
 					onClick={() => openModal(<AccountView />)}

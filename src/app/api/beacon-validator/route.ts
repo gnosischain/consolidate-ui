@@ -15,8 +15,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Pubkeys parameter is required' }, { status: 400 });
     }
 
-    if (pubkeys.split(',').length > 1000) {
-      return NextResponse.json({ error: 'Pubkeys must be less than 1000' }, { status: 400 });
+    const pubkeyList = pubkeys.split(',').map(p => p.trim()).filter(Boolean);
+
+    if (pubkeyList.length > 200) {
+      return NextResponse.json({ error: 'Pubkeys must be less than 200' }, { status: 400 });
     }
 
     if (!chainId) {
@@ -31,29 +33,40 @@ export async function GET(request: NextRequest) {
     const clEndpoint = networkConfig.clEndpoint;
     const multiplier = networkConfig.cl.multiplier;
     const PUBKEY_REGEX = /^0x[0-9a-fA-F]{96}$/;
-    const pubkeyList = pubkeys.split(',').map(p => p.trim()).filter(Boolean);
+
     if (!pubkeyList.every(p => PUBKEY_REGEX.test(p))) {
       return NextResponse.json({ error: 'One or more pubkeys are invalid' }, { status: 400 });
     }
-    const validators: APIValidatorInfo[] = [];
 
     const allowedOrigin = new URL(clEndpoint).origin;
+    const BATCH_SIZE = 50;
+    const fetchPromises = [];
 
-    for (const pubkey of pubkeyList) {
-      try {
-        const url = new URL(`/eth/v1/beacon/states/finalized/validators/${encodeURIComponent(pubkey)}`, clEndpoint);
-        if (url.origin !== allowedOrigin) {
-          continue;
-        }
-        const resp = await fetch(url);
+    for (let i = 0; i < pubkeyList.length; i += BATCH_SIZE) {
+      const chunk = pubkeyList.slice(i, i + BATCH_SIZE);
+      const url = new URL('/eth/v1/beacon/states/finalized/validators', clEndpoint);
 
-        if (!resp.ok) {
-          console.warn(`Failed to fetch validator ${pubkey}: ${resp.status}`);
-          continue;
-        }
+      url.searchParams.set('id', chunk.join(','));
 
-        const json: { data: BeaconChainResponse } = await resp.json();
-        const v = json.data;
+      if (url.origin === allowedOrigin) {
+        fetchPromises.push(
+          fetch(url)
+            .then(res => {
+              if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+              return res.json();
+            })
+        );
+      }
+    }
+
+    const results = await Promise.all(fetchPromises);
+    console.log(results);
+    const validators: APIValidatorInfo[] = [];
+
+    for (const json of results) {
+      if (!json || !json.data) continue;
+
+      for (const v of json.data as BeaconChainResponse[]) {
         const creds = v.validator.withdrawal_credentials;
         const filterStatus = STATUS_TO_FILTER[v.status];
 
@@ -62,13 +75,11 @@ export async function GET(request: NextRequest) {
           pubkey: v.validator.pubkey as Address,
           balance: (parseGwei(v.balance.toString()) / multiplier).toString(),
           effectiveBalance: (parseGwei(v.validator.effective_balance.toString()) / multiplier).toString(),
-          withdrawal_credentials: v.validator.withdrawal_credentials,
+          withdrawal_credentials: creds,
           type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
           filterStatus: filterStatus,
           status: v.status,
         });
-      } catch (err) {
-        console.warn('Error fetching validator', pubkey, err);
       }
     }
 
