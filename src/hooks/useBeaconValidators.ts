@@ -20,6 +20,7 @@ export function useBeaconValidators(
 
 		const fetchAllValidators = async () => {
 			setLoading(true);
+			setError(null);
 			try {
 				const params = new URLSearchParams({
 					address: address,

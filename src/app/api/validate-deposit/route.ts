@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateDepositData } from '../../../utils/depositValidation';
+import { NETWORK_CONFIG } from '../../../constants/networks';
 
 export const GRAPHQL_URL = process.env.GRAPHQL_URL;
 
@@ -10,10 +11,16 @@ if (!GRAPHQL_URL) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { depositDataJson, balance, contractConfig } = body;
+        const { depositDataJson, balance, chainId } = body;
 
-        if (!depositDataJson || balance === undefined || !contractConfig) {
+        if (!depositDataJson || balance === undefined || !chainId) {
             return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+        }
+
+        const contractConfig = NETWORK_CONFIG[Number(chainId)];
+
+        if (!contractConfig) {
+            return NextResponse.json({ error: 'Invalid chain ID' }, { status: 400 });
         }
 
         const result = await validateDepositData(

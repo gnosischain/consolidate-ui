@@ -60,7 +60,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
           body: JSON.stringify({
             depositDataJson: parsedData,
             balance: balance.toString(),
-            contractConfig: contractConfig
+            chainId: contractConfig.chainId,
           })
         });
 
