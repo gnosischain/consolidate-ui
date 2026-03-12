@@ -5,8 +5,7 @@ import { BeaconChainResponse } from '../../../types/beacon';
 import { STATUS_TO_FILTER } from '../../../utils/status';
 import { NETWORK_CONFIG } from '../../../constants/networks';
 import { fetchGraphQL } from '../../../utils/graphql';
-
-const GRAPHQL_URL = process.env.GRAPHQL_URL || '';
+import { GRAPHQL_URL } from '../validate-deposit/route';
 
 const GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS = `
 query GetDepositsByWithdrawalCredentials($withdrawal_credentials: String!, $chainId: Int!) {
@@ -38,11 +37,11 @@ export async function GET(request: NextRequest) {
         const withdrawalCredentials0x02 = "0x020000000000000000000000" + address.slice(2).toLowerCase();
 
         const [response0x01, response0x02] = await Promise.all([
-            fetchGraphQL(GRAPHQL_URL, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
+            fetchGraphQL(GRAPHQL_URL!, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
                 withdrawal_credentials: withdrawalCredentials0x01,
                 chainId: Number(chainId),
             }),
-            fetchGraphQL(GRAPHQL_URL, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
+            fetchGraphQL(GRAPHQL_URL!, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
                 withdrawal_credentials: withdrawalCredentials0x02,
                 chainId: Number(chainId),
             }),
@@ -74,8 +73,6 @@ export async function GET(request: NextRequest) {
             const url = new URL('/eth/v1/beacon/states/finalized/validators', clEndpoint);
 
             url.searchParams.set('id', chunk.join(','));
-            url.searchParams.set('status', 'active');
-            console.log(url);
 
             if (url.origin === allowedOrigin) {
                 fetchPromises.push(
@@ -115,7 +112,16 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        return NextResponse.json({ data: validators });
+        validators.sort((a, b) => {
+            const aIsActive = a.status.startsWith('active');
+            const bIsActive = b.status.startsWith('active');
+
+            if (aIsActive && !bIsActive) return -1;
+            if (!aIsActive && bIsActive) return 1;
+            return 0;
+        });
+
+        return NextResponse.json({ data: validators.slice(0, 500) });
     } catch (error) {
         console.error('Error fetching beacon validators by address:', error);
         return NextResponse.json(

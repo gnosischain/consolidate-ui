@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateDepositData } from '../../../utils/depositValidation';
 
-const GRAPHQL_URL = process.env.GRAPHQL_URL || '';
+export const GRAPHQL_URL = process.env.GRAPHQL_URL;
+
+if (!GRAPHQL_URL) {
+    throw new Error('GRAPHQL_URL is not defined');
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -16,7 +20,7 @@ export async function POST(request: NextRequest) {
             depositDataJson,
             BigInt(balance),
             contractConfig,
-            GRAPHQL_URL
+            GRAPHQL_URL!
         );
 
         return NextResponse.json({

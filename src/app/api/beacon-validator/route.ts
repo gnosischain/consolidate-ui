@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     const pubkeyList = pubkeys.split(',').map(p => p.trim()).filter(Boolean);
 
-    if (pubkeyList.length > 100) {
+    if (pubkeyList.length > 200) {
       return NextResponse.json({ error: 'Pubkeys must be less than 200' }, { status: 400 });
     }
 
