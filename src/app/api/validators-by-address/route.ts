@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Address, parseGwei } from 'viem';
+import { Address, isAddress, parseGwei } from 'viem';
 import { APIValidatorInfo } from '../../../types/api';
 import { BeaconChainResponse } from '../../../types/beacon';
 import { STATUS_TO_FILTER } from '../../../utils/status';
@@ -33,6 +33,8 @@ export async function GET(request: NextRequest) {
         const networkConfig = NETWORK_CONFIG[Number(chainId)];
         if (!networkConfig) return NextResponse.json({ error: 'Unsupported chainId' }, { status: 400 });
 
+        if (!isAddress(address)) return NextResponse.json({ error: 'Invalid address' }, { status: 400 });
+
         const withdrawalCredentials0x01 = "0x010000000000000000000000" + address.slice(2).toLowerCase();
         const withdrawalCredentials0x02 = "0x020000000000000000000000" + address.slice(2).toLowerCase();
 
@@ -46,6 +48,12 @@ export async function GET(request: NextRequest) {
                 chainId: Number(chainId),
             }),
         ]);
+
+        if (response0x01.errors || response0x02.errors) {
+            console.error('GraphQL Error 0x01:', response0x01.errors);
+            console.error('GraphQL Error 0x02:', response0x02.errors);
+            throw new Error('GraphQL returned an error.');
+        }
 
         const deposits0x01 = response0x01.data?.SBCDepositContract_DepositEvent || [];
         const deposits0x02 = response0x02.data?.SBCDepositContract_DepositEvent || [];
