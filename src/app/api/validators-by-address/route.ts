@@ -7,16 +7,15 @@ import { NETWORK_CONFIG } from '../../../constants/networks';
 import { fetchGraphQL } from '../../../utils/graphql';
 import { GRAPHQL_URL } from '../validate-deposit/route';
 
-const GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS = `
-query GetDepositsByWithdrawalCredentials($withdrawal_credentials: String!, $chainId: Int!) {
-  SBCDepositContract_DepositEvent(
+const GET_DEPOSITS_BY_WITHDRAWAL_ADDRESS = `
+query GetDepositsByWithdrawalAddress($withdrawal_address: String!, $chainId: Int!) {
+  Validator(
     where: { 
-      withdrawal_credentials: { _eq: $withdrawal_credentials },
+      withdrawal_address: { _eq: $withdrawal_address },
       chainId: { _eq: $chainId }
     }
   ) {
     pubkey
-    index
   }
 }
 `;
@@ -35,39 +34,23 @@ export async function GET(request: NextRequest) {
 
         if (!isAddress(address)) return NextResponse.json({ error: 'Invalid address' }, { status: 400 });
 
-        const withdrawalCredentials0x01 = "0x010000000000000000000000" + address.slice(2).toLowerCase();
-        const withdrawalCredentials0x02 = "0x020000000000000000000000" + address.slice(2).toLowerCase();
+        const response = await fetchGraphQL(GRAPHQL_URL!, GET_DEPOSITS_BY_WITHDRAWAL_ADDRESS, {
+            withdrawal_address: address.toLowerCase(),
+            chainId: Number(chainId),
+        });
 
-        const [response0x01, response0x02] = await Promise.all([
-            fetchGraphQL(GRAPHQL_URL!, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
-                withdrawal_credentials: withdrawalCredentials0x01,
-                chainId: Number(chainId),
-            }),
-            fetchGraphQL(GRAPHQL_URL!, GET_DEPOSITS_BY_WITHDRAWAL_CREDENTIALS, {
-                withdrawal_credentials: withdrawalCredentials0x02,
-                chainId: Number(chainId),
-            }),
-        ]);
-
-        if (response0x01.errors || response0x02.errors) {
-            console.error('GraphQL Error 0x01:', response0x01.errors);
-            console.error('GraphQL Error 0x02:', response0x02.errors);
+        if (response.errors) {
+            console.error('GraphQL Error:', response.errors);
             throw new Error('GraphQL returned an error.');
         }
 
-        const deposits0x01 = response0x01.data?.SBCDepositContract_DepositEvent || [];
-        const deposits0x02 = response0x02.data?.SBCDepositContract_DepositEvent || [];
-        const allDeposits = [...deposits0x01, ...deposits0x02];
+        const deposits = response.data?.Validator || [];
 
-        const uniqueDeposits = allDeposits.filter(
-            (deposit, index, self) => self.findIndex((d) => d.pubkey === deposit.pubkey) === index
-        );
-
-        if (uniqueDeposits.length === 0) {
+        if (deposits.length === 0) {
             return NextResponse.json({ data: [] });
         }
 
-        const pubkeys = uniqueDeposits.map((d) => d.pubkey);
+        const pubkeys = deposits.map((d: any) => d.pubkey);
 
         const clEndpoint = networkConfig.clEndpoint;
         const multiplier = networkConfig.cl.multiplier;
