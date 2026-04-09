@@ -1,8 +1,5 @@
-import { mainnet, gnosis, gnosisChiado, sepolia } from 'wagmi/chains';
+import { gnosis, gnosisChiado } from 'wagmi/chains';
 import { NetworkConfig } from '../types/network';
-
-const QUICKNODE_ENDPOINT = process.env.NEXT_PUBLIC_QUICKNODE_ENDPOINT;
-const QUICKNODE_TOKEN = process.env.NEXT_PUBLIC_QUICKNODE_TOKEN;
 
 const GNOSIS_CL = {
 	minBalance: 1,
@@ -10,33 +7,8 @@ const GNOSIS_CL = {
 	multiplier: 32n,
 };
 
-const ETHEREUM_CL = {
-	minBalance: 32,
-	maxBalance: 2048,
-	multiplier: 1n,
-};
-
+/** Supported chains only; avoids bundling unused NEXT_PUBLIC RPC secrets for ETH/Sepolia. */
 export const NETWORK_CONFIG: Record<number, NetworkConfig> = {
-	[mainnet.id]: {
-		explorerUrl: mainnet.blockExplorers.default.url,
-		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
-		withdrawalAddress: '0x00000961Ef480Eb55e80D19ad83579A64c007002',
-		beaconchainApi: 'https://beaconcha.in',
-		clEndpoint: 'https://' + QUICKNODE_ENDPOINT + '.quiknode.pro/' + QUICKNODE_TOKEN,
-		chainId: mainnet.id,
-		cl: ETHEREUM_CL,
-		forkVersion: "00000000",
-	},
-	[sepolia.id]: {
-		explorerUrl: sepolia.blockExplorers.default.url,
-		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
-		withdrawalAddress: '0x00000961Ef480Eb55e80D19ad83579A64c007002',
-		clEndpoint:
-			'https://' + QUICKNODE_ENDPOINT + '.ethereum-sepolia.quiknode.pro/' + QUICKNODE_TOKEN,
-		chainId: sepolia.id,
-		cl: ETHEREUM_CL,
-		forkVersion: "90000069",
-	},
 	[gnosis.id]: {
 		explorerUrl: gnosis.blockExplorers.default.url,
 		consolidateAddress: '0x0000BBdDc7CE488642fb579F8B00f3a590007251',
