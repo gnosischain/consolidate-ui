@@ -9,12 +9,8 @@ const STATUS_TO_BADGE: Record<ValidatorStatus, [string, string]> = {
 	active_online: ['success', 'Active Online'],
 	active_slashed: ['error', 'Active Slashed'],
 	active_offline: ['warning', 'Active Offline'],
-	exited: ['neutral', 'Exited'],
 	active_exiting: ['info', 'Exiting'],
-	exited_unslashed: ['neutral', 'Exited Unslahed'],
-	exited_slashed: ['neutral', 'Exited Slashed'],
 	withdrawal_possible: ['info', 'Withdrawal Possible'],
-	withdrawal_done: ['neutral', 'Withdrawal Done'],
 };
 
 interface ValidatorBadgeProps {

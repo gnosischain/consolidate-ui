@@ -54,7 +54,7 @@ export function ValidatorItem({
 			<td className="font-semibold">
 				<div className="flex items-center gap-2">
 					<span>{(Math.floor(Number(formatEther(validator.balance)) * 100) / 100).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></span>
-					{validator.balance < parseEther('1') && validator.filterStatus !== 'exited' && (
+					{validator.balance < parseEther('1') && (
 						<div className="badge badge-xs badge-soft badge-warning">
 							Low
 						</div>
