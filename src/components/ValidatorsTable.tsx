@@ -102,7 +102,6 @@ export function ValidatorsTable({
 					<select defaultValue="active" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
 						<option value="">All status</option>
 						<option value="active">Active</option>
-						<option value="exited">Exited</option>
 						<option value="pending">Pending</option>
 					</select>
 					<select

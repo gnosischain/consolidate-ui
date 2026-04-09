@@ -9,11 +9,7 @@ export const VALIDATOR_STATUS = [
     'active_offline',
     'active_exiting',
     'active_slashed',
-    'exited_unslashed',
-    'exited',
-    'exited_slashed',
     'withdrawal_possible',
-    'withdrawal_done',
 ] as const
 
 export type ValidatorStatus =
