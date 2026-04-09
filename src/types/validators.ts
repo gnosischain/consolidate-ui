@@ -4,7 +4,6 @@ import { ValidatorStatus } from "./beacon";
 export enum FilterStatus {
     ACTIVE = "active",
     PENDING = "pending",
-    EXITED = "exited",
 }
 
 export type CredentialType = 0 | 1 | 2;
@@ -26,15 +25,15 @@ export interface ValidatorIndex {
 }
 
 export interface Withdrawal {
-	pubkey: Address;
-	amount: bigint;
+    pubkey: Address;
+    amount: bigint;
 }
 
 export interface Consolidation {
-	sourceIndex: number;
-	sourceKey: Address;
-	sourceBalance: bigint;
-	targetIndex: number;
-	targetKey: Address;
-	targetBalance: bigint;
+    sourceIndex: number;
+    sourceKey: Address;
+    sourceBalance: bigint;
+    targetIndex: number;
+    targetKey: Address;
+    targetBalance: bigint;
 }
