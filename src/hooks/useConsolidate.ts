@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
-import { concat, parseEther } from 'viem';
+import { concat } from 'viem';
 import { Consolidation, ValidatorInfo, CredentialType } from '../types/validators';
 import { useWallet } from '../context/WalletContext';
 import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
+import { EL_FEE } from '../constants/misc';
 
 interface ComputedConsolidation {
 	consolidations: Consolidation[];
@@ -44,7 +45,7 @@ export function computeConsolidations(
 			});
 		}
 
-		for (let i = 0; i < remaining.length; ) {
+		for (let i = 0; i < remaining.length;) {
 			const cand = remaining[i];
 			if (tb + cand.balance <= chunkSize) {
 				consolidations.push({
@@ -74,11 +75,7 @@ export function useConsolidateValidatorsBatch(options?: UseTransactionOptions) {
 
 	const consolidateValidators = useCallback(
 		(consolidations: Consolidation[]) => {
-			if (consolidations.length === 0) {
-				return;
-			}
-
-			if (!network?.consolidateAddress) {
+			if (consolidations.length === 0 || !network?.consolidateAddress) {
 				return;
 			}
 
@@ -86,7 +83,7 @@ export function useConsolidateValidatorsBatch(options?: UseTransactionOptions) {
 				({ sourceKey, targetKey, sourceIndex, targetIndex }) => ({
 					to: network.consolidateAddress,
 					data: concat([sourceKey, targetKey]),
-					value: parseEther('0.000001'),
+					value: EL_FEE,
 					title: sourceIndex === targetIndex ? 'Self Consolidate' : 'Consolidate',
 				}),
 			);

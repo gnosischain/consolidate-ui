@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useEffect, useState, useMemo } from 'react';
-import { useCapabilities, useConnection } from 'wagmi';
+import { useCapabilities, useConnection, useBalance as useNativeBalance } from 'wagmi';
 import { NETWORK_CONFIG } from '../constants/networks';
 import useBalance from '../hooks/useBalance';
 import { useAutoConnect } from '../hooks/useAutoconnect';
@@ -24,6 +24,7 @@ interface WalletContextType {
 		refetchClaimBalance: () => void;
 		claim: () => void;
 	};
+	nativeBalance: bigint;
 	isMounted: boolean;
 }
 
@@ -39,6 +40,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
 	const isWrongNetwork = Boolean(account.isConnected && !network);
 	const balance = useBalance(network, account.address);
+	const { data: nativeBalanceData } = useNativeBalance({
+		address: account.address,
+		query: { enabled: !!account.address },
+	});
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -59,6 +64,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 			network,
 			isWrongNetwork: isMounted && isWrongNetwork,
 			balance,
+			nativeBalance: nativeBalanceData?.value ?? 0n,
 			isMounted,
 		}),
 		[
@@ -72,6 +78,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 			network,
 			isWrongNetwork,
 			balance,
+			nativeBalanceData?.value,
 		],
 	);
 
