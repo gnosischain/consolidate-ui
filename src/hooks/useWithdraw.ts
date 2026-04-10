@@ -1,8 +1,6 @@
 import { useCallback } from 'react';
 import { encodePacked, formatUnits } from 'viem';
 
-// EIP-7002: same fee mechanic as EIP-7251 — minimum is 1 wei.
-const WITHDRAWAL_FEE = 1n;
 import { Withdrawal } from '../types/validators';
 import { NetworkConfig } from '../types/network';
 import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
