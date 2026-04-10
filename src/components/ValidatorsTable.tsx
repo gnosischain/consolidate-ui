@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-	computeSelfConsolidations,
-	useConsolidateValidatorsBatch,
-} from '../hooks/useConsolidate';
+import { computeSelfConsolidations, useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorItem } from './ValidatorItem';
 import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, Info } from 'lucide-react';
@@ -12,9 +9,7 @@ interface ValidatorsTableProps {
 	validators: ValidatorInfo[];
 }
 
-export function ValidatorsTable({
-	validators,
-}: ValidatorsTableProps) {
+export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 	const { consolidateValidators } = useConsolidateValidatorsBatch();
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
@@ -23,7 +18,7 @@ export function ValidatorsTable({
 
 	const itemsPerPage = 9;
 	const type1ValidatorsActive = validators.filter(
-		(v) => v.type === 1 && v.filterStatus === 'active'
+		(v) => v.type === 1 && v.filterStatus === 'active',
 	);
 
 	const filteredValidators = useMemo(() => {
@@ -59,7 +54,7 @@ export function ValidatorsTable({
 	};
 
 	const toggleOne = (idx: number, checked: boolean) => {
-		setSelected(prev => {
+		setSelected((prev) => {
 			const next = new Set(prev);
 			if (checked) {
 				next.add(idx);
@@ -71,7 +66,7 @@ export function ValidatorsTable({
 	};
 
 	const toggleAll = (checked: boolean) => {
-		setSelected(checked ? new Set(filteredValidators.map(v => v.index)) : new Set());
+		setSelected(checked ? new Set(filteredValidators.map((v) => v.index)) : new Set());
 	};
 
 	const allSelected = useMemo(() => {
@@ -91,7 +86,7 @@ export function ValidatorsTable({
 	};
 
 	const selectedValidators = useMemo<ValidatorInfo[]>(() => {
-		return filteredValidators.filter(v => selected.has(v.index));
+		return filteredValidators.filter((v) => selected.has(v.index));
 	}, [filteredValidators, selected]);
 
 	return (
@@ -99,7 +94,11 @@ export function ValidatorsTable({
 			{/* FILTER */}
 			<div className="flex items-center justify-between w-full">
 				<div className="flex items-center gap-x-2">
-					<select defaultValue="active" className="select select-sm w-24" onChange={(e) => setFilterStatus(e.target.value || undefined)}>
+					<select
+						defaultValue="active"
+						className="select select-sm w-24"
+						onChange={(e) => setFilterStatus(e.target.value || undefined)}
+					>
 						<option value="">All status</option>
 						<option value="active">Active</option>
 						<option value="pending">Pending</option>
@@ -131,12 +130,60 @@ export function ValidatorsTable({
 					<thead>
 						<tr className="bg-primary/15">
 							{/* TODO: Add sorting */}
-							<th><input type="checkbox" checked={allSelected} onChange={(e) => toggleAll(e.target.checked)} className="checkbox checkbox-primary checkbox-xs" /></th>
-							<th className="w-16"><div className="flex items-center">Index <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
-							<th><div className="flex items-center">Pubkey <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
-							<th><div className="flex items-center">Type <span className="tooltip tooltip-right" data-tip="Standard validators rewards need to be claimed, compounding validators rewards are automatically compounded up to 64 GNOs"><Info className="w-4 h-4 opacity-50" /></span><button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
-							<th><div className="flex items-center">Status <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
-							<th><div className="flex items-center">Balance <button className="btn btn-xs btn-circle btn-ghost"><ChevronsUpDown className="w-4 h-4 opacity-50" /></button></div></th>
+							<th>
+								<input
+									type="checkbox"
+									checked={allSelected}
+									onChange={(e) => toggleAll(e.target.checked)}
+									className="checkbox checkbox-primary checkbox-xs"
+								/>
+							</th>
+							<th className="w-16">
+								<div className="flex items-center">
+									Index{' '}
+									<button className="btn btn-xs btn-circle btn-ghost">
+										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+									</button>
+								</div>
+							</th>
+							<th>
+								<div className="flex items-center">
+									Pubkey{' '}
+									<button className="btn btn-xs btn-circle btn-ghost">
+										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+									</button>
+								</div>
+							</th>
+							<th>
+								<div className="flex items-center">
+									Type{' '}
+									<span
+										className="tooltip tooltip-right"
+										data-tip="Standard validators rewards need to be claimed, compounding validators rewards are automatically compounded up to 64 GNOs"
+									>
+										<Info className="w-4 h-4 opacity-50" />
+									</span>
+									<button className="btn btn-xs btn-circle btn-ghost">
+										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+									</button>
+								</div>
+							</th>
+							<th>
+								<div className="flex items-center">
+									Status{' '}
+									<button className="btn btn-xs btn-circle btn-ghost">
+										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+									</button>
+								</div>
+							</th>
+							<th>
+								<div className="flex items-center">
+									Balance{' '}
+									<button className="btn btn-xs btn-circle btn-ghost">
+										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+									</button>
+								</div>
+							</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
@@ -150,8 +197,7 @@ export function ValidatorsTable({
 							/>
 						))}
 						{emptyRows.map((_, index) => (
-							<tr key={`empty-${index}`} className="h-14">
-							</tr>
+							<tr key={`empty-${index}`} className="h-14"></tr>
 						))}
 					</tbody>
 				</table>
@@ -160,18 +206,19 @@ export function ValidatorsTable({
 			{totalPages > 1 && (
 				<div className="flex items-center justify-between w-full px-2">
 					<div className="text-sm text-base-content/70">
-						Showing {startIndex + 1}-{Math.min(endIndex, filteredValidators.length)} of {filteredValidators.length} validators
+						Showing {startIndex + 1}-{Math.min(endIndex, filteredValidators.length)} of{' '}
+						{filteredValidators.length} validators
 					</div>
 					<div className="flex items-center gap-2">
 						<button
 							className="btn btn-sm btn-circle btn-ghost"
-							onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+							onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
 							disabled={currentPage === 1}
 						>
 							<ChevronLeft className="w-4 h-4" />
 						</button>
 						<div className="flex items-center gap-1">
-							{getVisiblePages().map(page => (
+							{getVisiblePages().map((page) => (
 								<button
 									key={page}
 									className={`btn btn-sm ${currentPage === page ? 'btn-primary' : 'btn-ghost'}`}
@@ -183,7 +230,7 @@ export function ValidatorsTable({
 						</div>
 						<button
 							className="btn btn-sm btn-circle btn-ghost"
-							onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+							onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
 							disabled={currentPage === totalPages}
 						>
 							<ChevronRight className="w-4 h-4" />
@@ -192,10 +239,7 @@ export function ValidatorsTable({
 				</div>
 			)}
 
-			{selected.size > 0 && (
-				<ActionBar selected={selectedValidators} />
-			)}
-
+			{selected.size > 0 && <ActionBar selected={selectedValidators} />}
 		</div>
 	);
 }

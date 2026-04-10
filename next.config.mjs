@@ -6,13 +6,13 @@ const cspHeader = `
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data:;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://rpc.gnosischain.com/ https://dune-proxy.gnosischain.com/ https://rpc.chiadochain.net/ https://indexer.hyperindex.xyz/;
+    connect-src 'self' https://rpc.gnosischain.com/ https://api.analytics.gnosis.io/v1/consensus/validators_apy/latest https://rpc.chiadochain.net/ https://indexer.hyperindex.xyz/;
 	frame-ancestors https://app.safe.global;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
     upgrade-insecure-requests;
-`
+`;
 
 const nextConfig = {
 	async headers() {
@@ -20,12 +20,12 @@ const nextConfig = {
 			{
 				source: '/(.*)',
 				headers: [
-				  {
-					key: 'Content-Security-Policy',
-					value: cspHeader.replace(/\n/g, ''),
-				  },
+					{
+						key: 'Content-Security-Policy',
+						value: cspHeader.replace(/\n/g, ''),
+					},
 				],
-			  },
+			},
 			{
 				source: '/manifest\\.json',
 				headers: [

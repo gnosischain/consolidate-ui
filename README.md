@@ -4,12 +4,14 @@ A web interface for consolidating and managing validator data.
 Network supported: Gnosis Chain, Ethereum, Chiado, Sepolia.
 
 ## Features
+
 - View and filter validator information
 - Aggregate and consolidate validator data
 
 ## Getting Started
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (v18.20.1 or higher recommended)
 - [pnpm](https://pnpm.io/) package manager
 
@@ -42,6 +44,7 @@ pnpm build
 ```
 
 ## Project Structure
+
 - `src/components/` – React components
 - `src/hooks/` – Custom React hooks
 - `src/constants/` – Network and configuration constants
@@ -49,5 +52,5 @@ pnpm build
 - `src/utils/` – Utility functions
 
 ## Contributing
-Contributions are welcome! Please open issues or submit pull requests for improvements or bug fixes.
 
+Contributions are welcome! Please open issues or submit pull requests for improvements or bug fixes.

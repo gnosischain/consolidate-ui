@@ -21,11 +21,15 @@ export default function Dashboard() {
 	const { validators } = useBeaconValidators(network, account.address);
 
 	const totalBalance = useMemo(() => {
-		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.balance, 0n);
+		return validators
+			.filter((v) => v.filterStatus === 'active')
+			.reduce((acc, v) => acc + v.balance, 0n);
 	}, [validators]);
 
 	const totalEffectiveBalance = useMemo(() => {
-		return validators.filter(v => v.filterStatus === 'active').reduce((acc, v) => acc + v.effectiveBalance, 0n);
+		return validators
+			.filter((v) => v.filterStatus === 'active')
+			.reduce((acc, v) => acc + v.effectiveBalance, 0n);
 	}, [validators]);
 
 	const [currentYield, setCurrentYield] = useState<number | null>(null);
@@ -35,7 +39,10 @@ export default function Dashboard() {
 		if (!actionContract || actionContract?.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
 			return 'Enabled';
 		}
-		if (network?.payClaimActionAddress && actionContract?.toLowerCase() === network.payClaimActionAddress.toLowerCase()) {
+		if (
+			network?.payClaimActionAddress &&
+			actionContract?.toLowerCase() === network.payClaimActionAddress.toLowerCase()
+		) {
 			return 'Gnosis Pay';
 		}
 		return truncateAddress(actionContract);
@@ -68,7 +75,13 @@ export default function Dashboard() {
 				detail: actionContractLabel,
 				icon: isGnosisPay ? (
 					<div className="bg-black h-6 w-16 rounded-lg flex items-center justify-center px-1">
-						<Image src="/gnosis-pay.svg" alt="Gnosis Pay" width={40} height={40} className="w-full h-full object-contain" />
+						<Image
+							src="/gnosis-pay.svg"
+							alt="Gnosis Pay"
+							width={40}
+							height={40}
+							className="w-full h-full object-contain"
+						/>
 					</div>
 				) : (
 					defaultIcon
@@ -91,12 +104,14 @@ export default function Dashboard() {
 	useEffect(() => {
 		const fetchYield = async () => {
 			try {
-				const response = await fetch('https://dune-proxy.gnosischain.com/current-yield');
+				const response = await fetch(
+					'https://api.analytics.gnosis.io/v1/consensus/validators_apy/latest',
+				);
 				if (!response.ok) {
 					throw new Error('Failed to fetch yield data');
 				}
 				const data = await response.json();
-				const yieldValue = data.result.rows[0]?.yield;
+				const yieldValue = data[0].value;
 				setCurrentYield(yieldValue || null);
 			} catch (error) {
 				console.error('Error fetching yield:', error);
@@ -110,22 +125,22 @@ export default function Dashboard() {
 	}, []);
 
 	return (
-		<div className='flex flex-col w-full'>
+		<div className="flex flex-col w-full">
 			{isMounted && network && <WarningModal totalBalance={totalBalance} network={network} />}
-			{isMounted && account.isConnected && <BatchInfo canBatch={canBatch} canBatchLoading={canBatchLoading} />}
+			{isMounted && account.isConnected && (
+				<BatchInfo canBatch={canBatch} canBatchLoading={canBatchLoading} />
+			)}
 			<DashboardHeader
 				totalBalance={totalBalance}
 				totalEffectiveBalance={totalEffectiveBalance}
 				currentYield={currentYield}
 				yieldLoading={yieldLoading}
-				activeValidatorsCount={validators.filter(v => v.filterStatus === 'active').length}
+				activeValidatorsCount={validators.filter((v) => v.filterStatus === 'active').length}
 				isRegistered={isRegistered}
 				autoclaimStatus={autoclaimStatus}
 				handleOpenAutoclaim={handleOpenAutoclaim}
 			/>
-			<ValidatorsTable
-				validators={validators}
-			/>
+			<ValidatorsTable validators={validators} />
 		</div>
 	);
 }
