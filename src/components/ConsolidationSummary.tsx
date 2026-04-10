@@ -60,7 +60,7 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
 				</table>
 			</div>
 
-			<button onClick={handleConsolidate} className="btn btn-primary mt-6">
+			<button onClick={handleConsolidate} className="btn btn-primary mt-6" disabled={isPending}>
 				{isPending ? 'Consolidating...' : 'Consolidate'}
 			</button>
 		</>

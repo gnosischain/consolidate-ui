@@ -167,7 +167,6 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 	const onAutoclaim = useCallback(async () => {
 		try {
 			await plannedActions[0].action();
-			plannedActions.shift();
 		} catch (error) {
 			console.error(error);
 		}

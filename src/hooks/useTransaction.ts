@@ -58,6 +58,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 	});
 
 	const [currentCalls, setCurrentCalls] = useState<TransactionCall[]>([]);
+	const [queueIndex, setQueueIndex] = useState(0);
 	const toastId = useRef<string | undefined>(undefined);
 	const hasCalledOnSuccess = useRef(false);
 
@@ -84,10 +85,10 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 			return `Processing ${uniqueTitles.join(', ')}...`;
 		} else {
 			const total = currentCalls.length;
-			const currentTitle = currentCalls[0]?.title || 'Transaction';
-			return `${total > 1 ? `1/${total}: ` : ''}${currentTitle}`;
+			const currentTitle = currentCalls[queueIndex]?.title || 'Transaction';
+			return `${total > 1 ? `${queueIndex + 1}/${total}: ` : ''}${currentTitle}`;
 		}
-	}, [currentCalls, canBatch]);
+	}, [currentCalls, canBatch, queueIndex]);
 
 	// Show/dismiss loading toast based on isPending
 	useEffect(() => {
@@ -104,23 +105,46 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 		}
 	}, [isPending, currentCalls.length, getToastMessage]);
 
-	// Handle success
+	// Advance queue or complete on single tx success
 	useEffect(() => {
-		if (isSuccess && currentCalls.length > 0 && !hasCalledOnSuccess.current) {
-			hasCalledOnSuccess.current = true;
+		if (!isSuccess || canBatch || currentCalls.length === 0) return;
 
+		const nextIndex = queueIndex + 1;
+
+		if (nextIndex < currentCalls.length) {
+			// Send the next transaction in the queue
+			setQueueIndex(nextIndex);
+			const next = currentCalls[nextIndex];
+			mutateTransaction({ to: next.to, data: next.data, value: next.value });
+		} else if (!hasCalledOnSuccess.current) {
+			// All done
+			hasCalledOnSuccess.current = true;
 			const titles = currentCalls.map((c) => c.title).filter(Boolean);
 			const uniqueTitles = [...new Set(titles)];
 			const successMessage =
 				uniqueTitles.length > 0
 					? `${uniqueTitles.join(', ')} successful`
 					: 'Transaction successful';
-
 			toast.success(successMessage);
 			options?.onSuccess?.();
 			setCurrentCalls([]);
+			setQueueIndex(0);
 		}
-	}, [isSuccess, currentCalls, options]);
+	}, [isSuccess, canBatch, currentCalls, queueIndex, mutateTransaction, options]);
+
+	// Handle batch success
+	useEffect(() => {
+		if (!isSuccess || !canBatch || currentCalls.length === 0 || hasCalledOnSuccess.current) return;
+
+		hasCalledOnSuccess.current = true;
+		const titles = currentCalls.map((c) => c.title).filter(Boolean);
+		const uniqueTitles = [...new Set(titles)];
+		const successMessage =
+			uniqueTitles.length > 0 ? `${uniqueTitles.join(', ')} successful` : 'Transaction successful';
+		toast.success(successMessage);
+		options?.onSuccess?.();
+		setCurrentCalls([]);
+	}, [isSuccess, canBatch, currentCalls, options]);
 
 	// Handle errors
 	useEffect(() => {
@@ -128,23 +152,25 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 			const errorMsg = sendCallsError?.message || sendTxError?.message || 'Transaction failed';
 			toast.error(errorMsg.substring(0, 50));
 			setCurrentCalls([]);
+			setQueueIndex(0);
 		}
 	}, [isError, sendCallsError, sendTxError, currentCalls.length]);
 
 	const execute = useCallback(
 		(callsInput: TransactionCall[]) => {
+			if (callsInput.length === 0) return;
+
 			setCurrentCalls(callsInput);
+			setQueueIndex(0);
 			hasCalledOnSuccess.current = false;
 
 			if (canBatch) {
 				mutateCalls({ calls: callsInput, capabilities: {} });
 			} else {
-				callsInput.forEach((call) => {
-					mutateTransaction({
-						to: call.to,
-						data: call.data,
-						value: call.value,
-					});
+				mutateTransaction({
+					to: callsInput[0].to,
+					data: callsInput[0].data,
+					value: callsInput[0].value,
 				});
 			}
 		},

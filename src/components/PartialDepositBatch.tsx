@@ -11,7 +11,7 @@ interface PartialDepositProps {
 
 export default function PartialDeposit({ validators }: PartialDepositProps) {
 	const { network, balance, account } = useWallet();
-	const [targetAmount, setTargetAmount] = useState(0);
+	const [targetAmount, setTargetAmount] = useState(network?.cl.minBalance ?? 0);
 	const { closeModal } = useModal();
 
 	if (!network || !account.address) {
