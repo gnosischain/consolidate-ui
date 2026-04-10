@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { encodePacked, formatUnits } from 'viem';
 
-import { Withdrawal } from '../types/validators';
+import { Withdrawal, ValidatorInfo } from '../types/validators';
 import { NetworkConfig } from '../types/network';
 import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
 import { computeWithdrawals } from '../utils/withdrawal';
@@ -34,7 +34,7 @@ export function useWithdraw(network: NetworkConfig, options?: UseTransactionOpti
 	return {
 		withdrawValidators,
 		computeWithdrawals: (
-			validators: any,
+			validators: ValidatorInfo[],
 			amountToWithdraw: bigint,
 			totalValidatorBalance: bigint,
 			preventExit = true,
