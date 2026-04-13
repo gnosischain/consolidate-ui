@@ -61,6 +61,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 	const [queueIndex, setQueueIndex] = useState(0);
 	const toastId = useRef<string | undefined>(undefined);
 	const hasCalledOnSuccess = useRef(false);
+	const handledReceiptHash = useRef<string | null>(null);
 
 	// Derive status directly from wagmi hooks
 	const isBatchPending =
@@ -107,7 +108,9 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 
 	// Advance queue or complete on single tx success
 	useEffect(() => {
-		if (!isSuccess || canBatch || currentCalls.length === 0) return;
+		if (!isSuccess || canBatch || currentCalls.length === 0 || !txHash) return;
+		if (txHash === handledReceiptHash.current) return;
+		handledReceiptHash.current = txHash;
 
 		const nextIndex = queueIndex + 1;
 
@@ -119,6 +122,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 		} else if (!hasCalledOnSuccess.current) {
 			// All done
 			hasCalledOnSuccess.current = true;
+			handledReceiptHash.current = null;
 			const titles = currentCalls.map((c) => c.title).filter(Boolean);
 			const uniqueTitles = [...new Set(titles)];
 			const successMessage =
@@ -130,13 +134,14 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 			setCurrentCalls([]);
 			setQueueIndex(0);
 		}
-	}, [isSuccess, canBatch, currentCalls, queueIndex, mutateTransaction, options]);
+	}, [isSuccess, canBatch, currentCalls, queueIndex, txHash, mutateTransaction, options]);
 
 	// Handle batch success
 	useEffect(() => {
 		if (!isSuccess || !canBatch || currentCalls.length === 0 || hasCalledOnSuccess.current) return;
 
 		hasCalledOnSuccess.current = true;
+		handledReceiptHash.current = null;
 		const titles = currentCalls.map((c) => c.title).filter(Boolean);
 		const uniqueTitles = [...new Set(titles)];
 		const successMessage =
@@ -151,6 +156,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 		if (isError && currentCalls.length > 0) {
 			const errorMsg = sendCallsError?.message || sendTxError?.message || 'Transaction failed';
 			toast.error(errorMsg.substring(0, 50));
+			handledReceiptHash.current = null;
 			setCurrentCalls([]);
 			setQueueIndex(0);
 		}
@@ -163,6 +169,7 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
 			setCurrentCalls(callsInput);
 			setQueueIndex(0);
 			hasCalledOnSuccess.current = false;
+			handledReceiptHash.current = null;
 
 			if (canBatch) {
 				mutateCalls({ calls: callsInput, capabilities: {} });

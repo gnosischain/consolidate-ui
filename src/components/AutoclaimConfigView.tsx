@@ -192,7 +192,7 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 					Set up automated claim with your preferred frequency and threshold.{' '}
 					<div
 						className="tooltip tooltip-left"
-						data-tip="Address will become eligable for claim if one of thresholds reached."
+						data-tip="Address will become eligible for claim if one of thresholds reached."
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

@@ -39,7 +39,10 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 					name="amount"
 					max={formatEther(balance.balance)}
 					value={formatEther(amount)}
-					onChange={(e) => setAmount(parseEther(e.target.value))}
+					onChange={(e) => {
+						if (e.target.value === '') { setAmount(0n); return; }
+						try { setAmount(parseEther(e.target.value)); } catch { }
+					}}
 				/>
 			</fieldset>
 

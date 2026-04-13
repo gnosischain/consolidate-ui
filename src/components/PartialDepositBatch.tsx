@@ -23,7 +23,7 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
 		account.address,
 		closeModal,
 	);
-	const [amount, setAmount] = useState(0);
+	const [amount, setAmount] = useState(0n);
 
 	const depositAmounts = useMemo(
 		() =>
@@ -49,7 +49,7 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
 					Deposit amount{' '}
 					<button
 						className="btn btn-xs"
-						onClick={() => setAmount(Number(formatEther(balance.balance)))}
+						onClick={() => setAmount(balance.balance)}
 					>
 						Max
 					</button>
@@ -60,8 +60,11 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
 					className="input input-primary input-sm w-full"
 					name="amount"
 					max={formatEther(balance.balance)}
-					value={amount}
-					onChange={(e) => setAmount(Number(e.target.value))}
+					value={formatEther(amount)}
+					onChange={(e) => {
+						if (e.target.value === '') { setAmount(0n); return; }
+						try { setAmount(parseEther(e.target.value)); } catch { }
+					}}
 				/>
 			</fieldset>
 			<fieldset className="fieldset mt-2 w-full gap-y-2">

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ValidatorInfo } from '../types/validators';
 import { formatEther, parseEther } from 'viem';
 import { useWithdraw } from '../hooks/useWithdraw';
@@ -17,29 +17,21 @@ export default function Withdraw({ validator }: WithdrawProps) {
 	const { closeModal } = useModal();
 	const { withdrawValidators, isPending } = useWithdraw(network, { onSuccess: closeModal });
 
-	const [amountStr, setAmountStr] = useState(
-		validator.type === 1 ? formatEther(validator.balance) : '0',
+	const [amount, setAmount] = useState(
+		validator.type === 1 ? validator.balance : 0n,
 	);
 
-	const parsedAmount = useMemo(() => {
-		try {
-			return parseEther(amountStr);
-		} catch {
-			return null;
-		}
-	}, [amountStr]);
-
 	const minBalance = parseEther(network.cl.minBalance.toString());
-	const isValid = parsedAmount !== null && parsedAmount > 0n && parsedAmount <= validator.balance;
-	const remaining = parsedAmount !== null ? validator.balance - parsedAmount : validator.balance;
+	const isValid = amount > 0n && amount <= validator.balance;
+	const remaining = validator.balance - amount;
 	const isLowBalance = isValid && remaining > 0n && remaining < minBalance;
 
 	const handleSubmit = () => {
-		if (!isValid || parsedAmount === null) return;
+		if (!isValid) return;
 		withdrawValidators([
 			{
 				pubkey: validator.pubkey,
-				amount: parsedAmount === validator.balance ? 0n : parsedAmount,
+				amount: amount === validator.balance ? 0n : amount,
 			},
 		]);
 	};
@@ -54,7 +46,7 @@ export default function Withdraw({ validator }: WithdrawProps) {
 				{validator.type === 2 ? (
 					<legend className="fieldset-legend">
 						Withdraw amount{' '}
-						<button className="btn btn-xs" onClick={() => setAmountStr(formatEther(validator.balance))}>
+						<button className="btn btn-xs" onClick={() => setAmount(validator.balance)}>
 							Max
 						</button>
 					</legend>
@@ -68,8 +60,11 @@ export default function Withdraw({ validator }: WithdrawProps) {
 						className="grow"
 						name="amount"
 						max={formatEther(validator.balance)}
-						value={amountStr}
-						onChange={(e) => setAmountStr(e.target.value)}
+						value={formatEther(amount)}
+						onChange={(e) => {
+							if (e.target.value === '') { setAmount(0n); return; }
+							try { setAmount(parseEther(e.target.value)); } catch { }
+						}}
 						disabled={validator.type === 1}
 					/>
 					<span className="text-xs text-base-content/70 font-medium">GNO</span>
@@ -100,9 +95,9 @@ export default function Withdraw({ validator }: WithdrawProps) {
 				>
 					{isPending
 						? 'Processing...'
-						: parsedAmount === validator.balance
+						: amount === validator.balance
 							? 'Exit validator'
-							: `Withdraw ${isValid && parsedAmount ? formatEther(parsedAmount) : ''} GNO`}
+							: `Withdraw ${isValid ? formatEther(amount) : ''} GNO`}
 				</button>
 			</div>
 		</>
