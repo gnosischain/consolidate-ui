@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { computeSelfConsolidations, useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
+import { useMemo, useState } from 'react';
+// import { computeSelfConsolidations, useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorItem } from './ValidatorItem';
 import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, Info } from 'lucide-react';
@@ -10,16 +10,16 @@ interface ValidatorsTableProps {
 }
 
 export function ValidatorsTable({ validators }: ValidatorsTableProps) {
-	const { consolidateValidators } = useConsolidateValidatorsBatch();
+	// const { buildConsolidateCalls } = useConsolidateValidatorsBatch();
 	const [filterVersion, setFilterVersion] = useState<string | undefined>(undefined);
 	const [filterStatus, setFilterStatus] = useState<string | undefined>('active');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selected, setSelected] = useState<Set<number>>(new Set());
 
 	const itemsPerPage = 9;
-	const type1ValidatorsActive = validators.filter(
-		(v) => v.type === 1 && v.filterStatus === 'active',
-	);
+	// const type1ValidatorsActive = validators.filter(
+	// 	(v) => v.type === 1 && v.filterStatus === 'active',
+	// );
 
 	const filteredValidators = useMemo(() => {
 		let result = validators;
@@ -75,15 +75,10 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 
 	const emptyRows = Array.from({ length: itemsPerPage - paginatedValidators.length }, (_, i) => i);
 
-	useEffect(() => {
-		setCurrentPage(1);
-		setSelected(new Set());
-	}, [filterVersion, filterStatus]);
-
-	const handleUpgradeAll = () => {
-		const consolidations = computeSelfConsolidations(type1ValidatorsActive);
-		consolidateValidators(consolidations);
-	};
+	// const upgradeAllCalls = useMemo(
+	// 	() => buildConsolidateCalls(computeSelfConsolidations(type1ValidatorsActive)),
+	// 	[type1ValidatorsActive, buildConsolidateCalls],
+	// );
 
 	const selectedValidators = useMemo<ValidatorInfo[]>(() => {
 		return filteredValidators.filter((v) => selected.has(v.index));
@@ -97,7 +92,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 					<select
 						defaultValue="active"
 						className="select select-sm w-24"
-						onChange={(e) => setFilterStatus(e.target.value || undefined)}
+						onChange={(e) => { setFilterStatus(e.target.value || undefined); setCurrentPage(1); setSelected(new Set()); }}
 					>
 						<option value="">All status</option>
 						<option value="active">Active</option>
@@ -106,17 +101,17 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 					<select
 						defaultValue=""
 						className="select select-sm"
-						onChange={(e) => setFilterVersion(e.target.value || undefined)}
+						onChange={(e) => { setFilterVersion(e.target.value || undefined); setCurrentPage(1); setSelected(new Set()); }}
 					>
 						<option value="">All versions</option>
 						<option value="1">Type 1</option>
 						<option value="2">Type 2</option>
 					</select>
-					{filterVersion === '1' && (
+					{/* {filterVersion === '1' && (
 						<button className="btn btn-sm" onClick={handleUpgradeAll}>
 							Upgrade all Type 1
 						</button>
-					)}
+					)} */}
 				</div>
 				{/* TODO: Add search */}
 				<label className="input input-sm w-64">

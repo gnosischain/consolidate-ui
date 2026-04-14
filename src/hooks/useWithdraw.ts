@@ -3,20 +3,14 @@ import { encodePacked, formatUnits } from 'viem';
 
 import { Withdrawal, ValidatorInfo } from '../types/validators';
 import { NetworkConfig } from '../types/network';
-import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
+import { TransactionCall } from '../types/transaction';
 import { computeWithdrawals } from '../utils/withdrawal';
 import { EL_FEE } from '../constants/misc';
 
-export function useWithdraw(network: NetworkConfig, options?: UseTransactionOptions) {
-	const { execute, isPending } = useTransaction(options);
-
-	const withdrawValidators = useCallback(
-		(withdrawals: Withdrawal[]) => {
-			if (withdrawals.length === 0) {
-				return;
-			}
-
-			const calls: TransactionCall[] = withdrawals.map(({ pubkey, amount }) => ({
+export function useWithdraw(network: NetworkConfig) {
+	const buildWithdrawCalls = useCallback(
+		(withdrawals: Withdrawal[]): TransactionCall[] => {
+			return withdrawals.map(({ pubkey, amount }) => ({
 				to: network.withdrawalAddress,
 				data: encodePacked(
 					['bytes', 'uint64'],
@@ -25,21 +19,17 @@ export function useWithdraw(network: NetworkConfig, options?: UseTransactionOpti
 				value: EL_FEE,
 				title: amount === 0n ? 'Exit' : 'Withdraw',
 			}));
-
-			execute(calls);
 		},
-		[network, execute],
+		[network],
 	);
 
 	return {
-		withdrawValidators,
+		buildWithdrawCalls,
 		computeWithdrawals: (
 			validators: ValidatorInfo[],
 			amountToWithdraw: bigint,
 			totalValidatorBalance: bigint,
 			preventExit = true,
-		) =>
-			computeWithdrawals(validators, amountToWithdraw, totalValidatorBalance, network, preventExit),
-		isPending,
+		) => computeWithdrawals(validators, amountToWithdraw, totalValidatorBalance, network, preventExit),
 	};
 }

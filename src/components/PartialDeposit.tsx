@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { formatEther, parseEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
 import useDeposit from '../hooks/useDeposit';
 import { ValidatorInfo } from '../types/validators';
 import { useModal } from '../context/ModalContext';
+import { TransactionButton } from './TransactionButton';
 
 export default function PartialDeposit({ validator }: { validator: ValidatorInfo }) {
 	const { balance, network, account } = useWallet();
@@ -11,8 +12,16 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 		throw new Error('Network or account not found');
 	}
 	const { closeModal } = useModal();
-	const { partialDeposit, isPending, allowance } = useDeposit(network, account.address, closeModal);
+	const { buildPartialDepositCalls, onDepositSuccess, allowance } = useDeposit(
+		network,
+		account.address,
+	);
 	const [amount, setAmount] = useState(0n);
+
+	const calls = useMemo(
+		() => buildPartialDepositCalls([amount], [validator]),
+		[amount, validator, buildPartialDepositCalls],
+	);
 
 	const needsApproval = allowance < amount;
 
@@ -41,23 +50,27 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 					value={formatEther(amount)}
 					onChange={(e) => {
 						if (e.target.value === '') { setAmount(0n); return; }
-						try { setAmount(parseEther(e.target.value)); } catch { }
+						try {
+							const parsed = parseEther(e.target.value);
+							setAmount(parsed > balance.balance ? balance.balance : parsed);
+						} catch {
+							setAmount(0n);
+						 }
 					}}
 				/>
 			</fieldset>
 
 			<div className="mt-8 flex w-full justify-end">
-				<button
+				<TransactionButton
+					calls={calls}
+					disabled={amount === 0n}
+					onSuccess={() => { onDepositSuccess(); closeModal(); }}
 					className="btn btn-primary"
-					disabled={amount === 0n || isPending}
-					onClick={() => partialDeposit([amount], [validator])}
 				>
-					{isPending
-						? 'Processing...'
-						: needsApproval
-							? `Approve & Deposit ${formatEther(amount)} GNO`
-							: `Deposit ${formatEther(amount)} GNO`}
-				</button>
+					{needsApproval
+						? `Approve & Deposit ${formatEther(amount)} GNO`
+						: `Deposit ${formatEther(amount)} GNO`}
+				</TransactionButton>
 			</div>
 		</>
 	);

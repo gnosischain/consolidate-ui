@@ -3,6 +3,7 @@ import { ValidatorInfo } from '../types/validators';
 import { formatEther, parseEther } from 'viem';
 import { useWithdraw } from '../hooks/useWithdraw';
 import { useWallet } from '../context/WalletContext';
+import { TransactionButton } from './TransactionButton';
 
 interface WithdrawProps {
 	validators: ValidatorInfo[];
@@ -14,11 +15,12 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
 		throw new Error('Network not found');
 	}
 
-	const totalBalance = useMemo(() => {
-		return validators.reduce((acc, v) => acc + v.balance, 0n);
-	}, [validators]);
+	const totalBalance = useMemo(
+		() => validators.reduce((acc, v) => acc + v.balance, 0n),
+		[validators],
+	);
 
-	const { withdrawValidators, computeWithdrawals } = useWithdraw(network);
+	const { buildWithdrawCalls, computeWithdrawals } = useWithdraw(network);
 	const [amount, setAmount] = useState(0);
 	const [preventExit, setPreventExit] = useState(true);
 
@@ -26,6 +28,12 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
 		() => computeWithdrawals(validators, parseEther(amount.toString()), totalBalance, preventExit),
 		[validators, amount, totalBalance, preventExit, computeWithdrawals],
 	);
+
+	const calls = useMemo(
+		() => buildWithdrawCalls(withdrawals),
+		[withdrawals, buildWithdrawCalls],
+	);
+
 	return (
 		<>
 			<h3 className="text-lg font-bold">Batch withdraw</h3>
@@ -73,13 +81,9 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
 				</ul>
 			</div>
 			<div className="mt-8 flex w-full justify-end">
-				<button
-					className="btn btn-primary"
-					disabled={withdrawals.length === 0}
-					onClick={() => withdrawValidators(withdrawals)}
-				>
+				<TransactionButton calls={calls} className="btn btn-primary">
 					{'Withdraw ' + Number(formatEther(withdrawalsAmount)).toFixed(2) + ' GNO'}
-				</button>
+				</TransactionButton>
 			</div>
 		</>
 	);
