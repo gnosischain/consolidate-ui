@@ -46,10 +46,10 @@ export function TransactionButton({
 	}, [isPending, queueIndex, canBatch, calls, total]);
 
 	useEffect(() => {
-		if (isPending || !toastId.current) return;
+		if (isPending || isError || !toastId.current) return;
 		toast.dismiss(toastId.current);
 		toastId.current = undefined;
-	}, [isPending]);
+	}, [isPending, isError]);
 
 	// On confirmation: pure state transition — no mutations here
 	useEffect(() => {
@@ -78,7 +78,9 @@ export function TransactionButton({
 	// Error handling
 	useEffect(() => {
 		if (!isError || !isActive) return;
-		toast.error((error?.message ?? 'Transaction failed').substring(0, 50));
+		const id = toastId.current;
+		toastId.current = undefined;
+		toast.error((error?.message ?? 'Transaction failed').substring(0, 50), id ? { id } : undefined);
 		setQueueIndex(null);
 		reset();
 		handledHash.current = null;

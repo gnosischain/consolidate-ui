@@ -136,7 +136,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 							<th className="w-16">
 								<div className="flex items-center">
 									Index{' '}
-									<button className="btn btn-xs btn-circle btn-ghost">
+									<button disabled className="btn btn-xs btn-circle btn-ghost">
 										<ChevronsUpDown className="w-4 h-4 opacity-50" />
 									</button>
 								</div>
@@ -144,7 +144,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 							<th>
 								<div className="flex items-center">
 									Pubkey{' '}
-									<button className="btn btn-xs btn-circle btn-ghost">
+									<button disabled className="btn btn-xs btn-circle btn-ghost">
 										<ChevronsUpDown className="w-4 h-4 opacity-50" />
 									</button>
 								</div>
@@ -158,7 +158,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 									>
 										<Info className="w-4 h-4 opacity-50" />
 									</span>
-									<button className="btn btn-xs btn-circle btn-ghost">
+									<button disabled className="btn btn-xs btn-circle btn-ghost">
 										<ChevronsUpDown className="w-4 h-4 opacity-50" />
 									</button>
 								</div>
@@ -166,7 +166,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 							<th>
 								<div className="flex items-center">
 									Status{' '}
-									<button className="btn btn-xs btn-circle btn-ghost">
+									<button disabled className="btn btn-xs btn-circle btn-ghost">
 										<ChevronsUpDown className="w-4 h-4 opacity-50" />
 									</button>
 								</div>
@@ -174,7 +174,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 							<th>
 								<div className="flex items-center">
 									Balance{' '}
-									<button className="btn btn-xs btn-circle btn-ghost">
+									<button disabled className="btn btn-xs btn-circle btn-ghost">
 										<ChevronsUpDown className="w-4 h-4 opacity-50" />
 									</button>
 								</div>
@@ -234,7 +234,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 				</div>
 			)}
 
-			{selected.size > 0 && <ActionBar selected={selectedValidators} />}
+			{selectedValidators.length > 0 && <ActionBar selected={selectedValidators} />}
 		</div>
 	);
 }
