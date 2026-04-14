@@ -7,65 +7,81 @@ import { NetworkConfig } from '../types/network';
 import { Address } from 'viem';
 
 interface WalletContextType {
-  account: {
-    isConnected: boolean;
-    address?: Address;
-  };
-  canBatch: boolean;
-  canBatchLoading: boolean;
-  chainId?: number;
-  chainName?: string;
-  network?: NetworkConfig;
-  isWrongNetwork: boolean;
-  balance: {
-    balance: bigint;
-    claimBalance: bigint;
-    refetchBalance: () => void;
-    refetchClaimBalance: () => void;
-    claim: () => void;
-  };
-  isMounted: boolean;
+	account: {
+		isConnected: boolean;
+		address?: Address;
+	};
+	canBatch: boolean;
+	canBatchLoading: boolean;
+	chainId?: number;
+	chainName?: string;
+	network?: NetworkConfig;
+	isWrongNetwork: boolean;
+	balance: {
+		balance: bigint;
+		claimBalance: bigint;
+		refetchBalance: () => void;
+		refetchClaimBalance: () => void;
+		claim: () => void;
+	};
+	isMounted: boolean;
 }
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const [isMounted, setIsMounted] = useState(false);
-  const account = useConnection();
-  useAutoConnect(isMounted && !account.isConnected);
-  const capabilities = useCapabilities( {account: account.address});
-  const chainId = account?.chainId;
-  const chainName = account?.chain?.name;
-  const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
-  const isWrongNetwork = Boolean(account.isConnected && !network);
-  const balance = useBalance(network, account.address);
+	const [isMounted, setIsMounted] = useState(false);
+	const account = useConnection();
+	useAutoConnect(isMounted && !account.isConnected);
+	const capabilities = useCapabilities({ account: account.address });
+	const chainId = account?.chainId;
+	const chainName = account?.chain?.name;
+	const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
+	const isWrongNetwork = Boolean(account.isConnected && !network);
+	const balance = useBalance(network, account.address);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
-  const value = useMemo(() => ({
-    account: {
-      isConnected: isMounted && account.isConnected,
-      address: account.address,
-    },
-    canBatch: capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported' || capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'ready',
-    canBatchLoading: capabilities.isLoading,
-    chainId,
-    chainName,
-    network,
-    isWrongNetwork: isMounted && isWrongNetwork,
-    balance,
-    isMounted,
-  }), [isMounted, account.isConnected, account.address, capabilities?.data, capabilities.isLoading, chainId, chainName, network, isWrongNetwork, balance]);
+	const value = useMemo(
+		() => ({
+			account: {
+				isConnected: isMounted && account.isConnected,
+				address: account.address,
+			},
+			canBatch:
+				capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported' ||
+				capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'ready',
+			canBatchLoading: capabilities.isLoading,
+			chainId,
+			chainName,
+			network,
+			isWrongNetwork: isMounted && isWrongNetwork,
+			balance,
+			isMounted,
+		}),
+		[
+			isMounted,
+			account.isConnected,
+			account.address,
+			capabilities?.data,
+			capabilities.isLoading,
+			chainId,
+			chainName,
+			network,
+			isWrongNetwork,
+			balance,
+		],
+	);
 
-  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
+	return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }
 
 export function useWallet() {
-  const context = useContext(WalletContext);
-  if (!context) {
-    throw new Error('useWallet must be used within a WalletProvider');
-  }
-  return context;
-} 
+	const context = useContext(WalletContext);
+	if (!context) {
+		throw new Error('useWallet must be used within a WalletProvider');
+	}
+	return context;
+}

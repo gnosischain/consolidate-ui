@@ -1,16 +1,16 @@
 {
-    "name": "Gnosis Validator Launchpad",
-    "description": "Manage your validator on Gnosis Chain",
-    "iconPath": "/logo.svg",
-    "icons": [
-      {
-        "src": "/logo.svg",
-        "type": "image/svg+xml",
-        "sizes": "any"
-      }
-    ],
-    "start_url": ".",
-    "display": "standalone",
-    "theme_color": "#000000",
-    "background_color": "#ffffff"
-  }
+	"name": "Gnosis Validator Launchpad",
+	"description": "Manage your validator on Gnosis Chain",
+	"iconPath": "/logo.svg",
+	"icons": [
+		{
+			"src": "/logo.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		}
+	],
+	"start_url": ".",
+	"display": "standalone",
+	"theme_color": "#000000",
+	"background_color": "#ffffff"
+}

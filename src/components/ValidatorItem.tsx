@@ -16,15 +16,14 @@ interface ValidatorItemProps {
 	onToggle: (index: number, checked: boolean) => void;
 }
 
-export function ValidatorItem({
-	validator,
-	isSelected,
-	onToggle,
-}: ValidatorItemProps) {
+export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItemProps) {
 	const { openModal } = useModal();
 	return (
-		<tr className={`h-14 hover:bg-primary/5 group transition-all duration-200 ${isSelected ? 'bg-primary/10' : ''
-			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}>
+		<tr
+			className={`h-14 hover:bg-primary/5 group transition-all duration-200 ${
+				isSelected ? 'bg-primary/10' : ''
+			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}
+		>
 			<th>
 				<input
 					type="checkbox"
@@ -34,9 +33,7 @@ export function ValidatorItem({
 					disabled={validator.filterStatus !== 'active'}
 				/>
 			</th>
-			<td className="font-mono text-sm opacity-70">
-				#{validator.index}
-			</td>
+			<td className="font-mono text-sm opacity-70">#{validator.index}</td>
 			<td>
 				<div className="flex items-center gap-2 font-mono text-sm opacity-70">
 					{truncateAddress(validator.pubkey)}
@@ -53,11 +50,12 @@ export function ValidatorItem({
 			</td>
 			<td className="font-semibold">
 				<div className="flex items-center gap-2">
-					<span>{(Math.floor(Number(formatEther(validator.balance)) * 100) / 100).toFixed(2)} <span className="text-xs text-base-content/60">GNO</span></span>
+					<span>
+						{(Math.floor(Number(formatEther(validator.balance)) * 100) / 100).toFixed(2)}{' '}
+						<span className="text-xs text-base-content/60">GNO</span>
+					</span>
 					{validator.balance < parseEther('1') && (
-						<div className="badge badge-xs badge-soft badge-warning">
-							Low
-						</div>
+						<div className="badge badge-xs badge-soft badge-warning">Low</div>
 					)}
 				</div>
 			</td>
@@ -69,7 +67,13 @@ export function ValidatorItem({
 							<div className="tooltip" data-tip="Upgrade">
 								<button
 									className="btn btn-soft btn-secondary btn-circle btn-xs"
-									onClick={() => openModal(<ConsolidationSummary consolidations={computeSelfConsolidations([validator])} />)}
+									onClick={() =>
+										openModal(
+											<ConsolidationSummary
+												consolidations={computeSelfConsolidations([validator])}
+											/>,
+										)
+									}
 								>
 									<ArrowUp className="w-4 h-4" />
 								</button>
@@ -78,14 +82,25 @@ export function ValidatorItem({
 
 						{validator.type === 2 && (
 							<div className="tooltip" data-tip="Deposit">
-								<button className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<PartialDeposit validator={validator} />)}><Plus className="w-4 h-4" /></button>
+								<button
+									className="btn btn-soft btn-secondary btn-circle btn-xs"
+									onClick={() => openModal(<PartialDeposit validator={validator} />)}
+								>
+									<Plus className="w-4 h-4" />
+								</button>
 							</div>
 						)}
 
 						<div className="tooltip" data-tip="Withdraw">
-							<button className="btn btn-soft btn-secondary btn-circle btn-xs" onClick={() => openModal(<Withdraw validator={validator} />)}><Minus className="w-4 h-4" /></button>
+							<button
+								className="btn btn-soft btn-secondary btn-circle btn-xs"
+								onClick={() => openModal(<Withdraw validator={validator} />)}
+							>
+								<Minus className="w-4 h-4" />
+							</button>
 						</div>
-					</div>)}
+					</div>
+				)}
 			</td>
 		</tr>
 	);

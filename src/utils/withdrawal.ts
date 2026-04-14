@@ -22,14 +22,14 @@ export function computeWithdrawals(
 	amountToWithdraw: bigint,
 	totalValidatorBalance: bigint,
 	network: NetworkConfig,
-	preventExit = true
+	preventExit = true,
 ): WithdrawalResult {
 	if (totalValidatorBalance === 0n || amountToWithdraw <= 0n) {
 		return { withdrawals: [], exits: [], withdrawalsAmount: 0n };
 	}
 
 	const exitBuffer = preventExit ? parseEther(network.cl.minBalance.toString()) : 0n;
-	const eligibleValidators = validators.filter(v => v.balance > exitBuffer);
+	const eligibleValidators = validators.filter((v) => v.balance > exitBuffer);
 
 	const withdrawals: Withdrawal[] = [];
 	const exits: ValidatorInfo[] = [];
@@ -48,9 +48,9 @@ export function computeWithdrawals(
 
 		if (rawAmount > 0) {
 			// An exit is triggered by setting amount to 0
-			withdrawals.push({ 
-				pubkey: v.pubkey, 
-				amount: !preventExit && rawAmount === v.balance ? 0n : rawAmount 
+			withdrawals.push({
+				pubkey: v.pubkey,
+				amount: !preventExit && rawAmount === v.balance ? 0n : rawAmount,
 			});
 
 			if (!preventExit && rawAmount === v.balance) {
@@ -65,4 +65,3 @@ export function computeWithdrawals(
 		withdrawalsAmount: withdrawals.reduce((sum, w) => sum + w.amount, 0n),
 	};
 }
-
