@@ -12,7 +12,7 @@ const cspHeader = `
     base-uri 'self';
     form-action 'self';
     upgrade-insecure-requests;
-`
+`;
 
 const nextConfig = {
 	async headers() {
@@ -20,12 +20,12 @@ const nextConfig = {
 			{
 				source: '/(.*)',
 				headers: [
-				  {
-					key: 'Content-Security-Policy',
-					value: cspHeader.replace(/\n/g, ''),
-				  },
+					{
+						key: 'Content-Security-Policy',
+						value: cspHeader.replace(/\n/g, ''),
+					},
 				],
-			  },
+			},
 			{
 				source: '/manifest\\.json',
 				headers: [

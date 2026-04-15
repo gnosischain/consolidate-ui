@@ -1,12 +1,12 @@
-import Link from "next/link";
-import WalletModal from "./WalletModal";
-import { Boldonse } from "next/font/google";
-import { ExternalLink } from "lucide-react";
+import Link from 'next/link';
+import WalletModal from './WalletModal';
+import { Boldonse } from 'next/font/google';
+import { ExternalLink } from 'lucide-react';
 
 const boldonse = Boldonse({
-	subsets: ["latin"],
-	weight: "400",
-	display: "swap",
+	subsets: ['latin'],
+	weight: '400',
+	display: 'swap',
 });
 
 export default function Navbar() {
@@ -26,7 +26,14 @@ export default function Navbar() {
 			</div>
 			<div className="flex items-center gap-x-4">
 				{/* <Link href='/explorer' className="hover:text-black/70 font-medium">Explorer</Link> */}
-				<Link href='https://www.validategnosis.com/' target="_blank" rel="noopener noreferrer" className="hover:text-secondary/70 flex font-medium items-center gap-x-1">Get Started <ExternalLink className="w-4 h-4" /></Link>
+				<Link
+					href="https://www.validategnosis.com/"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="hover:text-secondary/70 flex font-medium items-center gap-x-1"
+				>
+					Get Started <ExternalLink className="w-4 h-4" />
+				</Link>
 				<WalletModal />
 			</div>
 		</div>

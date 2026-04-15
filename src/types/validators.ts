@@ -1,39 +1,39 @@
-import { Address } from "viem";
-import { ValidatorStatus } from "./beacon";
+import { Address } from 'viem';
+import { ValidatorStatus } from './beacon';
 
 export enum FilterStatus {
-    ACTIVE = "active",
-    PENDING = "pending",
+	ACTIVE = 'active',
+	PENDING = 'pending',
 }
 
 export type CredentialType = 0 | 1 | 2;
 
 export interface ValidatorInfo {
-    index: number;
-    pubkey: Address;
-    balance: bigint;
-    effectiveBalance: bigint;
-    withdrawal_credentials: Address;
-    type: CredentialType;
-    status: ValidatorStatus;
-    filterStatus: FilterStatus;
+	index: number;
+	pubkey: Address;
+	balance: bigint;
+	effectiveBalance: bigint;
+	withdrawal_credentials: Address;
+	type: CredentialType;
+	status: ValidatorStatus;
+	filterStatus: FilterStatus;
 }
 
 export interface ValidatorIndex {
-    pubkey: Address;
-    index: number;
+	pubkey: Address;
+	index: number;
 }
 
 export interface Withdrawal {
-    pubkey: Address;
-    amount: bigint;
+	pubkey: Address;
+	amount: bigint;
 }
 
 export interface Consolidation {
-    sourceIndex: number;
-    sourceKey: Address;
-    sourceBalance: bigint;
-    targetIndex: number;
-    targetKey: Address;
-    targetBalance: bigint;
+	sourceIndex: number;
+	sourceKey: Address;
+	sourceBalance: bigint;
+	targetIndex: number;
+	targetKey: Address;
+	targetBalance: bigint;
 }
