@@ -16,6 +16,7 @@ export function computePartialDepositAmounts(
 
 	if (targetAmount === 0n) {
 		// Equal distribution
+		if (validators.length === 0) return [];
 		const baseAmount = amount / BigInt(validators.length);
 		const remainder = amount % BigInt(validators.length);
 		validators.forEach((_, i) => {

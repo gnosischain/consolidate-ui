@@ -5,6 +5,7 @@ import { useWallet } from '../context/WalletContext';
 import useDeposit from '../hooks/useDeposit';
 import { useModal } from '../context/ModalContext';
 import { TransactionButton } from './TransactionButton';
+import { computePartialDepositAmounts } from '../utils/depositCalculations';
 
 interface PartialDepositProps {
 	validators: ValidatorInfo[];
@@ -19,13 +20,13 @@ export default function PartialDepositBatch({ validators }: PartialDepositProps)
 		throw new Error('Network not found');
 	}
 
-	const { computePartialDepositAmounts, buildPartialDepositCalls, onDepositSuccess, allowance } =
+	const { buildPartialDepositCalls, onDepositSuccess, allowance } =
 		useDeposit(network, account.address);
 	const [amount, setAmount] = useState(0n);
 
 	const depositAmounts = useMemo(
 		() => computePartialDepositAmounts(amount, validators, BigInt(targetAmount)),
-		[validators, amount, computePartialDepositAmounts, targetAmount],
+		[validators, amount, targetAmount],
 	);
 
 	const totalDepositAmount = useMemo(

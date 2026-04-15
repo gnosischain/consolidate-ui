@@ -6,7 +6,6 @@ import { NetworkConfig } from '../types/network';
 import { DepositRequest, DepositDataJson } from '../types/deposit';
 import { CredentialType, ValidatorInfo } from '../types/validators';
 import { buildDepositRoot, generateDepositData, generateSignature } from '../utils/deposit';
-import { computePartialDepositAmounts } from '../utils/depositCalculations';
 import DEPOSIT_ABI from '../utils/abis/deposit';
 import ERC677ABI from '../utils/abis/erc677';
 import { TransactionCall } from '../types/transaction';
@@ -182,7 +181,6 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
 	return {
 		depositCalls,
 		buildPartialDepositCalls,
-		computePartialDepositAmounts,
 		onDepositSuccess,
 		error: validationError,
 		depositData: { deposits, credentialType, totalDepositAmount },
