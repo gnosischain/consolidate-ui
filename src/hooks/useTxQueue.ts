@@ -43,9 +43,7 @@ export function useTxQueue() {
 
 	const isPending = canBatch
 		? sendCallsStatus === 'pending' ||
-			(!!callsData &&
-				callStatusData?.status !== 'success' &&
-				callStatusData?.status !== 'failure')
+			(!!callsData && callStatusData?.status !== 'success' && callStatusData?.status !== 'failure')
 		: sendTxStatus === 'pending' || (!!txHash && isTxWaiting);
 
 	const isConfirmed = canBatch ? callStatusData?.status === 'success' : isTxConfirmed;
@@ -55,7 +53,8 @@ export function useTxQueue() {
 	return {
 		sendSingle: (call: TransactionCall) =>
 			sendTx({ to: call.to, data: call.data, value: call.value }),
-		sendBatch: (calls: TransactionCall[]) => sendCalls({ calls, capabilities: {} }),
+		sendBatch: (calls: TransactionCall[]) =>
+			sendCalls({ calls, capabilities: {}, forceAtomic: calls.length > 1 }),
 		isPending,
 		isConfirmed,
 		isError,
