@@ -4,9 +4,16 @@ import { NETWORK_CONFIG } from '../../../constants/networks';
 
 const GRAPHQL_URL = process.env.GRAPHQL_URL;
 
+if (!GRAPHQL_URL) {
+	console.error(
+		'[validate-deposit] GRAPHQL_URL is not set — /api/validate-deposit will return 500 until this env var is configured.',
+	);
+}
+
 export async function POST(request: NextRequest) {
 	try {
 		if (!GRAPHQL_URL) {
+			console.error('[validate-deposit] Refusing request: GRAPHQL_URL is missing');
 			return NextResponse.json(
 				{ error: 'GRAPHQL_URL is not configured on the server.' },
 				{ status: 500 },

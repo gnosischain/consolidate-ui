@@ -114,8 +114,8 @@ export default function Dashboard() {
 					throw new Error('Failed to fetch yield data');
 				}
 				const data = await response.json();
-				const yieldValue = data[0].value;
-				setCurrentYield(yieldValue || null);
+				const yieldValue = data?.[0]?.value ?? null;
+				setCurrentYield(yieldValue);
 			} catch (error) {
 				console.error('Error fetching yield:', error);
 				setCurrentYield(null);
