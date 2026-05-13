@@ -28,6 +28,12 @@ interface WalletContextType {
 	isMounted: boolean;
 }
 
+interface AtomicBatchCapability {
+	atomicBatch?: {
+		supported?: boolean;
+	};
+}
+
 const WalletContext = createContext<WalletContextType | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
@@ -45,6 +51,20 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 		query: { enabled: !!account.address },
 	});
 
+
+
+	const chainCapabilities = chainId ? capabilities.data?.[chainId] : undefined;
+
+	// EIP-5792 `supported` means the wallet will execute calls atomically now.
+	const supportsStandardAtomic = chainCapabilities?.atomic?.status === 'supported';
+
+	// Safe Apps Provider currently exposes batching with this shape.
+	const supportsAtomicBatch =  
+		(chainCapabilities as AtomicBatchCapability | undefined)?.atomicBatch?.supported === true;
+
+
+	const canBatch = supportsStandardAtomic || supportsAtomicBatch;
+
 	useEffect(() => {
 		setIsMounted(true);
 	}, []);
@@ -55,9 +75,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 				isConnected: isMounted && account.isConnected,
 				address: account.address,
 			},
-			canBatch:
-				capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported' ||
-				capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'ready',
+			canBatch,
 			canBatchLoading: capabilities.isLoading,
 			chainId,
 			chainName,
@@ -71,7 +89,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 			isMounted,
 			account.isConnected,
 			account.address,
-			capabilities?.data,
+			canBatch,
 			capabilities.isLoading,
 			chainId,
 			chainName,
