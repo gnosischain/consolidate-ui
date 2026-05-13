@@ -3,6 +3,7 @@ import { formatEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
 import useDeposit from '../hooks/useDeposit';
 import { useModal } from '../context/ModalContext';
+import { TransactionButton } from './TransactionButton';
 
 export default function Deposit() {
 	const [file, setFile] = useState<File | null>(null);
@@ -11,11 +12,8 @@ export default function Deposit() {
 		throw new Error('Network or account not found');
 	}
 	const { closeModal } = useModal();
-	const { setDepositData, depositData, deposit, isPending, allowance, error } = useDeposit(
-		network,
-		account.address,
-		closeModal,
-	);
+	const { setDepositData, depositData, depositCalls, onDepositSuccess, allowance, error } =
+		useDeposit(network, account.address);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
@@ -41,17 +39,15 @@ export default function Deposit() {
 				</label>
 			</fieldset>
 			<div className="mt-8 flex w-full justify-end">
-				<button
+				<TransactionButton
+					calls={depositCalls}
+					onSuccess={() => { onDepositSuccess(); closeModal(); }}
 					className="btn btn-primary"
-					disabled={depositData.totalDepositAmount === 0n || isPending}
-					onClick={deposit}
 				>
-					{isPending
-						? 'Processing...'
-						: needsApproval
-							? `Approve & Deposit ${formatEther(depositData.totalDepositAmount)} GNO`
-							: `Deposit ${formatEther(depositData.totalDepositAmount)} GNO`}
-				</button>
+					{needsApproval
+						? `Approve & Deposit ${formatEther(depositData.totalDepositAmount)} GNO`
+						: `Deposit ${formatEther(depositData.totalDepositAmount)} GNO`}
+				</TransactionButton>
 			</div>
 		</>
 	);

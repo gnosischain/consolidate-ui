@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Address, isAddress, parseGwei } from 'viem';
+import { isAddress, parseGwei } from 'viem';
 import { APIValidatorInfo } from '../../../types/api';
 import { BeaconChainResponse } from '../../../types/beacon';
 import { STATUS_TO_FILTER } from '../../../utils/status';
@@ -33,6 +33,7 @@ async function fetchPubkeysByCredential(
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({ withdrawal_address, limit: 500, offset: 0 }),
+			signal: AbortSignal.timeout(5_000),
 		},
 	);
 
@@ -59,7 +60,7 @@ async function fetchBeaconValidators(
 		if (url.origin !== allowedOrigin) continue;
 
 		batches.push(
-			fetch(url, { headers: { Accept: 'application/json' } })
+			fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10_000) })
 				.then((r) => {
 					if (!r.ok) throw new Error(`Beacon API error: ${r.status}`);
 					return r.json();
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
 			const creds = v.validator.withdrawal_credentials;
 			return {
 				index: Number(v.index),
-				pubkey: v.validator.pubkey as Address,
+				pubkey: v.validator.pubkey,
 				balance: (parseGwei(v.balance.toString()) / multiplier).toString(),
 				effectiveBalance: (
 					parseGwei(v.validator.effective_balance.toString()) / multiplier
@@ -121,6 +122,9 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({ data: validators });
 	} catch (error) {
+		if (error instanceof DOMException && error.name === 'TimeoutError') {
+			return NextResponse.json({ error: 'Upstream timed out' }, { status: 504 });
+		}
 		console.error('Error fetching validators:', error);
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
 	}

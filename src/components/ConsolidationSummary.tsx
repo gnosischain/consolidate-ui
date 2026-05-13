@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { Consolidation } from '../types/validators';
 import { formatEther } from 'viem';
 import { useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { useModal } from '../context/ModalContext';
+import { TransactionButton } from './TransactionButton';
 
 interface ConsolidationSummaryProps {
 	consolidations: Consolidation[];
@@ -9,13 +11,12 @@ interface ConsolidationSummaryProps {
 
 export function ConsolidationSummary({ consolidations }: ConsolidationSummaryProps) {
 	const { closeModal } = useModal();
-	const { consolidateValidators, isPending } = useConsolidateValidatorsBatch({
-		onSuccess: closeModal,
-	});
+	const { buildConsolidateCalls } = useConsolidateValidatorsBatch();
 
-	const handleConsolidate = async () => {
-		await consolidateValidators(consolidations);
-	};
+	const calls = useMemo(
+		() => buildConsolidateCalls(consolidations),
+		[consolidations, buildConsolidateCalls],
+	);
 
 	return (
 		<>
@@ -60,9 +61,9 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
 				</table>
 			</div>
 
-			<button onClick={handleConsolidate} className="btn btn-primary mt-6">
-				{isPending ? 'Consolidating...' : 'Consolidate'}
-			</button>
+			<TransactionButton calls={calls} onSuccess={closeModal} className="btn btn-primary mt-6">
+				Consolidate
+			</TransactionButton>
 		</>
 	);
 }

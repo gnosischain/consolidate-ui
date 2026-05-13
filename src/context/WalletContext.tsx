@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useEffect, useState, useMemo } from 'react';
-import { useCapabilities, useConnection } from 'wagmi';
+import { useCapabilities, useConnection, useBalance as useNativeBalance } from 'wagmi';
 import { NETWORK_CONFIG } from '../constants/networks';
 import useBalance from '../hooks/useBalance';
 import { useAutoConnect } from '../hooks/useAutoconnect';
@@ -24,7 +24,14 @@ interface WalletContextType {
 		refetchClaimBalance: () => void;
 		claim: () => void;
 	};
+	nativeBalance: bigint;
 	isMounted: boolean;
+}
+
+interface AtomicBatchCapability {
+	atomicBatch?: {
+		supported?: boolean;
+	};
 }
 
 const WalletContext = createContext<WalletContextType | null>(null);
@@ -39,6 +46,24 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	const network = chainId ? NETWORK_CONFIG[chainId] : undefined;
 	const isWrongNetwork = Boolean(account.isConnected && !network);
 	const balance = useBalance(network, account.address);
+	const { data: nativeBalanceData } = useNativeBalance({
+		address: account.address,
+		query: { enabled: !!account.address },
+	});
+
+
+
+	const chainCapabilities = chainId ? capabilities.data?.[chainId] : undefined;
+
+	// EIP-5792 `supported` means the wallet will execute calls atomically now.
+	const supportsStandardAtomic = chainCapabilities?.atomic?.status === 'supported';
+
+	// Safe Apps Provider currently exposes batching with this shape.
+	const supportsAtomicBatch =  
+		(chainCapabilities as AtomicBatchCapability | undefined)?.atomicBatch?.supported === true;
+
+
+	const canBatch = supportsStandardAtomic || supportsAtomicBatch;
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -50,28 +75,28 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 				isConnected: isMounted && account.isConnected,
 				address: account.address,
 			},
-			canBatch:
-				capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported' ||
-				capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'ready',
+			canBatch,
 			canBatchLoading: capabilities.isLoading,
 			chainId,
 			chainName,
 			network,
 			isWrongNetwork: isMounted && isWrongNetwork,
 			balance,
+			nativeBalance: nativeBalanceData?.value ?? 0n,
 			isMounted,
 		}),
 		[
 			isMounted,
 			account.isConnected,
 			account.address,
-			capabilities?.data,
+			canBatch,
 			capabilities.isLoading,
 			chainId,
 			chainName,
 			network,
 			isWrongNetwork,
 			balance,
+			nativeBalanceData?.value,
 		],
 	);
 

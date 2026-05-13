@@ -4,36 +4,39 @@ import { formatEther, parseEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
 import useDeposit from '../hooks/useDeposit';
 import { useModal } from '../context/ModalContext';
+import { TransactionButton } from './TransactionButton';
+import { computePartialDepositAmounts } from '../utils/depositCalculations';
 
 interface PartialDepositProps {
 	validators: ValidatorInfo[];
 }
 
-export default function PartialDeposit({ validators }: PartialDepositProps) {
+export default function PartialDepositBatch({ validators }: PartialDepositProps) {
 	const { network, balance, account } = useWallet();
-	const [targetAmount, setTargetAmount] = useState(0);
+	const [targetAmount, setTargetAmount] = useState(network?.cl.minBalance ?? 0);
 	const { closeModal } = useModal();
 
 	if (!network || !account.address) {
 		throw new Error('Network not found');
 	}
 
-	const { computePartialDepositAmounts, partialDeposit, isPending, allowance } = useDeposit(
-		network,
-		account.address,
-		closeModal,
-	);
-	const [amount, setAmount] = useState(0);
+	const { buildPartialDepositCalls, onDepositSuccess, allowance } =
+		useDeposit(network, account.address);
+	const [amount, setAmount] = useState(0n);
 
 	const depositAmounts = useMemo(
-		() =>
-			computePartialDepositAmounts(parseEther(amount.toString()), validators, BigInt(targetAmount)),
-		[validators, amount, computePartialDepositAmounts, targetAmount],
+		() => computePartialDepositAmounts(amount, validators, BigInt(targetAmount)),
+		[validators, amount, targetAmount],
 	);
 
 	const totalDepositAmount = useMemo(
 		() => depositAmounts.reduce((acc, amt) => acc + amt, 0n),
 		[depositAmounts],
+	);
+
+	const calls = useMemo(
+		() => buildPartialDepositCalls(depositAmounts, validators),
+		[depositAmounts, validators, buildPartialDepositCalls],
 	);
 
 	const needsApproval = allowance < totalDepositAmount;
@@ -47,10 +50,7 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
 			<fieldset className="fieldset mt-2 w-full gap-y-2">
 				<legend className="fieldset-legend">
 					Deposit amount{' '}
-					<button
-						className="btn btn-xs"
-						onClick={() => setAmount(Number(formatEther(balance.balance)))}
-					>
+					<button className="btn btn-xs" onClick={() => setAmount(balance.balance)}>
 						Max
 					</button>
 				</legend>
@@ -60,8 +60,16 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
 					className="input input-primary input-sm w-full"
 					name="amount"
 					max={formatEther(balance.balance)}
-					value={amount}
-					onChange={(e) => setAmount(Number(e.target.value))}
+					value={formatEther(amount)}
+					onChange={(e) => {
+						if (e.target.value === '') { setAmount(0n); return; }
+						try {
+							const parsed = parseEther(e.target.value);
+							setAmount(parsed > balance.balance ? balance.balance : parsed);
+						} catch {
+							setAmount(0n);
+						 }
+					}}
 				/>
 			</fieldset>
 			<fieldset className="fieldset mt-2 w-full gap-y-2">
@@ -83,17 +91,15 @@ export default function PartialDeposit({ validators }: PartialDepositProps) {
 				<p className="text-sm text-gray-500">Top up: {depositAmounts.length} validator(s)</p>
 			</div>
 			<div className="mt-8 flex w-full justify-end">
-				<button
+				<TransactionButton
+					calls={calls}
+					onSuccess={() => { onDepositSuccess(); closeModal(); }}
 					className="btn btn-primary"
-					disabled={totalDepositAmount === 0n || isPending}
-					onClick={() => partialDeposit(depositAmounts, validators)}
 				>
-					{isPending
-						? 'Processing...'
-						: needsApproval
-							? `Approve & Deposit ${Number(formatEther(totalDepositAmount)).toFixed(2)} GNO`
-							: `Deposit ${Number(formatEther(totalDepositAmount)).toFixed(2)} GNO`}
-				</button>
+					{needsApproval
+						? `Approve & Deposit ${Number(formatEther(totalDepositAmount)).toFixed(2)} GNO`
+						: `Deposit ${Number(formatEther(totalDepositAmount)).toFixed(2)} GNO`}
+				</TransactionButton>
 			</div>
 		</>
 	);

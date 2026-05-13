@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useReadContract } from 'wagmi';
 import { parseGwei, encodeFunctionData } from 'viem';
 import useBalance from './useBalance';
@@ -6,25 +6,16 @@ import { NetworkConfig } from '../types/network';
 import { DepositRequest, DepositDataJson } from '../types/deposit';
 import { CredentialType, ValidatorInfo } from '../types/validators';
 import { buildDepositRoot, generateDepositData, generateSignature } from '../utils/deposit';
-import { computePartialDepositAmounts } from '../utils/depositCalculations';
 import DEPOSIT_ABI from '../utils/abis/deposit';
 import ERC677ABI from '../utils/abis/erc677';
-import { useTransaction, TransactionCall } from './useTransaction';
+import { TransactionCall } from '../types/transaction';
 
-function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, closeModal: () => void) {
+function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
 	const [deposits, setDeposits] = useState<DepositDataJson[]>([]);
 	const [credentialType, setCredentialType] = useState<CredentialType | undefined>(undefined);
 	const [totalDepositAmount, setTotalDepositAmount] = useState<bigint>(0n);
 	const [validationError, setValidationError] = useState<Error | null>(null);
 	const { balance, refetchBalance } = useBalance(contractConfig, address);
-
-	const { execute, isPending } = useTransaction({
-		onSuccess: () => {
-			closeModal();
-			refetchBalance();
-			refetchAllowance();
-		},
-	});
 
 	const { data: allowance, refetch: refetchAllowance } = useReadContract({
 		address: contractConfig?.tokenAddress,
@@ -85,27 +76,23 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
 		[balance, contractConfig],
 	);
 
-	// Helper to build approve call
 	const buildApproveCall = useCallback(
-		(amount: bigint): TransactionCall => {
-			const callData = encodeFunctionData({
+		(amount: bigint): TransactionCall => ({
+			to: contractConfig.tokenAddress!,
+			data: encodeFunctionData({
 				abi: ERC677ABI,
 				functionName: 'approve',
 				args: [contractConfig.depositAddress!, amount],
-			});
-			return {
-				to: contractConfig.tokenAddress!,
-				data: callData,
-				title: 'Approve GNO',
-			};
-		},
+			}),
+			title: 'Approve GNO',
+		}),
 		[contractConfig],
 	);
 
-	// Helper to build deposit call from deposit data
 	const buildDepositCall = useCallback(
-		(depositData: ReturnType<typeof generateDepositData>): TransactionCall => {
-			const callData = encodeFunctionData({
+		(depositData: ReturnType<typeof generateDepositData>): TransactionCall => ({
+			to: contractConfig.depositAddress!,
+			data: encodeFunctionData({
 				abi: DEPOSIT_ABI,
 				functionName: 'batchDeposit',
 				args: [
@@ -115,48 +102,34 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
 					depositData.deposit_data_roots,
 					depositData.amounts,
 				],
-			});
-			return {
-				to: contractConfig.depositAddress!,
-				data: callData,
-				title: 'Deposit GNO to contract',
-			};
-		},
+			}),
+			title: 'Deposit GNO to contract',
+		}),
 		[contractConfig],
 	);
 
-	const deposit = useCallback(async () => {
-		if (!contractConfig?.tokenAddress || !contractConfig?.depositAddress) return;
+	// Derived calls — updated reactively when deposits or allowance changes
+	const depositCalls = useMemo((): TransactionCall[] => {
+		if (!contractConfig?.tokenAddress || !contractConfig?.depositAddress || !deposits.length)
+			return [];
 
 		const depositsFormatted = deposits.map((d) => ({
 			...d,
 			amount: BigInt(parseGwei(d.amount.toString()) / contractConfig.cl.multiplier),
 		}));
 		const data = generateDepositData(depositsFormatted);
-		const depositCall = buildDepositCall(data);
-
 		const calls: TransactionCall[] = [];
 
-		// Add approve if needed
-		if ((allowance || 0n) < totalDepositAmount) {
+		if ((allowance ?? 0n) < totalDepositAmount) {
 			calls.push(buildApproveCall(totalDepositAmount));
 		}
+		calls.push(buildDepositCall(data));
+		return calls;
+	}, [deposits, allowance, totalDepositAmount, buildApproveCall, buildDepositCall, contractConfig]);
 
-		calls.push(depositCall);
-		execute(calls);
-	}, [
-		contractConfig,
-		deposits,
-		totalDepositAmount,
-		allowance,
-		buildApproveCall,
-		buildDepositCall,
-		execute,
-	]);
-
-	const partialDeposit = useCallback(
-		async (amounts: bigint[], validators: ValidatorInfo[]) => {
-			if (!contractConfig?.tokenAddress || !contractConfig?.depositAddress) return;
+	const buildPartialDepositCalls = useCallback(
+		(amounts: bigint[], validators: ValidatorInfo[]): TransactionCall[] => {
+			if (!contractConfig?.tokenAddress || !contractConfig?.depositAddress) return [];
 
 			const depositsData = validators.map((validator, index) => {
 				const depositReq: DepositRequest = {
@@ -187,33 +160,32 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`, close
 			});
 
 			const data = generateDepositData(depositsData);
-			const depositCall = buildDepositCall(data);
-
 			const totalAmount = amounts.reduce((acc, amt) => acc + amt, 0n);
 			const calls: TransactionCall[] = [];
 
-			// Add approve if needed
-			if ((allowance || 0n) < totalAmount) {
+			if ((allowance ?? 0n) < totalAmount) {
 				calls.push(buildApproveCall(totalAmount));
 			}
-
-			calls.push(depositCall);
-			execute(calls);
+			calls.push(buildDepositCall(data));
+			return calls;
 		},
-		[contractConfig, allowance, buildApproveCall, buildDepositCall, execute],
+		[contractConfig, allowance, buildApproveCall, buildDepositCall],
 	);
 
-	const error = validationError || null;
+	// Call after a successful deposit to refresh on-chain state
+	const onDepositSuccess = useCallback(() => {
+		refetchBalance();
+		refetchAllowance();
+	}, [refetchBalance, refetchAllowance]);
 
 	return {
-		deposit,
-		partialDeposit,
-		computePartialDepositAmounts,
-		isPending,
-		error,
+		depositCalls,
+		buildPartialDepositCalls,
+		onDepositSuccess,
+		error: validationError,
 		depositData: { deposits, credentialType, totalDepositAmount },
 		setDepositData,
-		allowance: allowance || 0n,
+		allowance: allowance ?? 0n,
 	};
 }
 

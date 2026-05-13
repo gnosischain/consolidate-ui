@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import useAutoclaim from '../hooks/useAutoclaim';
 import { NetworkConfig } from '../types/network';
 import { SECOND_IN_DAY, ZERO_ADDRESS } from '../constants/misc';
 import { formatEther, isAddress } from 'viem';
+import { TransactionCall } from '../types/transaction';
+import { TransactionButton } from './TransactionButton';
 
 interface AutoclaimConfigViewProps {
 	network: NetworkConfig;
@@ -11,16 +13,16 @@ interface AutoclaimConfigViewProps {
 
 export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewProps) {
 	const {
-		register,
-		setActionContract,
-		updateConfig,
-		unregister,
-		setForwardingAddress,
-		approve,
+		buildRegisterCall,
+		buildSetActionContractCall,
+		buildUpdateConfigCall,
+		buildUnregisterCall,
+		buildSetForwardingAddressCall,
+		buildApproveCall,
+		onSuccess,
 		userConfig,
 		forwardingAddress,
 		actionContract,
-		transactionLoading,
 		isRegistered,
 	} = useAutoclaim(network, address);
 	const [timeValue, setTimeValue] = useState(1);
@@ -28,47 +30,57 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 	const [amountValue, setAmountValue] = useState('1');
 	const [forwardingAddressValue, setForwardingAddressValue] = useState<string>('');
 
-	useEffect(() => {
+	// TODO: Three prev-tracking useState slots below sync form state from
+	// on-chain reads during render. Verbose but correct. If this is ever
+	// touched, consider consolidating into one ref/state, or splitting into
+	// "initial vs override" so a wagmi refetch doesn't clobber in-progress
+	// user edits.
+	const [prevUserConfig, setPrevUserConfig] = useState(userConfig);
+	const [prevClaimActionDeps, setPrevClaimActionDeps] = useState({ actionContract, isRegistered });
+	const [prevForwardingDeps, setPrevForwardingDeps] = useState({ forwardingAddress, isRegistered });
+
+	if (prevUserConfig !== userConfig) {
+		setPrevUserConfig(userConfig);
+		if (userConfig) {
+			setTimeValue(userConfig[2] ? Number(userConfig[2]) / SECOND_IN_DAY : 1);
+			setAmountValue(userConfig[3] ? formatEther(userConfig[3]) : '1');
+		}
+	}
+
+	if (prevClaimActionDeps.actionContract !== actionContract || prevClaimActionDeps.isRegistered !== isRegistered) {
+		setPrevClaimActionDeps({ actionContract, isRegistered });
 		if (!isRegistered && network.payClaimActionAddress) {
 			setClaimAction(network.payClaimActionAddress);
 		} else if (actionContract) {
 			setClaimAction(actionContract);
 		}
-	}, [actionContract, isRegistered, network.payClaimActionAddress]);
+	}
 
-	useEffect(() => {
-		if (userConfig) {
-			setTimeValue(userConfig?.[2] ? Number(userConfig[2]) / SECOND_IN_DAY : 1);
-			setAmountValue(userConfig?.[3] ? formatEther(userConfig[3]) : '1');
-		}
-	}, [userConfig]);
-
-	useEffect(() => {
+	if (prevForwardingDeps.forwardingAddress !== forwardingAddress || prevForwardingDeps.isRegistered !== isRegistered) {
+		setPrevForwardingDeps({ forwardingAddress, isRegistered });
 		if (forwardingAddress && forwardingAddress !== ZERO_ADDRESS && isRegistered) {
 			setForwardingAddressValue(forwardingAddress);
 		}
-	}, [forwardingAddress, isRegistered]);
+	}
 
 	const handleClaimActionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setClaimAction(event.target.value as `0x${string}`);
 	};
 
 	const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const inputVal = event.target.value;
-		setAmountValue(inputVal);
+		setAmountValue(event.target.value);
 	};
 
 	const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const inputVal = event.target.value;
-		setTimeValue(parseInt(inputVal));
+		setTimeValue(parseInt(event.target.value));
 	};
 
 	const handleForwardingAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setForwardingAddressValue(event.target.value);
 	};
 
-	const plannedActions = useMemo(() => {
-		const actions: { action: () => Promise<void>; name: string }[] = [];
+	const plannedCalls = useMemo((): TransactionCall[] => {
+		const calls: TransactionCall[] = [];
 		const isGnosisPaySelected = claimAction === network.payClaimActionAddress;
 		const thresholdsChanged = !!(
 			userConfig?.[2] &&
@@ -78,69 +90,55 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 		);
 		const actionChanged = actionContract !== claimAction;
 
-		const needsForwardingAddress = () => {
-			return (
-				isGnosisPaySelected &&
-				forwardingAddressValue !== forwardingAddress &&
-				isAddress(forwardingAddressValue)
-			);
-		};
+		const needsForwardingAddress =
+			isGnosisPaySelected &&
+			forwardingAddressValue !== forwardingAddress &&
+			isAddress(forwardingAddressValue);
 
 		// Case 1: New user registration
 		if (!isRegistered) {
 			if (isGnosisPaySelected) {
-				if (!isAddress(forwardingAddressValue)) {
-					return actions;
-				}
-				actions.push({
-					action: () => setForwardingAddress(forwardingAddressValue as `0x${string}`),
-					name: 'Set forwarding address',
-				});
-				actions.push({ action: () => approve(), name: 'Approve' });
+				if (!isAddress(forwardingAddressValue)) return calls;
+				const fwdCall = buildSetForwardingAddressCall(forwardingAddressValue as `0x${string}`);
+				if (fwdCall) calls.push(fwdCall);
+				const approveCall = buildApproveCall();
+				if (approveCall) calls.push(approveCall);
 			}
-			actions.push({
-				action: () => register(timeValue, parseFloat(amountValue), claimAction),
-				name: 'Register',
-			});
-			return actions;
+			const registerCall = buildRegisterCall(timeValue, parseFloat(amountValue), claimAction);
+			if (registerCall) calls.push(registerCall);
+			return calls;
 		}
 
 		// Case 2: Existing user - action changed
 		if (actionChanged) {
 			if (isGnosisPaySelected) {
 				const hasExistingForwarding = forwardingAddress && forwardingAddress !== ZERO_ADDRESS;
-				if (!hasExistingForwarding && !isAddress(forwardingAddressValue)) {
-					return actions;
+				if (!hasExistingForwarding && !isAddress(forwardingAddressValue)) return calls;
+				if (needsForwardingAddress) {
+					const fwdCall = buildSetForwardingAddressCall(forwardingAddressValue as `0x${string}`);
+					if (fwdCall) calls.push(fwdCall);
 				}
-				if (needsForwardingAddress()) {
-					actions.push({
-						action: () => setForwardingAddress(forwardingAddressValue as `0x${string}`),
-						name: 'Set forwarding address',
-					});
-				}
-				actions.push({ action: () => approve(), name: 'Approve' });
+				const approveCall = buildApproveCall();
+				if (approveCall) calls.push(approveCall);
 			}
-			actions.push({ action: () => setActionContract(claimAction), name: 'Set action contract' });
-			return actions;
+			const actionCall = buildSetActionContractCall(claimAction);
+			if (actionCall) calls.push(actionCall);
+			return calls;
 		}
 
 		// Case 3: Existing user - same action, update forwarding address
-		if (needsForwardingAddress()) {
-			actions.push({
-				action: () => setForwardingAddress(forwardingAddressValue as `0x${string}`),
-				name: 'Set forwarding address',
-			});
+		if (needsForwardingAddress) {
+			const fwdCall = buildSetForwardingAddressCall(forwardingAddressValue as `0x${string}`);
+			if (fwdCall) calls.push(fwdCall);
 		}
 
 		// Case 4: Existing user - update thresholds
 		if (thresholdsChanged) {
-			actions.push({
-				action: () => updateConfig(timeValue, parseFloat(amountValue)),
-				name: 'Update config',
-			});
+			const configCall = buildUpdateConfigCall(timeValue, parseFloat(amountValue));
+			if (configCall) calls.push(configCall);
 		}
 
-		return actions;
+		return calls;
 	}, [
 		isRegistered,
 		claimAction,
@@ -151,31 +149,17 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 		userConfig,
 		timeValue,
 		amountValue,
-		setForwardingAddress,
-		approve,
-		updateConfig,
-		setActionContract,
-		register,
+		buildSetForwardingAddressCall,
+		buildApproveCall,
+		buildRegisterCall,
+		buildSetActionContractCall,
+		buildUpdateConfigCall,
 	]);
 
-	const buttonText = useMemo(() => {
-		if (transactionLoading) return 'Processing...';
-		if (plannedActions.length === 0) return 'Save';
-		return plannedActions[0]?.name;
-	}, [transactionLoading, plannedActions]);
-
-	const onAutoclaim = useCallback(async () => {
-		try {
-			await plannedActions[0].action();
-			plannedActions.shift();
-		} catch (error) {
-			console.error(error);
-		}
-	}, [plannedActions]);
-
-	const onUnregister = useCallback(async () => {
-		await unregister();
-	}, [unregister]);
+	const unregisterCalls = useMemo((): TransactionCall[] => {
+		const call = buildUnregisterCall();
+		return call ? [call] : [];
+	}, [buildUnregisterCall]);
 
 	return (
 		<>
@@ -193,7 +177,7 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 					Set up automated claim with your preferred frequency and threshold.{' '}
 					<div
 						className="tooltip tooltip-left"
-						data-tip="Address will become eligable for claim if one of thresholds reached."
+						data-tip="Address will become eligible for claim if one of thresholds reached."
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -292,18 +276,23 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 					</fieldset>
 				</div>
 
-				<button
+				<TransactionButton
+					calls={plannedCalls}
+					onSuccess={onSuccess}
 					className="btn btn-primary btn-sm mt-8"
-					disabled={plannedActions.length === 0 || transactionLoading}
-					onClick={onAutoclaim}
 				>
-					{buttonText}
-				</button>
+					{plannedCalls[0]?.title ?? 'Save'}
+				</TransactionButton>
+
 				{isRegistered && (
 					<div>
-						<button className="btn btn-ghost btn-xs mt-4" onClick={onUnregister}>
-							{transactionLoading ? 'Processing...' : 'Unsubscribe'}
-						</button>
+						<TransactionButton
+							calls={unregisterCalls}
+							onSuccess={onSuccess}
+							className="btn btn-ghost btn-xs mt-4"
+						>
+							Unsubscribe
+						</TransactionButton>
 					</div>
 				)}
 			</div>

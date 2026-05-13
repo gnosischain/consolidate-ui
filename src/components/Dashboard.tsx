@@ -5,7 +5,8 @@ import { useWallet } from '../context/WalletContext';
 import { WarningModal } from './WarningModal';
 import { BatchInfo } from './BatchInfo';
 import DashboardHeader from './DashboardHeader';
-import { Settings } from 'lucide-react';
+import { Settings, AlertTriangle } from 'lucide-react';
+
 import { useModal } from '../context/ModalContext';
 import Image from 'next/image';
 import useAutoclaim from '../hooks/useAutoclaim';
@@ -14,11 +15,13 @@ import { truncateAddress } from '../utils/address';
 import { ZERO_ADDRESS } from '../constants/misc';
 
 export default function Dashboard() {
-	const { account, network, isMounted, canBatch, canBatchLoading } = useWallet();
+	const { account, network, isMounted, canBatch, canBatchLoading, nativeBalance } = useWallet();
 	const { openModal } = useModal();
 	const { isRegistered, actionContract } = useAutoclaim(network, account.address);
 
 	const { validators } = useBeaconValidators(network, account.address);
+
+	const hasNoXdai = isMounted && account.isConnected && nativeBalance === 0n;
 
 	const totalBalance = useMemo(() => {
 		return validators
@@ -104,13 +107,15 @@ export default function Dashboard() {
 	useEffect(() => {
 		const fetchYield = async () => {
 			try {
-				const response = await fetch('https://dune-proxy.gnosischain.com/current-yield');
+				const response = await fetch(
+					'https://api.analytics.gnosis.io/v1/consensus/validators_apy/latest',
+				);
 				if (!response.ok) {
 					throw new Error('Failed to fetch yield data');
 				}
 				const data = await response.json();
-				const yieldValue = data.result.rows[0]?.yield;
-				setCurrentYield(yieldValue || null);
+				const yieldValue = data?.[0]?.value ?? null;
+				setCurrentYield(yieldValue);
 			} catch (error) {
 				console.error('Error fetching yield:', error);
 				setCurrentYield(null);
@@ -127,6 +132,12 @@ export default function Dashboard() {
 			{isMounted && network && <WarningModal totalBalance={totalBalance} network={network} />}
 			{isMounted && account.isConnected && (
 				<BatchInfo canBatch={canBatch} canBatchLoading={canBatchLoading} />
+			)}
+			{hasNoXdai && (
+				<div className="flex items-center gap-2 text-xs text-base-content/50 mb-4 px-1">
+					<AlertTriangle className="w-3.5 h-3.5 text-warning/70 shrink-0" />
+					<span>No xDAI detected in your wallet — a small amount is needed to pay EL fees for consolidations and withdrawals.</span>
+				</div>
 			)}
 			<DashboardHeader
 				totalBalance={totalBalance}

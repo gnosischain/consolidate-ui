@@ -6,7 +6,7 @@ const cspHeader = `
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data:;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://rpc.gnosischain.com/ https://dune-proxy.gnosischain.com/ https://rpc.chiadochain.net/ https://indexer.hyperindex.xyz/;
+    connect-src 'self' https://rpc.gnosischain.com/ https://api.analytics.gnosis.io/ https://rpc.chiadochain.net/ https://indexer.hyperindex.xyz/;
 	frame-ancestors https://app.safe.global;
     object-src 'none';
     base-uri 'self';

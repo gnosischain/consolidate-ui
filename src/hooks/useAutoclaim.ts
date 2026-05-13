@@ -6,17 +6,9 @@ import { Address, encodeFunctionData, parseUnits } from 'viem';
 import { SECOND_IN_DAY } from '../constants/misc';
 import payClaimActionABI from '../utils/abis/payClaimAction';
 import ERC677ABI from '../utils/abis/erc677';
-import { useTransaction, TransactionCall } from './useTransaction';
+import { TransactionCall } from '../types/transaction';
 
 function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
-	const { execute, isPending: transactionLoading } = useTransaction({
-		onSuccess: () => {
-			refetchUserConfig();
-			refetchActionContract();
-			refetchForwardingAddress();
-		},
-	});
-
 	const { data: userConfig, refetch: refetchUserConfig } = useReadContract({
 		address: contractConfig?.claimRegistryAddress,
 		abi: claimRegistryABI,
@@ -47,141 +39,115 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
 		},
 	});
 
-	const register = useCallback(
-		async (days: number, amount: number, claimAction: `0x${string}`) => {
-			if (contractConfig?.claimRegistryAddress && address) {
-				const timeStamp = BigInt(days) * BigInt(SECOND_IN_DAY);
-				const callData = encodeFunctionData({
+	const buildRegisterCall = useCallback(
+		(days: number, amount: number, claimAction: `0x${string}`): TransactionCall | null => {
+			if (!contractConfig?.claimRegistryAddress || !address) return null;
+			return {
+				to: contractConfig.claimRegistryAddress,
+				data: encodeFunctionData({
 					abi: claimRegistryABI,
 					functionName: 'register',
-					args: [address, timeStamp, parseUnits(amount.toString(), 18), claimAction],
-				});
-
-				const call: TransactionCall = {
-					to: contractConfig.claimRegistryAddress,
-					data: callData,
-					title: 'Register Autoclaim',
-				};
-
-				execute([call]);
-			}
+					args: [address, BigInt(days) * BigInt(SECOND_IN_DAY), parseUnits(amount.toString(), 18), claimAction],
+				}),
+				title: 'Register Autoclaim',
+			};
 		},
-		[address, contractConfig, execute],
+		[address, contractConfig],
 	);
 
-	const setActionContract = useCallback(
-		async (actionContractAddress: `0x${string}`) => {
-			if (contractConfig?.claimRegistryAddress && address) {
-				const callData = encodeFunctionData({
+	const buildSetActionContractCall = useCallback(
+		(actionContractAddress: `0x${string}`): TransactionCall | null => {
+			if (!contractConfig?.claimRegistryAddress || !address) return null;
+			return {
+				to: contractConfig.claimRegistryAddress,
+				data: encodeFunctionData({
 					abi: claimRegistryABI,
 					functionName: 'setActionContract',
 					args: [address, actionContractAddress],
-				});
-
-				const call: TransactionCall = {
-					to: contractConfig.claimRegistryAddress,
-					data: callData,
-					title: 'Set Action Contract',
-				};
-
-				execute([call]);
-			}
+				}),
+				title: 'Set Action Contract',
+			};
 		},
-		[address, contractConfig, execute],
+		[address, contractConfig],
 	);
 
-	const updateConfig = useCallback(
-		async (days: number, amount: number) => {
-			if (contractConfig?.claimRegistryAddress && address) {
-				const timeStamp = BigInt(days) * BigInt(SECOND_IN_DAY);
-				const callData = encodeFunctionData({
+	const buildUpdateConfigCall = useCallback(
+		(days: number, amount: number): TransactionCall | null => {
+			if (!contractConfig?.claimRegistryAddress || !address) return null;
+			return {
+				to: contractConfig.claimRegistryAddress,
+				data: encodeFunctionData({
 					abi: claimRegistryABI,
 					functionName: 'updateConfig',
-					args: [address, timeStamp, parseUnits(amount.toString(), 18)],
-				});
-
-				const call: TransactionCall = {
-					to: contractConfig.claimRegistryAddress,
-					data: callData,
-					title: 'Update Config',
-				};
-
-				execute([call]);
-			}
+					args: [address, BigInt(days) * BigInt(SECOND_IN_DAY), parseUnits(amount.toString(), 18)],
+				}),
+				title: 'Update Config',
+			};
 		},
-		[address, contractConfig, execute],
+		[address, contractConfig],
 	);
 
-	const unregister = useCallback(async () => {
-		if (contractConfig?.claimRegistryAddress && address) {
-			const callData = encodeFunctionData({
+	const buildUnregisterCall = useCallback((): TransactionCall | null => {
+		if (!contractConfig?.claimRegistryAddress || !address) return null;
+		return {
+			to: contractConfig.claimRegistryAddress,
+			data: encodeFunctionData({
 				abi: claimRegistryABI,
 				functionName: 'unregister',
 				args: [address],
-			});
+			}),
+			title: 'Unregister Autoclaim',
+		};
+	}, [address, contractConfig]);
 
-			const call: TransactionCall = {
-				to: contractConfig.claimRegistryAddress,
-				data: callData,
-				title: 'Unregister Autoclaim',
-			};
-
-			execute([call]);
-		}
-	}, [address, contractConfig, execute]);
-
-	const setForwardingAddress = useCallback(
-		async (forwardingAddr: `0x${string}`) => {
-			if (contractConfig?.payClaimActionAddress) {
-				const callData = encodeFunctionData({
+	const buildSetForwardingAddressCall = useCallback(
+		(forwardingAddr: `0x${string}`): TransactionCall | null => {
+			if (!contractConfig?.payClaimActionAddress) return null;
+			return {
+				to: contractConfig.payClaimActionAddress,
+				data: encodeFunctionData({
 					abi: payClaimActionABI,
 					functionName: 'setForwardingAddress',
 					args: [forwardingAddr],
-				});
-
-				const call: TransactionCall = {
-					to: contractConfig.payClaimActionAddress,
-					data: callData,
-					title: 'Set Forwarding Address',
-				};
-
-				execute([call]);
-			}
+				}),
+				title: 'Set Forwarding Address',
+			};
 		},
-		[contractConfig, execute],
+		[contractConfig],
 	);
 
-	const approve = useCallback(async () => {
-		if (contractConfig?.tokenAddress && contractConfig?.payClaimActionAddress) {
-			const callData = encodeFunctionData({
+	const buildApproveCall = useCallback((): TransactionCall | null => {
+		if (!contractConfig?.tokenAddress || !contractConfig?.payClaimActionAddress) return null;
+		return {
+			to: contractConfig.tokenAddress,
+			data: encodeFunctionData({
 				abi: ERC677ABI,
 				functionName: 'approve',
 				args: [contractConfig.payClaimActionAddress, parseUnits('100', 18)],
-			});
+			}),
+			title: 'Approve',
+		};
+	}, [contractConfig]);
 
-			const call: TransactionCall = {
-				to: contractConfig.tokenAddress,
-				data: callData,
-				title: 'Approve',
-			};
-
-			execute([call]);
-		}
-	}, [contractConfig, execute]);
+	const onSuccess = useCallback(() => {
+		refetchUserConfig();
+		refetchActionContract();
+		refetchForwardingAddress();
+	}, [refetchUserConfig, refetchActionContract, refetchForwardingAddress]);
 
 	const isRegistered = userConfig?.[4] === 1;
 
 	return {
-		register,
-		setActionContract,
-		updateConfig,
-		unregister,
-		setForwardingAddress,
-		approve,
+		buildRegisterCall,
+		buildSetActionContractCall,
+		buildUpdateConfigCall,
+		buildUnregisterCall,
+		buildSetForwardingAddressCall,
+		buildApproveCall,
+		onSuccess,
 		userConfig,
 		actionContract,
 		forwardingAddress,
-		transactionLoading,
 		isRegistered,
 	};
 }

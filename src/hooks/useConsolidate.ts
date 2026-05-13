@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
-import { concat, parseEther } from 'viem';
+import { concat } from 'viem';
 import { Consolidation, ValidatorInfo, CredentialType } from '../types/validators';
 import { useWallet } from '../context/WalletContext';
-import { useTransaction, TransactionCall, UseTransactionOptions } from './useTransaction';
+import { TransactionCall } from '../types/transaction';
+import { EL_FEE } from '../constants/misc';
 
 interface ComputedConsolidation {
 	consolidations: Consolidation[];
@@ -68,38 +69,23 @@ export function computeConsolidations(
 	return { consolidations, skippedValidators, targets };
 }
 
-export function useConsolidateValidatorsBatch(options?: UseTransactionOptions) {
+export function useConsolidateValidatorsBatch() {
 	const { network } = useWallet();
-	const { execute, isPending } = useTransaction(options);
 
-	const consolidateValidators = useCallback(
-		(consolidations: Consolidation[]) => {
-			if (consolidations.length === 0) {
-				return;
-			}
-
-			if (!network?.consolidateAddress) {
-				return;
-			}
-
-			const calls: TransactionCall[] = consolidations.map(
-				({ sourceKey, targetKey, sourceIndex, targetIndex }) => ({
-					to: network.consolidateAddress,
-					data: concat([sourceKey, targetKey]),
-					value: parseEther('0.000001'),
-					title: sourceIndex === targetIndex ? 'Self Consolidate' : 'Consolidate',
-				}),
-			);
-
-			execute(calls);
+	const buildConsolidateCalls = useCallback(
+		(consolidations: Consolidation[]): TransactionCall[] => {
+			if (!network?.consolidateAddress) return [];
+			return consolidations.map(({ sourceKey, targetKey, sourceIndex, targetIndex }) => ({
+				to: network.consolidateAddress,
+				data: concat([sourceKey, targetKey]),
+				value: EL_FEE,
+				title: sourceIndex === targetIndex ? 'Self Consolidate' : 'Consolidate',
+			}));
 		},
-		[network, execute],
+		[network],
 	);
 
-	return {
-		consolidateValidators,
-		isPending,
-	};
+	return { buildConsolidateCalls };
 }
 
 export function computeSelfConsolidations(validators: ValidatorInfo[]): Consolidation[] {

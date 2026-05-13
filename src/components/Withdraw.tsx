@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ValidatorInfo } from '../types/validators';
 import { formatEther, parseEther } from 'viem';
 import { useWithdraw } from '../hooks/useWithdraw';
 import { useWallet } from '../context/WalletContext';
 import { useModal } from '../context/ModalContext';
+import { TransactionButton } from './TransactionButton';
 
 interface WithdrawProps {
 	validator: ValidatorInfo;
@@ -15,13 +16,26 @@ export default function Withdraw({ validator }: WithdrawProps) {
 		throw new Error('Network not found');
 	}
 	const { closeModal } = useModal();
-	const { withdrawValidators, isPending } = useWithdraw(network, { onSuccess: closeModal });
-
+	const { buildWithdrawCalls } = useWithdraw(network);
 	const [amount, setAmount] = useState(validator.type === 1 ? validator.balance : 0n);
 
 	const minBalance = parseEther(network.cl.minBalance.toString());
+	const isValid = amount > 0n && amount <= validator.balance;
 	const remaining = validator.balance - amount;
-	const isLowBalance = remaining > 0n && remaining < minBalance;
+	const isLowBalance = isValid && remaining > 0n && remaining < minBalance;
+
+	const calls = useMemo(
+		() =>
+			isValid
+				? buildWithdrawCalls([
+						{
+							pubkey: validator.pubkey,
+							amount: amount === validator.balance ? 0n : amount,
+						},
+					])
+				: [],
+		[isValid, amount, validator, buildWithdrawCalls],
+	);
 
 	return (
 		<>
@@ -48,7 +62,17 @@ export default function Withdraw({ validator }: WithdrawProps) {
 						name="amount"
 						max={formatEther(validator.balance)}
 						value={formatEther(amount)}
-						onChange={(e) => setAmount(parseEther(e.target.value))}
+						onChange={(e) => {
+							if (e.target.value === '') {
+								setAmount(0n);
+								return;
+							}
+							try {
+								setAmount(parseEther(e.target.value));
+							} catch {
+								setAmount(0n);
+							}
+						}}
 						disabled={validator.type === 1}
 					/>
 					<span className="text-xs text-base-content/70 font-medium">GNO</span>
@@ -72,24 +96,11 @@ export default function Withdraw({ validator }: WithdrawProps) {
 			</div>
 
 			<div className="mt-6 flex w-full justify-end">
-				<button
-					className="btn btn-primary"
-					onClick={() =>
-						withdrawValidators([
-							{
-								pubkey: validator.pubkey,
-								amount: amount === validator.balance ? 0n : amount,
-							},
-						])
-					}
-					disabled={amount === 0n || isPending}
-				>
-					{isPending
-						? 'Processing...'
-						: amount === validator.balance
-							? 'Exit validator'
-							: 'Withdraw ' + formatEther(amount) + ' GNO'}
-				</button>
+				<TransactionButton calls={calls} onSuccess={closeModal} className="btn btn-primary">
+					{amount === validator.balance
+						? 'Exit validator'
+						: `Withdraw ${isValid ? formatEther(amount) : ''} GNO`}
+				</TransactionButton>
 			</div>
 		</>
 	);

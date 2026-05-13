@@ -3,6 +3,9 @@ import { BatchDepositData, DepositDataJson } from '../types/deposit';
 import { CredentialType } from '../types/validators';
 
 export const generateDepositData = (deposits: DepositDataJson[]): BatchDepositData => {
+	if (deposits.length === 0) {
+		throw new Error('generateDepositData requires at least one deposit');
+	}
 	const pubkeys = `0x${deposits.map((d) => d.pubkey).join('')}` as `0x${string}`;
 	const withdrawal_credentials = `0x${deposits[0].withdrawal_credentials}` as `0x${string}`;
 	const signatures = `0x${deposits.map((d) => d.signature).join('')}` as `0x${string}`;

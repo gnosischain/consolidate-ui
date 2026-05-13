@@ -2,14 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateDepositData } from '../../../utils/depositValidation';
 import { NETWORK_CONFIG } from '../../../constants/networks';
 
-export const GRAPHQL_URL = process.env.GRAPHQL_URL;
+const GRAPHQL_URL = process.env.GRAPHQL_URL;
 
 if (!GRAPHQL_URL) {
-	throw new Error('GRAPHQL_URL is not defined');
+	console.error(
+		'[validate-deposit] GRAPHQL_URL is not set — /api/validate-deposit will return 500 until this env var is configured.',
+	);
 }
 
 export async function POST(request: NextRequest) {
 	try {
+		if (!GRAPHQL_URL) {
+			console.error('[validate-deposit] Refusing request: GRAPHQL_URL is missing');
+			return NextResponse.json(
+				{ error: 'GRAPHQL_URL is not configured on the server.' },
+				{ status: 500 },
+			);
+		}
+
 		const body = await request.json();
 		const { depositDataJson, balance, chainId } = body;
 
@@ -27,7 +37,7 @@ export async function POST(request: NextRequest) {
 			depositDataJson,
 			BigInt(balance),
 			contractConfig,
-			GRAPHQL_URL!,
+			GRAPHQL_URL,
 		);
 
 		return NextResponse.json({
