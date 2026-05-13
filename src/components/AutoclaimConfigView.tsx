@@ -30,7 +30,11 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 	const [amountValue, setAmountValue] = useState('1');
 	const [forwardingAddressValue, setForwardingAddressValue] = useState<string>('');
 
-	// Track previous dependency values to detect changes during render (avoids setState-in-effect pattern)
+	// TODO: Three prev-tracking useState slots below sync form state from
+	// on-chain reads during render. Verbose but correct. If this is ever
+	// touched, consider consolidating into one ref/state, or splitting into
+	// "initial vs override" so a wagmi refetch doesn't clobber in-progress
+	// user edits.
 	const [prevUserConfig, setPrevUserConfig] = useState(userConfig);
 	const [prevClaimActionDeps, setPrevClaimActionDeps] = useState({ actionContract, isRegistered });
 	const [prevForwardingDeps, setPrevForwardingDeps] = useState({ forwardingAddress, isRegistered });

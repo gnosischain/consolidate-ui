@@ -1,4 +1,8 @@
 import { useMemo, useState } from 'react';
+// TODO: "Upgrade all Type 1" bulk-consolidation feature is disabled below
+// (commented-out import, hook call, derived list, useMemo, and button JSX).
+// Restore using buildConsolidateCalls + <TransactionButton>, or remove the
+// commented blocks entirely once the product decision is made.
 // import { computeSelfConsolidations, useConsolidateValidatorsBatch } from '../hooks/useConsolidate';
 import { ValidatorInfo } from '../types/validators';
 import { ValidatorItem } from './ValidatorItem';
