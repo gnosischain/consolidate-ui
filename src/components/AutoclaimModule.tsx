@@ -74,15 +74,21 @@ export function AutoclaimModule() {
 		};
 	}, [actionContractLabel, isMounted, isRegistered, network?.claimRegistryAddress]);
 
+	// Stays false on the server and the first client render so the `disabled`
+	// attribute matches across hydration, then re-evaluates once mounted.
+	const isAvailable = isMounted && Boolean(network?.claimRegistryAddress) && Boolean(account.address);
+
 	const handleOpenAutoclaim = useCallback(() => {
-		if (!network || !account.address) return;
+		if (!network?.claimRegistryAddress || !account.address) return;
 		openModal(<AutoclaimView network={network} address={account.address} />);
 	}, [account.address, network, openModal]);
 
 	return (
-		<div
+		<button
+			type="button"
 			onClick={handleOpenAutoclaim}
-			className="group w-full cursor-pointer rounded-lg p-3 flex flex-col gap-y-2 hover:bg-base-200/50 transition-colors"
+			disabled={!isAvailable}
+			className={`group w-full text-left rounded-lg p-3 flex flex-col gap-y-2 transition-colors ${isAvailable ? 'cursor-pointer hover:bg-base-200/50' : 'cursor-not-allowed'}`}
 		>
 			<div className="flex items-center justify-between">
 				<span className="text-[10px] font-bold tracking-widest text-base-content/40">
@@ -115,6 +121,6 @@ export function AutoclaimModule() {
 					? 'Rewards sent to wallet automatically.'
 					: 'Configure automatic reward claiming.'}
 			</p>
-		</div>
+		</button>
 	);
 }
