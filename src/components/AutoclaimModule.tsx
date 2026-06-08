@@ -74,8 +74,6 @@ export function AutoclaimModule() {
 		};
 	}, [actionContractLabel, isMounted, isRegistered, network?.claimRegistryAddress]);
 
-	// Stays false on the server and the first client render so the `disabled`
-	// attribute matches across hydration, then re-evaluates once mounted.
 	const isAvailable = isMounted && Boolean(network?.claimRegistryAddress) && Boolean(account.address);
 
 	const handleOpenAutoclaim = useCallback(() => {
