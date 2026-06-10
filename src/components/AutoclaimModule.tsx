@@ -7,6 +7,7 @@ import useAutoclaim from '../hooks/useAutoclaim';
 import { AutoclaimView } from './AutoclaimView';
 import { truncateAddress } from '../utils/address';
 import { ZERO_ADDRESS } from '../constants/misc';
+import { isAddressEqual } from 'viem/utils';
 
 export function AutoclaimModule() {
 	const { account, network, isMounted } = useWallet();
@@ -14,12 +15,12 @@ export function AutoclaimModule() {
 	const { isRegistered, actionContract } = useAutoclaim(network, account.address);
 
 	const actionContractLabel = useMemo(() => {
-		if (!actionContract || actionContract?.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+		if (!actionContract || isAddressEqual(actionContract, ZERO_ADDRESS)) {
 			return 'Enabled';
 		}
 		if (
 			network?.payClaimActionAddress &&
-			actionContract?.toLowerCase() === network.payClaimActionAddress.toLowerCase()
+			isAddressEqual(actionContract, network.payClaimActionAddress)
 		) {
 			return 'Gnosis Pay';
 		}
