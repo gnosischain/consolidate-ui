@@ -1,14 +1,13 @@
 import { useDisconnect } from 'wagmi';
 import { truncateAddress } from '../utils/address';
-import { Balance } from './Balance';
 import { ChevronRight } from 'lucide-react';
 import { NetworkView } from './NetworkView';
 import { useModal } from '../context/ModalContext';
-import { AutoclaimView } from './AutoclaimView';
+import { AutoclaimModule } from './AutoclaimModule';
 import { useWallet } from '../context/WalletContext';
 
 export function AccountView() {
-	const { account, canBatch, chainName, network } = useWallet();
+	const { account, canBatch, chainName } = useWallet();
 	const address = account.address!;
 	const disconnect = useDisconnect();
 	const { openModal, closeModal } = useModal();
@@ -31,25 +30,11 @@ export function AccountView() {
 						)}
 					</div>
 				</div>
-
-				{/* Balance Section */}
-				<div className="px-6 mt-8">
-					<Balance />
-				</div>
 			</div>
 
 			{/* Actions Section */}
 			<div className="px-6 py-4 space-y-3">
-				<button
-					className="btn btn-ghost w-full flex justify-between"
-					onClick={() => {
-						if (!network?.claimRegistryAddress) return;
-						openModal(<AutoclaimView network={network} address={address} />);
-					}}
-				>
-					Autoclaim Registry
-					<ChevronRight className="w-4 h-4" />
-				</button>
+				<AutoclaimModule />
 				<button
 					className="btn btn-ghost w-full flex justify-between"
 					onClick={() => openModal(<NetworkView />)}
