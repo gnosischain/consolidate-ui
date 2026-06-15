@@ -25,41 +25,41 @@ export function BatchInfo({ canBatch, canBatchLoading }: BatchInfoProps) {
 
 	return (
 		<div
-			className={`fixed bottom-4 right-4 z-50 max-w-sm transition-transform duration-300 ${canBatchLoading ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}
+			className={`fixed right-4 bottom-4 z-50 max-w-sm transition-transform duration-300 ${canBatchLoading ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}
 		>
-			<div className="card bg-base-100 shadow-xl border border-base-300">
+			<div className="card bg-base-100 border-base-300 border shadow-xl">
 				<div className="card-body p-4">
 					<div className="flex items-start justify-between gap-2">
 						<div className="flex items-center gap-2">
-							<Layers className="w-5 h-5 text-primary" />
-							<h3 className="font-semibold text-sm">Batch Transactions</h3>
+							<Layers className="text-primary h-5 w-5" />
+							<h3 className="text-sm font-semibold">Batch Transactions</h3>
 						</div>
 						<button
 							onClick={handleDismiss}
 							className="btn btn-ghost btn-xs btn-circle"
 							aria-label="Dismiss"
 						>
-							<X className="w-4 h-4" />
+							<X className="h-4 w-4" />
 						</button>
 					</div>
 
-					<p className="text-xs text-base-content/70 mt-1">
+					<p className="text-base-content/70 mt-1 text-xs">
 						This app supports batch transactions, allowing you to handle multiple operations in a
 						single transaction.
 					</p>
 
 					<div
-						className={`flex items-center gap-2 mt-2 p-2 rounded-lg ${canBatch ? 'bg-success/20' : 'bg-warning/10'}`}
+						className={`mt-2 flex items-center gap-2 rounded-lg p-2 ${canBatch ? 'bg-success/20' : 'bg-warning/10'}`}
 					>
 						{canBatch ? (
 							<>
-								<Check className="w-4 h-4" />
+								<Check className="h-4 w-4" />
 								<span className="text-xs font-medium">Your wallet supports batch transactions</span>
 							</>
 						) : (
 							<>
-								<AlertCircle className="w-4 h-4 text-warning" />
-								<span className="text-xs font-medium text-warning">
+								<AlertCircle className="text-warning h-4 w-4" />
+								<span className="text-warning text-xs font-medium">
 									Your wallet doesn&apos;t support batch transactions
 								</span>
 							</>

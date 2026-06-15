@@ -39,9 +39,9 @@ export default function Consolidate({ validators }: ConsolidateProps) {
 
 	return (
 		<>
-			<div className="flex flex-col w-full">
+			<div className="flex w-full flex-col">
 				<p className="text-lg font-bold">Consolidate</p>
-				<p className="text-xs text-base-content/70">Balance min: {chunkSize}</p>
+				<p className="text-base-content/70 text-xs">Balance min: {chunkSize}</p>
 				<input
 					type="range"
 					min={network.cl.minBalance}
@@ -50,14 +50,14 @@ export default function Consolidate({ validators }: ConsolidateProps) {
 					className="range range-sm range-primary mt-8 w-full"
 					onChange={(e) => setChunkSize(Number(e.target.value))}
 				/>
-				<div className="flex justify-between w-full">
-					<p className="text-xs text-base-content/70">1 GNO</p>
-					<p className="text-xs text-base-content/70">{network.cl.maxBalance} GNO</p>
+				<div className="flex w-full justify-between">
+					<p className="text-base-content/70 text-xs">1 GNO</p>
+					<p className="text-base-content/70 text-xs">{network.cl.maxBalance} GNO</p>
 				</div>
 			</div>
 
-			<div className="w-full flex flex-col bg-primary/5 rounded-lg p-4 mt-8">
-				<p className="font-semibold mb-2">Consolidation summary</p>
+			<div className="bg-primary/5 mt-8 flex w-full flex-col rounded-lg p-4">
+				<p className="mb-2 font-semibold">Consolidation summary</p>
 				<div className="flex justify-between text-sm">
 					<p className="text-base-content/70">Consolidations request:</p>
 					<p>{consolidations.length}</p>
@@ -66,7 +66,7 @@ export default function Consolidate({ validators }: ConsolidateProps) {
 					<p className="text-base-content/70">Processing fees:</p>
 					<p>{(EL_FEE * BigInt(consolidations.length)).toString()} wei</p>
 				</div>
-				<div className="flex justify-between text-sm mt-2 border-t border-base-content/5 pt-2 mb-6">
+				<div className="border-base-content/5 mt-2 mb-6 flex justify-between border-t pt-2 text-sm">
 					<p className="text-base-content/70">Validators remaining:</p>
 					<p>{totalGroups}</p>
 				</div>
@@ -74,7 +74,7 @@ export default function Consolidate({ validators }: ConsolidateProps) {
 				{skippedValidators.length > 0 && (
 					<div className="mt-2 mb-4">
 						<p className="text-warning text-sm">{skippedValidators.length} validators skipped</p>
-						<ul className="list-disc list-inside text-xs mt-1">
+						<ul className="mt-1 list-inside list-disc text-xs">
 							{skippedValidators.map((v) => (
 								<li key={v.index}>
 									{v.index} ({Number(formatEther(v.balance)).toFixed(2)} GNO)

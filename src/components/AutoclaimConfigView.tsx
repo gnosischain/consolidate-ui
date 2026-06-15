@@ -47,7 +47,10 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 		}
 	}
 
-	if (prevClaimActionDeps.actionContract !== actionContract || prevClaimActionDeps.isRegistered !== isRegistered) {
+	if (
+		prevClaimActionDeps.actionContract !== actionContract ||
+		prevClaimActionDeps.isRegistered !== isRegistered
+	) {
 		setPrevClaimActionDeps({ actionContract, isRegistered });
 		if (!isRegistered && network.payClaimActionAddress) {
 			setClaimAction(network.payClaimActionAddress);
@@ -56,7 +59,10 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 		}
 	}
 
-	if (prevForwardingDeps.forwardingAddress !== forwardingAddress || prevForwardingDeps.isRegistered !== isRegistered) {
+	if (
+		prevForwardingDeps.forwardingAddress !== forwardingAddress ||
+		prevForwardingDeps.isRegistered !== isRegistered
+	) {
 		setPrevForwardingDeps({ forwardingAddress, isRegistered });
 		if (forwardingAddress && forwardingAddress !== ZERO_ADDRESS && isRegistered) {
 			setForwardingAddressValue(forwardingAddress);
@@ -164,15 +170,15 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 	return (
 		<>
 			{/* Header with Back Button */}
-			<div className="px-4 py-4 border-b border-base-300">
+			<div className="border-base-300 border-b px-4 py-4">
 				<div className="flex items-center justify-between">
-					<h3 className="font-semibold text-base">Autoclaim Registry</h3>
+					<h3 className="text-base font-semibold">Autoclaim Registry</h3>
 					{isRegistered && <div className="badge badge-accent badge-sm mt-1">Active</div>}
 				</div>
 			</div>
 
 			{/* Autoclaim Content */}
-			<div className="w-full text-sm flex flex-col justify-center p-4">
+			<div className="flex w-full flex-col justify-center p-4 text-sm">
 				<div className="text-sm">
 					Set up automated claim with your preferred frequency and threshold.{' '}
 					<div
@@ -196,7 +202,7 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 					</div>
 				</div>
 
-				<div className="grid grid-cols-2 gap-3 mt-8">
+				<div className="mt-8 grid grid-cols-2 gap-3">
 					<label className="cursor-pointer">
 						<input
 							onChange={handleClaimActionChange}
@@ -204,11 +210,11 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 							type="radio"
 							value={network.payClaimActionAddress}
 							name="time-threshold"
-							className="sr-only peer"
+							className="peer sr-only"
 						/>
-						<div className="border-1 border-base-300 rounded-lg text-center py-1 transition-all peer-checked:border-primary peer-checked:bg-primary/15 peer-checked:text-primary-content peer-checked:shadow-lg hover:border-primary hover:border-opacity-50">
-							<div className="font-medium text-sm">Gnosis Pay</div>
-							<div className="text-xs opacity-70 mt-1">Top up your account</div>
+						<div className="border-base-300 peer-checked:border-primary peer-checked:bg-primary/15 peer-checked:text-primary-content hover:border-primary hover:border-opacity-50 rounded-lg border-1 py-1 text-center transition-all peer-checked:shadow-lg">
+							<div className="text-sm font-medium">Gnosis Pay</div>
+							<div className="mt-1 text-xs opacity-70">Top up your account</div>
 						</div>
 					</label>
 
@@ -219,11 +225,11 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 							type="radio"
 							value={ZERO_ADDRESS}
 							name="time-threshold"
-							className="sr-only peer"
+							className="peer sr-only"
 						/>
-						<div className="border-1 border-base-300 rounded-lg text-center py-1 transition-all peer-checked:border-primary peer-checked:bg-primary/15 peer-checked:text-primary-content peer-checked:shadow-lg hover:border-primary hover:border-opacity-50">
-							<div className="font-medium text-sm">None</div>
-							<div className="text-xs opacity-70 mt-1">No action</div>
+						<div className="border-base-300 peer-checked:border-primary peer-checked:bg-primary/15 peer-checked:text-primary-content hover:border-primary hover:border-opacity-50 rounded-lg border-1 py-1 text-center transition-all peer-checked:shadow-lg">
+							<div className="text-sm font-medium">None</div>
+							<div className="mt-1 text-xs opacity-70">No action</div>
 						</div>
 					</label>
 				</div>
@@ -231,7 +237,7 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 				{claimAction === network.payClaimActionAddress && (
 					<input
 						type="text"
-						className="input input-sm w-full validator mt-3"
+						className="input input-sm validator mt-3 w-full"
 						required
 						placeholder="Enter your Gnosis Pay address"
 						pattern="^0x[a-fA-F0-9]{40}$"
@@ -241,11 +247,11 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 					/>
 				)}
 
-				<div className="flex flex-col p-2 rounded-box mt-4">
+				<div className="rounded-box mt-4 flex flex-col p-2">
 					{/* Time Threshold Section */}
 					<fieldset className="fieldset rounded-box">
 						<legend className="fieldset-legend">Frequency</legend>
-						<label className="input input-sm w-24 validator">
+						<label className="input input-sm validator w-24">
 							<input
 								type="number"
 								required
@@ -261,7 +267,7 @@ export function AutoclaimConfigView({ network, address }: AutoclaimConfigViewPro
 					{/* Amount Threshold Section */}
 					<fieldset className="fieldset rounded-box">
 						<legend className="fieldset-legend">Amount Threshold</legend>
-						<label className="input input-sm w-24 validator">
+						<label className="input input-sm validator w-24">
 							<input
 								type="number"
 								required

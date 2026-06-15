@@ -22,7 +22,7 @@ function App() {
 
 	return (
 		<>
-			<div className="relative px-2 sm:px-28 w-full min-h-screen">
+			<div className="relative min-h-screen w-full px-2 sm:px-28">
 				<div className="mt-4 sm:mt-8">
 					<Dashboard />
 				</div>

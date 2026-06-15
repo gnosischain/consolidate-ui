@@ -8,16 +8,16 @@ const boldonse = Boldonse({
 
 export default function LandingPage() {
 	return (
-		<div className="absolute inset-0 z-30 flex items-center justify-center bg-base-300/20 backdrop-blur-xs px-4">
+		<div className="bg-base-300/20 absolute inset-0 z-30 flex items-center justify-center px-4 backdrop-blur-xs">
 			{/* Content */}
-			<div className="relative flex flex-col items-center justify-center md:px-4 py-4 md:py-20">
+			<div className="relative flex flex-col items-center justify-center py-4 md:px-4 md:py-20">
 				{/* Hero Title */}
-				<div className="flex flex-col items-center justify-center mb-2 md:mb-10">
+				<div className="mb-2 flex flex-col items-center justify-center md:mb-10">
 					<svg
 						viewBox="0 0 878 230"
 						fill="none"
 						xmlns="http://www.w3.org/2000/svg"
-						className="fill-secondary w-[300px] sm:w-[400px] md:w-[600px] h-auto"
+						className="fill-secondary h-auto w-[300px] sm:w-[400px] md:w-[600px]"
 					>
 						<path d="M101.244 101.188V136.382H166.15C158.07 160.903 136.437 180.52 103.844 180.52C67.4986 180.52 41.8343 151.383 41.8343 114.749C41.8343 78.1156 68.6505 48.9781 106.148 48.9781C123.26 48.9781 137.545 54.7463 148.209 64.1708C152.555 68.1501 158.506 75.0265 160.67 84.2939H202.653C202.653 84.2939 202.923 73.4383 195.864 59.6418C195.864 59.6418 195.855 59.6244 195.846 59.6156C191.666 51.4652 184.921 42.285 174.039 33.7156C173.969 33.6633 173.899 33.6109 173.83 33.5586C155.914 18.7149 132.161 10.0234 104.123 10.0234C44.1206 10.0322 0 55.6102 0 114.749C0 173.888 44.1206 219.466 103.835 219.466C163.55 219.466 207.976 175.04 207.976 117.35V101.197H101.244V101.188Z" />
 						<path d="M711.998 217.74V11.7617H752.672V217.731H711.998V217.74Z" />
@@ -29,18 +29,18 @@ export default function LandingPage() {
 					</svg>
 
 					<h1
-						className={`text-5xl sm:text-6xl md:text-9xl font-bold mb-8 text-accent ${boldonse.className}`}
+						className={`text-accent mb-8 text-5xl font-bold sm:text-6xl md:text-9xl ${boldonse.className}`}
 					>
 						VALIDATORS
 					</h1>
-					<p className="hidden md:block text-xl md:text-2xl text-base-content/70 max-w-2xl font-medium">
+					<p className="text-base-content/70 hidden max-w-2xl text-xl font-medium md:block md:text-2xl">
 						Manage your validators on Gnosis Chain
 					</p>
 				</div>
 
 				{/* CTA Button */}
-				<div className="mb-24 flex flex-col items-center justify-center border-t border-base-content/10 md:pt-10 md:px-4">
-					<span className="text-lg font-semibold text-base-content text-nowrap">
+				<div className="border-base-content/10 mb-24 flex flex-col items-center justify-center border-t md:px-4 md:pt-10">
+					<span className="text-base-content text-lg font-semibold text-nowrap">
 						Connect your wallet to view your validators
 					</span>
 					<p className="text-sm text-gray-500">
@@ -58,8 +58,8 @@ export default function LandingPage() {
 
 				{/* Footer Note */}
 				<div className="mt-16 text-center">
-					<p className="text-sm text-base-content/50">
-						Powered by <span className="font-bold text-accent">Gnosis Chain</span>
+					<p className="text-base-content/50 text-sm">
+						Powered by <span className="text-accent font-bold">Gnosis Chain</span>
 					</p>
 				</div>
 			</div>
