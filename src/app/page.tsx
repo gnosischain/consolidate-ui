@@ -10,15 +10,16 @@ import { useModal } from '../context/ModalContext';
 function App() {
 	const { account, isWrongNetwork } = useWallet();
 	const { closeModal } = useModal();
-	if (isWrongNetwork) {
-		return <WrongNetwork />;
-	}
 
 	useEffect(() => {
 		if (account.isConnected) {
 			closeModal();
 		}
 	}, [account.isConnected, closeModal]);
+
+	if (isWrongNetwork) {
+		return <WrongNetwork />;
+	}
 
 	return (
 		<>
