@@ -33,5 +33,5 @@ export const env = createEnv({
 		NEXT_PUBLIC_QUICKNODE_TOKEN: process.env.NEXT_PUBLIC_QUICKNODE_TOKEN,
 	},
 	emptyStringAsUndefined: true,
-	skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+	skipValidation: process.env.SKIP_ENV_VALIDATION === '1',
 });
