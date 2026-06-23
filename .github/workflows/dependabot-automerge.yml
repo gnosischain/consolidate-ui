@@ -1,0 +1,32 @@
+name: Dependabot auto-merge
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    name: Auto-merge safe updates
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2
+
+      # Web3 policy: only auto-merge things that never reach the signing/transaction path —
+      # devDependencies (lint, types, tooling) and GitHub Actions (CI infra). Patch & minor only.
+      # Production/runtime deps (viem, wagmi, @safe-global/*, next, react, …) are NEVER
+      # auto-merged here — a human reviews every one, regardless of bump type. Majors are also
+      # always left for a human. GitHub merges once required CI checks pass.
+      - name: Enable auto-merge (dev-deps & GitHub Actions, patch/minor only)
+        if: >
+          (steps.meta.outputs.update-type == 'version-update:semver-patch' ||
+           steps.meta.outputs.update-type == 'version-update:semver-minor') &&
+          (steps.meta.outputs.dependency-type == 'direct:development' ||
+           steps.meta.outputs.package-ecosystem == 'github-actions')
+        run: gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
