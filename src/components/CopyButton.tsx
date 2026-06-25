@@ -19,7 +19,7 @@ export function CopyButton({ text }: { text: string }) {
 			className="btn btn-xs btn-ghost btn-circle opacity-30"
 			title="Copy address"
 		>
-			{copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+			{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
 		</button>
 	);
 }

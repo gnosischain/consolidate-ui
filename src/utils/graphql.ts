@@ -1,4 +1,4 @@
-export interface GraphQLResponse<T = any> {
+export interface GraphQLResponse<T = unknown> {
 	data?: T;
 	errors?: Array<{
 		message: string;
@@ -7,10 +7,10 @@ export interface GraphQLResponse<T = any> {
 	}>;
 }
 
-export async function fetchGraphQL<T = any>(
+export async function fetchGraphQL<T = unknown>(
 	url: string,
 	query: string,
-	variables?: Record<string, any>,
+	variables?: Record<string, unknown>,
 ): Promise<GraphQLResponse<T>> {
 	const response = await fetch(url, {
 		method: 'POST',

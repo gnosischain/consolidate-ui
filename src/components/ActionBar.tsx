@@ -14,13 +14,13 @@ export default function ActionBar({ selected }: ActionBarProps) {
 	const { openModal } = useModal();
 
 	return (
-		<div className="flex flex-col sm:flex-row justify-between w-full z-10 fixed bottom-0 left-0 bg-base-100 border-t-2 border-primary/20 py-3 px-4">
+		<div className="bg-base-100 border-primary/20 fixed bottom-0 left-0 z-10 flex w-full flex-col justify-between border-t-2 px-4 py-3 sm:flex-row">
 			<div className="flex items-center">
-				<p className="border-r border-base-content/10 pr-3">{selected.length} selected</p>
+				<p className="border-base-content/10 border-r pr-3">{selected.length} selected</p>
 				<button className="btn btn-xs btn-ghost">Clear selection</button>
 			</div>
-			<div className="flex items-center gap-x-4 mt-4 sm:mt-0">
-				<div role="tablist" className="hidden sm:inline tabs tabs-md tabs-box">
+			<div className="mt-4 flex items-center gap-x-4 sm:mt-0">
+				<div role="tablist" className="tabs tabs-md tabs-box hidden sm:inline">
 					<input
 						type="radio"
 						name="tab"

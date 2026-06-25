@@ -63,7 +63,9 @@ export async function validateDepositData(
 
 	// Check for existing deposits
 	const pubkeys = deposits.map((d) => `0x${d.pubkey}`);
-	const response = await fetchGraphQL(graphqlUrl, GET_DEPOSIT_EVENTS, {
+	const response = await fetchGraphQL<{
+		SBCDepositContract_DepositEvent: { pubkey: string }[];
+	}>(graphqlUrl, GET_DEPOSIT_EVENTS, {
 		pubkeys: pubkeys,
 		chainId: contractConfig.chainId,
 	});

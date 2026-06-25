@@ -20,8 +20,10 @@ export default function PartialDepositBatch({ validators }: PartialDepositProps)
 		throw new Error('Network not found');
 	}
 
-	const { buildPartialDepositCalls, onDepositSuccess, allowance } =
-		useDeposit(network, account.address);
+	const { buildPartialDepositCalls, onDepositSuccess, allowance } = useDeposit(
+		network,
+		account.address,
+	);
 	const [amount, setAmount] = useState(0n);
 
 	const depositAmounts = useMemo(
@@ -62,13 +64,16 @@ export default function PartialDepositBatch({ validators }: PartialDepositProps)
 					max={formatEther(balance.balance)}
 					value={formatEther(amount)}
 					onChange={(e) => {
-						if (e.target.value === '') { setAmount(0n); return; }
+						if (e.target.value === '') {
+							setAmount(0n);
+							return;
+						}
 						try {
 							const parsed = parseEther(e.target.value);
 							setAmount(parsed > balance.balance ? balance.balance : parsed);
 						} catch {
 							setAmount(0n);
-						 }
+						}
 					}}
 				/>
 			</fieldset>
@@ -82,9 +87,9 @@ export default function PartialDepositBatch({ validators }: PartialDepositProps)
 					className="range range-sm range-primary mt-8 w-full"
 					onChange={(e) => setTargetAmount(Number(e.target.value))}
 				/>
-				<div className="flex justify-between w-full">
-					<p className="text-xs text-base-content/70">1 GNO</p>
-					<p className="text-xs text-base-content/70">{network.cl.maxBalance} GNO</p>
+				<div className="flex w-full justify-between">
+					<p className="text-base-content/70 text-xs">1 GNO</p>
+					<p className="text-base-content/70 text-xs">{network.cl.maxBalance} GNO</p>
 				</div>
 			</fieldset>
 			<div className="mt-4">
@@ -93,7 +98,10 @@ export default function PartialDepositBatch({ validators }: PartialDepositProps)
 			<div className="mt-8 flex w-full justify-end">
 				<TransactionButton
 					calls={calls}
-					onSuccess={() => { onDepositSuccess(); closeModal(); }}
+					onSuccess={() => {
+						onDepositSuccess();
+						closeModal();
+					}}
 					className="btn btn-primary"
 				>
 					{needsApproval

@@ -1,0 +1,44 @@
+version: 2
+updates:
+  # JavaScript / TypeScript dependencies (pnpm)
+  - package-ecosystem: npm
+    directory: '/'
+    target-branch: 'dev' # matches the PR-into-dev flow; change to "main" if you prefer
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: 'Etc/GMT' # GMT (UTC+0, no DST)
+    open-pull-requests-limit: 5 # cap concurrent version-update PRs
+    cooldown:
+      default-days: 3 # don't propose a release until it's been public 3 days
+    groups:
+      # Dev deps (lint, types, tooling) batch into ONE PR — never mixed with runtime deps,
+      # so the auto-merge workflow can safely merge this group (direct:development) on green CI.
+      dev-dependencies:
+        dependency-type: development
+        update-types: ['minor', 'patch']
+      # Production deps (viem, wagmi, next, react, …) batch into ONE PR for review — fewer PRs,
+      # and wagmi+viem naturally land together. NOT auto-merged (human review).
+      production-dependencies:
+        dependency-type: production
+        update-types: ['minor', 'patch']
+      # Majors (dev or prod) match no group → open individually, reviewed in isolation.
+    labels:
+      - dependencies
+
+  # GitHub Actions — keeps the SHA-pinned actions in quality.yml / security-audit.yml current
+  - package-ecosystem: github-actions
+    directory: '/'
+    target-branch: 'dev'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: 'Etc/GMT' # GMT (UTC+0, no DST)
+    groups:
+      actions:
+        update-types: ['minor', 'patch']
+    labels:
+      - dependencies
+      - github-actions

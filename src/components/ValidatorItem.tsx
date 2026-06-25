@@ -20,7 +20,7 @@ export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItem
 	const { openModal } = useModal();
 	return (
 		<tr
-			className={`h-14 hover:bg-primary/5 group transition-all duration-200 ${
+			className={`hover:bg-primary/5 group h-14 transition-all duration-200 ${
 				isSelected ? 'bg-primary/10' : ''
 			} ${validator.filterStatus === 'active' ? 'text-base-content' : 'text-base-content/50'}`}
 		>
@@ -37,7 +37,7 @@ export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItem
 			<td>
 				<div className="flex items-center gap-2 font-mono text-sm opacity-70">
 					{truncateAddress(validator.pubkey)}
-					<div className="opacity-0 group-hover:opacity-100 transition-opacity">
+					<div className="opacity-0 transition-opacity group-hover:opacity-100">
 						<CopyButton text={validator.pubkey} />
 					</div>
 				</div>
@@ -52,7 +52,7 @@ export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItem
 				<div className="flex items-center gap-2">
 					<span>
 						{(Math.floor(Number(formatEther(validator.balance)) * 100) / 100).toFixed(2)}{' '}
-						<span className="text-xs text-base-content/60">GNO</span>
+						<span className="text-base-content/60 text-xs">GNO</span>
 					</span>
 					{validator.balance < parseEther('1') && (
 						<div className="badge badge-xs badge-soft badge-warning">Low</div>
@@ -62,7 +62,7 @@ export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItem
 
 			<td className="min-w-24">
 				{validator.filterStatus === 'active' && (
-					<div className="flex gap-x-1 transition-all duration-300 opacity-40 group-hover:opacity-100">
+					<div className="flex gap-x-1 opacity-40 transition-all duration-300 group-hover:opacity-100">
 						{validator.type === 1 && (
 							<div className="tooltip" data-tip="Upgrade">
 								<button
@@ -75,7 +75,7 @@ export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItem
 										)
 									}
 								>
-									<ArrowUp className="w-4 h-4" />
+									<ArrowUp className="h-4 w-4" />
 								</button>
 							</div>
 						)}
@@ -86,7 +86,7 @@ export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItem
 									className="btn btn-soft btn-secondary btn-circle btn-xs"
 									onClick={() => openModal(<PartialDeposit validator={validator} />)}
 								>
-									<Plus className="w-4 h-4" />
+									<Plus className="h-4 w-4" />
 								</button>
 							</div>
 						)}
@@ -96,7 +96,7 @@ export function ValidatorItem({ validator, isSelected, onToggle }: ValidatorItem
 								className="btn btn-soft btn-secondary btn-circle btn-xs"
 								onClick={() => openModal(<Withdraw validator={validator} />)}
 							>
-								<Minus className="w-4 h-4" />
+								<Minus className="h-4 w-4" />
 							</button>
 						</div>
 					</div>

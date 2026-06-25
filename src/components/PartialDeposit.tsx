@@ -49,13 +49,16 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 					max={formatEther(balance.balance)}
 					value={formatEther(amount)}
 					onChange={(e) => {
-						if (e.target.value === '') { setAmount(0n); return; }
+						if (e.target.value === '') {
+							setAmount(0n);
+							return;
+						}
 						try {
 							const parsed = parseEther(e.target.value);
 							setAmount(parsed > balance.balance ? balance.balance : parsed);
 						} catch {
 							setAmount(0n);
-						 }
+						}
 					}}
 				/>
 			</fieldset>
@@ -64,7 +67,10 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 				<TransactionButton
 					calls={calls}
 					disabled={amount === 0n}
-					onSuccess={() => { onDepositSuccess(); closeModal(); }}
+					onSuccess={() => {
+						onDepositSuccess();
+						closeModal();
+					}}
 					className="btn btn-primary"
 				>
 					{needsApproval

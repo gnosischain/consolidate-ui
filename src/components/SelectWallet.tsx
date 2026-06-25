@@ -22,41 +22,41 @@ export function SelectWallet() {
 	);
 
 	return (
-		<div className="flex flex-col md:flex-row md:min-h-[340px] w-full max-w-[640px] rounded-box overflow-hidden">
+		<div className="rounded-box flex w-full max-w-[640px] flex-col overflow-hidden md:min-h-[340px] md:flex-row">
 			{/* Sidebar - hidden on mobile */}
-			<div className="hidden md:flex flex-col justify-between p-5 bg-primary md:w-[200px] shrink-0">
+			<div className="bg-primary hidden shrink-0 flex-col justify-between p-5 md:flex md:w-[200px]">
 				<div>
-					<h2 className="text-xl font-bold text-primary-content mb-4">Connect Wallet</h2>
-					<p className="text-sm text-primary-content/80 leading-relaxed">
+					<h2 className="text-primary-content mb-4 text-xl font-bold">Connect Wallet</h2>
+					<p className="text-primary-content/80 text-sm leading-relaxed">
 						Select a wallet to sign in to the application.
 					</p>
 				</div>
 			</div>
 
 			{/* Content */}
-			<div className="flex flex-col p-6 bg-base-100 flex-1">
+			<div className="bg-base-100 flex flex-1 flex-col p-6">
 				{/* Mobile title */}
-				<h2 className="md:hidden text-xl font-bold mb-4">Connect Wallet</h2>
+				<h2 className="mb-4 text-xl font-bold md:hidden">Connect Wallet</h2>
 
-				<h3 className="text-sm font-semibold text-primary mb-3">
+				<h3 className="text-primary mb-3 text-sm font-semibold">
 					Available Wallets ({availableConnectors.length})
 				</h3>
 
 				{/* Wallet List */}
-				<div className="flex flex-col gap-2 flex-1">
+				<div className="flex flex-1 flex-col gap-2">
 					{availableConnectors.map((connector) => (
 						<button
-							className="flex items-center gap-3 px-3 py-2.5 bg-primary/20 hover:bg-primary/30 active:bg-primary/40 border border-primary/30 rounded-lg transition-all w-full"
+							className="bg-primary/20 hover:bg-primary/30 active:bg-primary/40 border-primary/30 flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 transition-all"
 							key={connector.uid}
 							onClick={() => connector.connect({ chainId: gnosis.id })}
 						>
 							{/* Icon */}
-							<div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
 								{connector.icon ? (
 									<img
 										src={connector.icon}
 										alt={connector.name}
-										className="w-6 h-6 object-contain"
+										className="h-6 w-6 object-contain"
 									/>
 								) : (
 									<span className="text-primary font-bold">
@@ -66,20 +66,20 @@ export function SelectWallet() {
 							</div>
 
 							{/* Name */}
-							<span className="text-base-content font-medium text-sm">{connector.name}</span>
+							<span className="text-base-content text-sm font-medium">{connector.name}</span>
 						</button>
 					))}
 				</div>
 
 				{/* Safe UI Note */}
-				<div className="pt-3 border-t border-base-300">
+				<div className="border-base-300 border-t pt-3">
 					<a
-						className="text-[11px] text-base-content/40 hover:text-base-content/60 transition-colors inline-flex items-center gap-1"
+						className="text-base-content/40 hover:text-base-content/60 inline-flex items-center gap-1 text-[11px] transition-colors"
 						href="https://app.safe.global/"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						Also available from the Safe UI <ExternalLink className="w-3 h-3" />
+						Also available from the Safe UI <ExternalLink className="h-3 w-3" />
 					</a>
 				</div>
 			</div>
