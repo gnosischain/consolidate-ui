@@ -24,12 +24,12 @@ export function WarningModal({ totalBalance, network }: WarningModalProps) {
 	return (
 		<dialog ref={dialogRef} className="modal">
 			<div className="modal-box">
-				<h3 className="text-lg font-bold text-warning">⚠️ Warning</h3>
+				<h3 className="text-warning text-lg font-bold">⚠️ Warning</h3>
 				<p className="py-4">
 					You're holding {Number(formatEther(totalBalance)).toFixed(2)} GNO in the Consensus Layer,
 					this application is in beta and you should proceed with caution.
 				</p>
-				<ul className="text-sm text-gray-500 list-disc list-inside">
+				<ul className="list-inside list-disc text-sm text-gray-500">
 					<li>Review all your transactions before accepting them.</li>
 					<li>
 						Monitor your tx on the Beacon Chain:{' '}
@@ -37,7 +37,7 @@ export function WarningModal({ totalBalance, network }: WarningModalProps) {
 							href={network.beaconchainApi ?? ''}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="underline ml-1"
+							className="ml-1 underline"
 						>
 							{network.beaconchainApi ?? ''}
 						</a>
@@ -48,7 +48,7 @@ export function WarningModal({ totalBalance, network }: WarningModalProps) {
 							href="https://discord.gg/gnosis"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="underline ml-1"
+							className="ml-1 underline"
 						>
 							https://discord.gg/gnosis
 						</a>

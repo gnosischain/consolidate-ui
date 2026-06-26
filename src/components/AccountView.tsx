@@ -15,13 +15,13 @@ export function AccountView() {
 	return (
 		<>
 			{/* Header */}
-			<div className="px-6 py-4 border-b border-base-300">
+			<div className="border-base-300 border-b px-6 py-4">
 				<div className="flex items-center justify-between">
 					<div>
-						<h3 className="font-semibold text-base">Wallet</h3>
-						<p className="text-sm text-base-content/70 font-mono">{truncateAddress(address)}</p>
+						<h3 className="text-base font-semibold">Wallet</h3>
+						<p className="text-base-content/70 font-mono text-sm">{truncateAddress(address)}</p>
 					</div>
-					<div className="flex flex-col gap-1 items-end">
+					<div className="flex flex-col items-end gap-1">
 						{canBatch && (
 							<div className="badge badge-soft badge-sm gap-1">
 								<span>⚡</span>
@@ -33,14 +33,14 @@ export function AccountView() {
 			</div>
 
 			{/* Actions Section */}
-			<div className="px-6 py-4 space-y-3">
+			<div className="space-y-3 px-6 py-4">
 				<AutoclaimModule />
 				<button
-					className="btn btn-ghost w-full flex justify-between"
+					className="btn btn-ghost flex w-full justify-between"
 					onClick={() => openModal(<NetworkView />)}
 				>
 					Network: {chainName}
-					<ChevronRight className="w-4 h-4" />
+					<ChevronRight className="h-4 w-4" />
 				</button>
 				<button
 					onClick={() => {
@@ -55,7 +55,7 @@ export function AccountView() {
 						viewBox="0 0 24 24"
 						strokeWidth={1.5}
 						stroke="currentColor"
-						className="w-4 h-4"
+						className="h-4 w-4"
 					>
 						<path
 							strokeLinecap="round"
@@ -68,34 +68,34 @@ export function AccountView() {
 			</div>
 
 			{/* External Links Section */}
-			<div className="border-t border-base-300">
+			<div className="border-base-300 border-t">
 				<div className="px-6 py-3">
-					<h4 className="text-sm font-medium text-base-content/70 mb-3">External Links</h4>
+					<h4 className="text-base-content/70 mb-3 text-sm font-medium">External Links</h4>
 					<div className="space-y-1">
 						<a
 							href="https://discord.gg/gnosis"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="flex items-center justify-between w-full p-2 text-sm rounded-lg hover:bg-base-200 transition-colors duration-200 group"
+							className="hover:bg-base-200 group flex w-full items-center justify-between rounded-lg p-2 text-sm transition-colors duration-200"
 						>
 							<span>Get Help</span>
 							<img
 								src="/external.svg"
 								alt="External Link"
-								className="w-3 h-3 opacity-50 group-hover:opacity-70 transition-opacity"
+								className="h-3 w-3 opacity-50 transition-opacity group-hover:opacity-70"
 							/>
 						</a>
 						<a
 							href="https://www.gnosis.io/"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="flex items-center justify-between w-full p-2 text-sm rounded-lg hover:bg-base-200 transition-colors duration-200 group"
+							className="hover:bg-base-200 group flex w-full items-center justify-between rounded-lg p-2 text-sm transition-colors duration-200"
 						>
 							<span>Explore Gnosis</span>
 							<img
 								src="/external.svg"
 								alt="External Link"
-								className="w-3 h-3 opacity-50 group-hover:opacity-70 transition-opacity"
+								className="h-3 w-3 opacity-50 transition-opacity group-hover:opacity-70"
 							/>
 						</a>
 					</div>

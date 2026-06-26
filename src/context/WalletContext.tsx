@@ -51,17 +51,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 		query: { enabled: !!account.address },
 	});
 
-
-
 	const chainCapabilities = chainId ? capabilities.data?.[chainId] : undefined;
 
 	// EIP-5792 `supported` means the wallet will execute calls atomically now.
 	const supportsStandardAtomic = chainCapabilities?.atomic?.status === 'supported';
 
 	// Safe Apps Provider currently exposes batching with this shape.
-	const supportsAtomicBatch =  
+	const supportsAtomicBatch =
 		(chainCapabilities as AtomicBatchCapability | undefined)?.atomicBatch?.supported === true;
-
 
 	const canBatch = supportsStandardAtomic || supportsAtomicBatch;
 

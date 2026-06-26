@@ -13,23 +13,23 @@ export function AutoclaimView({ network, address }: AutoclaimViewProps) {
 	return (
 		<>
 			{/* Header with Back Button */}
-			<div className="px-4 py-4 border-b border-base-300">
+			<div className="border-base-300 border-b px-4 py-4">
 				<div className="flex items-center justify-between">
-					<h3 className="font-semibold text-base">Autoclaim Registry</h3>
+					<h3 className="text-base font-semibold">Autoclaim Registry</h3>
 				</div>
 			</div>
 
 			{/* Autoclaim Content */}
 			<div className="px-6 py-4">
-				<div className="text-center py-8">
-					<div className="w-16 h-16 mx-auto mb-4 bg-base-200 rounded-full flex items-center justify-center">
+				<div className="py-8 text-center">
+					<div className="bg-base-200 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
 							viewBox="0 0 24 24"
 							strokeWidth={1.5}
 							stroke="currentColor"
-							className="w-8 h-8"
+							className="h-8 w-8"
 						>
 							<path
 								strokeLinecap="round"
@@ -38,18 +38,18 @@ export function AutoclaimView({ network, address }: AutoclaimViewProps) {
 							/>
 						</svg>
 					</div>
-					<h4 className="font-semibold mb-2">Autoclaim Registry</h4>
-					<p className="text-sm text-base-content/70 mb-4">
+					<h4 className="mb-2 font-semibold">Autoclaim Registry</h4>
+					<p className="text-base-content/70 mb-4 text-sm">
 						Configure automatic claiming for your validator rewards.
 					</p>
 					{network.claimRegistryAddress && (
 						<div className="space-y-3">
 							<div className="bg-base-200 rounded-lg p-3 text-left">
-								<p className="text-xs text-base-content/70 mb-1">Registry Address</p>
+								<p className="text-base-content/70 mb-1 text-xs">Registry Address</p>
 								<p className="font-mono text-sm break-all">{network.claimRegistryAddress}</p>
 							</div>
 							<button
-								className="btn btn-primary btn-sm w-full mt-4"
+								className="btn btn-primary btn-sm mt-4 w-full"
 								onClick={() =>
 									openModal(<AutoclaimConfigView network={network} address={address} />)
 								}
@@ -60,8 +60,8 @@ export function AutoclaimView({ network, address }: AutoclaimViewProps) {
 					)}
 					{!network.claimRegistryAddress && (
 						<>
-							<div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
-								<p className="text-sm text-warning">
+							<div className="bg-warning/10 border-warning/20 rounded-lg border p-3">
+								<p className="text-warning text-sm">
 									Autoclaim registry not available for this network.
 								</p>
 							</div>
