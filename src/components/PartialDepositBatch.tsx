@@ -88,7 +88,7 @@ export default function PartialDepositBatch({ validators }: PartialDepositProps)
 					onChange={(e) => setTargetAmount(Number(e.target.value))}
 				/>
 				<div className="flex w-full justify-between">
-					<p className="text-base-content/70 text-xs">1 GNO</p>
+					<p className="text-base-content/70 text-xs">{network.cl.minBalance} GNO</p>
 					<p className="text-base-content/70 text-xs">{network.cl.maxBalance} GNO</p>
 				</div>
 			</fieldset>
