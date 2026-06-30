@@ -1,11 +1,11 @@
 @import 'tailwindcss';
-@plugin "daisyui" {
+@plugin 'daisyui' {
 	themes:
 		gnosis --default,
 		gnosisDark --prefersdark;
 }
 
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
 	name: 'gnosis';
 	default: true; /* set as default */
 	prefersdark: false; /* set as default light mode */
@@ -62,7 +62,7 @@
 	--noise: 0;
 }
 
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
 	name: 'gnosisDark';
 	default: false;
 	prefersdark: false;

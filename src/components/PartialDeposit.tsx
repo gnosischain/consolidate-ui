@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { formatEther, parseEther } from 'viem';
 import { useWallet } from '../context/WalletContext';
+import { floorToGwei } from '../utils/deposit';
 import useDeposit from '../hooks/useDeposit';
 import { ValidatorInfo } from '../types/validators';
 import { useModal } from '../context/ModalContext';
@@ -37,7 +38,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 			<fieldset className="fieldset mt-2 w-full gap-y-2">
 				<legend className="fieldset-legend">
 					Amount to deposit{' '}
-					<button className="btn btn-xs" onClick={() => setAmount(balance.balance)}>
+					<button className="btn btn-xs" onClick={() => setAmount(floorToGwei(balance.balance))}>
 						Max
 					</button>
 				</legend>
@@ -55,7 +56,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 						}
 						try {
 							const parsed = parseEther(e.target.value);
-							setAmount(parsed > balance.balance ? balance.balance : parsed);
+							setAmount(floorToGwei(parsed > balance.balance ? balance.balance : parsed));
 						} catch {
 							setAmount(0n);
 						}

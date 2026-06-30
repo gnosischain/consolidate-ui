@@ -1,6 +1,9 @@
 import { concat, sha256, toHex } from 'viem';
 import { BatchDepositData, DepositDataJson } from '../types/deposit';
 import { CredentialType } from '../types/validators';
+import { GWEI } from '../constants/misc';
+
+export const floorToGwei = (wei: bigint): bigint => (wei / GWEI) * GWEI;
 
 export const generateDepositData = (deposits: DepositDataJson[]): BatchDepositData => {
 	if (deposits.length === 0) {
@@ -44,7 +47,7 @@ export function buildDepositRoot(
 	signature: `0x${string}`,
 	stakeAmountWei: bigint, // the value you pass to the contract
 ): `0x${string}` {
-	const amountGwei = (stakeAmountWei * 32n) / 10n ** 9n;
+	const amountGwei = (stakeAmountWei * 32n) / GWEI;
 	const amountLE = toLittleEndian64(amountGwei);
 
 	const pubkeyRoot = sha256(concat([pubkey, `0x${'00'.repeat(16)}`]));
