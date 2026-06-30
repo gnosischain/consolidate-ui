@@ -54,15 +54,18 @@ export default function Dashboard() {
 	}, []);
 
 	return (
-		<div className="flex flex-col w-full">
+		<div className="flex w-full flex-col">
 			{isMounted && network && <WarningModal totalBalance={totalBalance} network={network} />}
 			{isMounted && account.isConnected && (
 				<BatchInfo canBatch={canBatch} canBatchLoading={canBatchLoading} />
 			)}
 			{hasNoXdai && (
-				<div className="flex items-center gap-2 text-xs text-base-content/50 mb-4 px-1">
-					<AlertTriangle className="w-3.5 h-3.5 text-warning/70 shrink-0" />
-					<span>No xDAI detected in your wallet — a small amount is needed to pay EL fees for consolidations and withdrawals.</span>
+				<div className="text-base-content/50 mb-4 flex items-center gap-2 px-1 text-xs">
+					<AlertTriangle className="text-warning/70 h-3.5 w-3.5 shrink-0" />
+					<span>
+						No xDAI detected in your wallet — a small amount is needed to pay EL fees for
+						consolidations and withdrawals.
+					</span>
 				</div>
 			)}
 			<DashboardHeader

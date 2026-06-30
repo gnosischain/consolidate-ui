@@ -10,9 +10,6 @@ import { useModal } from '../context/ModalContext';
 function App() {
 	const { account, isWrongNetwork } = useWallet();
 	const { closeModal } = useModal();
-	if (isWrongNetwork) {
-		return <WrongNetwork />;
-	}
 
 	useEffect(() => {
 		if (account.isConnected) {
@@ -20,9 +17,13 @@ function App() {
 		}
 	}, [account.isConnected, closeModal]);
 
+	if (isWrongNetwork) {
+		return <WrongNetwork />;
+	}
+
 	return (
 		<>
-			<div className="relative px-2 sm:px-28 w-full min-h-screen">
+			<div className="relative min-h-screen w-full px-2 sm:px-28">
 				<div className="mt-4 sm:mt-8">
 					<Dashboard />
 				</div>

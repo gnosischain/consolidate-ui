@@ -25,13 +25,7 @@ export function ValidatorBadge({ filterStatus, status }: ValidatorBadgeProps) {
 			<div className="flex items-center gap-x-2">
 				<p className="capitalize">{filterStatus}</p>
 				<div
-					className={`status
-    ${color === 'info' ? 'status-info' : ''}
-    ${color === 'success' ? 'status-success' : ''}
-    ${color === 'warning' ? 'status-warning' : ''}
-    ${color === 'error' ? 'status-error' : ''}
-    ${color === 'neutral' ? 'status-neutral' : ''}
-  `}
+					className={`status ${color === 'info' ? 'status-info' : ''} ${color === 'success' ? 'status-success' : ''} ${color === 'warning' ? 'status-warning' : ''} ${color === 'error' ? 'status-error' : ''} ${color === 'neutral' ? 'status-neutral' : ''} `}
 				/>
 			</div>
 		</div>

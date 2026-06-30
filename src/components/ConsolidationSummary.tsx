@@ -20,20 +20,20 @@ export function ConsolidationSummary({ consolidations }: ConsolidationSummaryPro
 
 	return (
 		<>
-			<div className="flex w-full items-center justify-between mb-6">
+			<div className="mb-6 flex w-full items-center justify-between">
 				<div>
-					<h3 className="font-bold text-2xl">Consolidation Details</h3>
-					<p className="text-sm text-base-content opacity-70 mt-1">
+					<h3 className="text-2xl font-bold">Consolidation Details</h3>
+					<p className="text-base-content mt-1 text-sm opacity-70">
 						Review all consolidation operations before executing
 					</p>
 				</div>
-				<p className="text-sm text-base-content opacity-70 text-right">
+				<p className="text-base-content text-right text-sm opacity-70">
 					{consolidations.length} operations
 				</p>
 			</div>
 
-			<div className="max-h-96 overflow-y-auto border border-base-300 rounded-lg">
-				<table className="table table-pin-rows table-zebra">
+			<div className="border-base-300 max-h-96 overflow-y-auto rounded-lg border">
+				<table className="table-pin-rows table-zebra table">
 					<thead>
 						<tr className="bg-base-200">
 							<th>#</th>

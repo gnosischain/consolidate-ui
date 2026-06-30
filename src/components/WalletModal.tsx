@@ -27,7 +27,7 @@ export default function WalletModal() {
 					onClick={() => openModal(<AccountView />)}
 				>
 					<span className="font-medium">{truncateAddress(account.address)}</span>
-					<Menu className="w-4 h-4" />
+					<Menu className="h-4 w-4" />
 				</button>
 			) : (
 				<button

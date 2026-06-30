@@ -4,11 +4,12 @@ import { APIValidatorInfo } from '../../../types/api';
 import { BeaconChainResponse } from '../../../types/beacon';
 import { STATUS_TO_FILTER } from '../../../utils/status';
 import { NETWORK_CONFIG } from '../../../constants/networks';
+import { env } from '../../../env';
 
-const CHIADO_VALIDATORS_API_URL = process.env.CHIADO_VALIDATORS_API_URL!;
-const CHIADO_VALIDATORS_API_KEY = process.env.CHIADO_VALIDATORS_API_KEY!;
-const GNOSIS_VALIDATORS_API_URL = process.env.GNOSIS_VALIDATORS_API_URL!;
-const GNOSIS_VALIDATORS_API_KEY = process.env.GNOSIS_VALIDATORS_API_KEY!;
+const CHIADO_VALIDATORS_API_URL = env.CHIADO_VALIDATORS_API_URL;
+const CHIADO_VALIDATORS_API_KEY = env.CHIADO_VALIDATORS_API_KEY;
+const GNOSIS_VALIDATORS_API_URL = env.GNOSIS_VALIDATORS_API_URL;
+const GNOSIS_VALIDATORS_API_KEY = env.GNOSIS_VALIDATORS_API_KEY;
 
 const BEACON_BATCH_SIZE = 50;
 

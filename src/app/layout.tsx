@@ -21,7 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 		<html lang="en" data-theme={theme}>
 			<body>
 				<Providers>
-					<div className="w-full flex flex-col min-h-screen bg-gradient-to-b from-base-200 from-45% to-primary/10">
+					<div className="from-base-200 to-primary/10 flex min-h-screen w-full flex-col bg-gradient-to-b from-45%">
 						<Navbar />
 						{children}
 					</div>

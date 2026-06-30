@@ -63,12 +63,12 @@ export function ModalProvider({ children }: { children: ReactNode }) {
 				<div className={`modal-box ${modalClassName}`}>
 					{showBackButton && (
 						<button onClick={goBack} className="btn btn-ghost btn-sm">
-							<ArrowLeft className="w-4 h-4" /> Back
+							<ArrowLeft className="h-4 w-4" /> Back
 						</button>
 					)}
 					<div
 						key={stack.length}
-						className={`transition-all duration-100 ease-in-out ${isTransitioning ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'}`}
+						className={`transition-all duration-100 ease-in-out ${isTransitioning ? 'scale-95 transform opacity-0' : 'scale-100 transform opacity-100'}`}
 					>
 						{currentContent}
 					</div>

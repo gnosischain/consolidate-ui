@@ -15,9 +15,9 @@ export function NetworkView() {
 
 	return (
 		<>
-			<div className="px-4 py-4 border-b border-base-300">
+			<div className="border-base-300 border-b px-4 py-4">
 				<div className="flex items-center justify-between">
-					<h3 className="font-semibold text-base">Select Network</h3>
+					<h3 className="text-base font-semibold">Select Network</h3>
 				</div>
 			</div>
 
@@ -29,7 +29,7 @@ export function NetworkView() {
 						return (
 							<button
 								key={chain.id}
-								className="btn btn-ghost w-full flex justify-between items-center p-4 rounded-xl transition-all duration-200"
+								className="btn btn-ghost flex w-full items-center justify-between rounded-xl p-4 transition-all duration-200"
 								onClick={() => handleNetworkChange(chain.id)}
 							>
 								<span className="font-medium">{chain.name}</span>

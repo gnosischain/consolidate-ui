@@ -89,14 +89,18 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 	}, [filteredValidators, selected]);
 
 	return (
-		<div className="w-full flex flex-col justify-center gap-y-2">
+		<div className="flex w-full flex-col justify-center gap-y-2">
 			{/* FILTER */}
-			<div className="flex items-center justify-between w-full">
+			<div className="flex w-full items-center justify-between">
 				<div className="flex items-center gap-x-2">
 					<select
 						defaultValue="active"
 						className="select select-sm w-24"
-						onChange={(e) => { setFilterStatus(e.target.value || undefined); setCurrentPage(1); setSelected(new Set()); }}
+						onChange={(e) => {
+							setFilterStatus(e.target.value || undefined);
+							setCurrentPage(1);
+							setSelected(new Set());
+						}}
 					>
 						<option value="">All status</option>
 						<option value="active">Active</option>
@@ -105,7 +109,11 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 					<select
 						defaultValue=""
 						className="select select-sm"
-						onChange={(e) => { setFilterVersion(e.target.value || undefined); setCurrentPage(1); setSelected(new Set()); }}
+						onChange={(e) => {
+							setFilterVersion(e.target.value || undefined);
+							setCurrentPage(1);
+							setSelected(new Set());
+						}}
 					>
 						<option value="">All versions</option>
 						<option value="1">Type 1</option>
@@ -119,11 +127,11 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 				</div>
 				{/* TODO: Add search */}
 				<label className="input input-sm w-64">
-					<Search className="w-4 h-4 opacity-50" />
+					<Search className="h-4 w-4 opacity-50" />
 					<input type="search" placeholder="Search validators..." />
 				</label>
 			</div>
-			<div className="overflow-auto rounded-box backdrop-blur-sm bg-base-100 shadow-xs">
+			<div className="rounded-box bg-base-100 overflow-auto shadow-xs backdrop-blur-sm">
 				<table className="table">
 					{/* head */}
 					<thead>
@@ -141,7 +149,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 								<div className="flex items-center">
 									Index{' '}
 									<button disabled className="btn btn-xs btn-circle btn-ghost">
-										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+										<ChevronsUpDown className="h-4 w-4 opacity-50" />
 									</button>
 								</div>
 							</th>
@@ -149,7 +157,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 								<div className="flex items-center">
 									Pubkey{' '}
 									<button disabled className="btn btn-xs btn-circle btn-ghost">
-										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+										<ChevronsUpDown className="h-4 w-4 opacity-50" />
 									</button>
 								</div>
 							</th>
@@ -160,10 +168,10 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 										className="tooltip tooltip-right"
 										data-tip="Standard validators rewards need to be claimed, compounding validators rewards are automatically compounded up to 64 GNOs"
 									>
-										<Info className="w-4 h-4 opacity-50" />
+										<Info className="h-4 w-4 opacity-50" />
 									</span>
 									<button disabled className="btn btn-xs btn-circle btn-ghost">
-										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+										<ChevronsUpDown className="h-4 w-4 opacity-50" />
 									</button>
 								</div>
 							</th>
@@ -171,7 +179,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 								<div className="flex items-center">
 									Status{' '}
 									<button disabled className="btn btn-xs btn-circle btn-ghost">
-										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+										<ChevronsUpDown className="h-4 w-4 opacity-50" />
 									</button>
 								</div>
 							</th>
@@ -179,7 +187,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 								<div className="flex items-center">
 									Balance{' '}
 									<button disabled className="btn btn-xs btn-circle btn-ghost">
-										<ChevronsUpDown className="w-4 h-4 opacity-50" />
+										<ChevronsUpDown className="h-4 w-4 opacity-50" />
 									</button>
 								</div>
 							</th>
@@ -203,8 +211,8 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 			</div>
 
 			{totalPages > 1 && (
-				<div className="flex items-center justify-between w-full px-2">
-					<div className="text-sm text-base-content/70">
+				<div className="flex w-full items-center justify-between px-2">
+					<div className="text-base-content/70 text-sm">
 						Showing {startIndex + 1}-{Math.min(endIndex, filteredValidators.length)} of{' '}
 						{filteredValidators.length} validators
 					</div>
@@ -214,7 +222,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 							onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
 							disabled={currentPage === 1}
 						>
-							<ChevronLeft className="w-4 h-4" />
+							<ChevronLeft className="h-4 w-4" />
 						</button>
 						<div className="flex items-center gap-1">
 							{getVisiblePages().map((page) => (
@@ -232,7 +240,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 							onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
 							disabled={currentPage === totalPages}
 						>
-							<ChevronRight className="w-4 h-4" />
+							<ChevronRight className="h-4 w-4" />
 						</button>
 					</div>
 				</div>

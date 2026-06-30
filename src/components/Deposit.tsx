@@ -41,7 +41,10 @@ export default function Deposit() {
 			<div className="mt-8 flex w-full justify-end">
 				<TransactionButton
 					calls={depositCalls}
-					onSuccess={() => { onDepositSuccess(); closeModal(); }}
+					onSuccess={() => {
+						onDepositSuccess();
+						closeModal();
+					}}
 					className="btn btn-primary"
 				>
 					{needsApproval

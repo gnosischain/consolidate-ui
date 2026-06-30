@@ -75,17 +75,17 @@ export default function Withdraw({ validator }: WithdrawProps) {
 						}}
 						disabled={validator.type === 1}
 					/>
-					<span className="text-xs text-base-content/70 font-medium">GNO</span>
+					<span className="text-base-content/70 text-xs font-medium">GNO</span>
 				</label>
 			</fieldset>
 
 			{isLowBalance && (
-				<div role="alert" className="alert alert-warning p-2 text-xs mt-1 flex items-center gap-2">
+				<div role="alert" className="alert alert-warning mt-1 flex items-center gap-2 p-2 text-xs">
 					<span>Warning: Remaining balance will be below {network.cl.minBalance} GNO (Low).</span>
 				</div>
 			)}
 
-			<div className="mt-4 text-xs text-base-content/70 space-y-1 bg-primary/5 p-3 rounded-lg">
+			<div className="text-base-content/70 bg-primary/5 mt-4 space-y-1 rounded-lg p-3 text-xs">
 				<div className="flex justify-between">
 					<span>Network Fee:</span>
 					<span className="font-medium">~0.0001 GNO</span>

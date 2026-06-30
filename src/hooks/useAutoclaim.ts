@@ -47,7 +47,12 @@ function useAutoclaim(contractConfig?: NetworkConfig, address?: Address) {
 				data: encodeFunctionData({
 					abi: claimRegistryABI,
 					functionName: 'register',
-					args: [address, BigInt(days) * BigInt(SECOND_IN_DAY), parseUnits(amount.toString(), 18), claimAction],
+					args: [
+						address,
+						BigInt(days) * BigInt(SECOND_IN_DAY),
+						parseUnits(amount.toString(), 18),
+						claimAction,
+					],
 				}),
 				title: 'Register Autoclaim',
 			};

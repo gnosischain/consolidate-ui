@@ -31,33 +31,33 @@ export default function DashboardHeader({
 		: '0.00';
 
 	return (
-		<div className="flex flex-col gap-6 p-6 w-full bg-base-100 backdrop-blur-sm rounded-box shadow-xs mb-10 md:flex-row md:flex-wrap md:items-start md:justify-between md:gap-x-8">
+		<div className="bg-base-100 rounded-box mb-10 flex w-full flex-col gap-6 p-6 shadow-xs backdrop-blur-sm md:flex-row md:flex-wrap md:items-start md:justify-between md:gap-x-8">
 			<div className="flex flex-col gap-6 md:flex-row md:flex-wrap md:gap-x-10 md:gap-y-6">
 				{/* Wallet */}
-				<div className="flex flex-col gap-4 border-base-content/10 pb-6 border-b md:pb-0 md:border-b-0 md:pr-10 md:border-r">
+				<div className="border-base-content/10 flex flex-col gap-4 border-b pb-6 md:border-r md:border-b-0 md:pr-10 md:pb-0">
 					<div className="flex flex-col gap-1">
-						<span className="text-sm font-medium text-base-content/60">GNO Balance</span>
-						<span className="text-3xl font-bold text-base-content">
+						<span className="text-base-content/60 text-sm font-medium">GNO Balance</span>
+						<span className="text-base-content text-3xl font-bold">
 							{Number(formatEther(walletBalance)).toFixed(2)} GNO
 						</span>
 					</div>
 					<div className="flex flex-col">
-						<span className="text-xs text-base-content/50">Active validators</span>
-						<span className="font-semibold text-base-content/90">{activeValidatorsCount}</span>
+						<span className="text-base-content/50 text-xs">Active validators</span>
+						<span className="text-base-content/90 font-semibold">{activeValidatorsCount}</span>
 					</div>
 				</div>
 
 				{/* Staking */}
-				<div className="flex flex-col gap-4 border-base-content/10 pb-6 border-b md:pb-0 md:border-b-0 md:pr-10 md:border-r">
+				<div className="border-base-content/10 flex flex-col gap-4 border-b pb-6 md:border-r md:border-b-0 md:pr-10 md:pb-0">
 					<div className="flex flex-col gap-1">
-						<span className="text-sm font-medium text-base-content/60">Total staked</span>
-						<span className="text-3xl font-bold text-base-content">
+						<span className="text-base-content/60 text-sm font-medium">Total staked</span>
+						<span className="text-base-content text-3xl font-bold">
 							{Number(formatEther(totalBalance)).toFixed(2)} GNO
 						</span>
 					</div>
 					<div className="flex flex-col">
-						<span className="text-xs text-base-content/50">Effective balance</span>
-						<span className="font-semibold text-base-content/90">
+						<span className="text-base-content/50 text-xs">Effective balance</span>
+						<span className="text-base-content/90 font-semibold">
 							{Number(formatEther(totalEffectiveBalance)).toFixed(2)} GNO
 						</span>
 					</div>
@@ -66,9 +66,9 @@ export default function DashboardHeader({
 				{/* Rewards */}
 				<div className="flex flex-col gap-4">
 					<div className="flex flex-col gap-1">
-						<span className="text-sm font-medium text-base-content/60">Ready to claim</span>
+						<span className="text-base-content/60 text-sm font-medium">Ready to claim</span>
 						<div className="flex items-center gap-2">
-							<span className="text-3xl font-bold text-base-content">
+							<span className="text-base-content text-3xl font-bold">
 								{Number(formatEther(claimBalance)).toFixed(2)} GNO
 							</span>
 							<button
@@ -81,10 +81,10 @@ export default function DashboardHeader({
 						</div>
 					</div>
 					<div className="flex flex-col">
-						<span className="text-xs text-base-content/50">Est. Daily Yield</span>
-						<span className="font-semibold text-base-content/90">
+						<span className="text-base-content/50 text-xs">Est. Daily Yield</span>
+						<span className="text-base-content/90 font-semibold">
 							+ {dailyYield} GNO
-							<span className="text-xs text-base-content/50 ml-1">
+							<span className="text-base-content/50 ml-1 text-xs">
 								{yieldLoading ? '...' : currentYield ? `${currentYield.toFixed(2)}%` : '0.00%'} APY
 							</span>
 						</span>
@@ -96,7 +96,7 @@ export default function DashboardHeader({
 				className="btn btn-accent btn-sm w-full md:w-auto"
 				onClick={() => openModal(<Deposit />)}
 			>
-				<Plus className="w-4 h-4" />
+				<Plus className="h-4 w-4" />
 				Add Validator
 			</button>
 		</div>

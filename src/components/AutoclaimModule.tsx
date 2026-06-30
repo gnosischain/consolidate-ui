@@ -28,7 +28,7 @@ export function AutoclaimModule() {
 	}, [actionContract, network?.payClaimActionAddress]);
 
 	const autoclaimStatus = useMemo(() => {
-		const defaultIcon = <Settings className="w-4 h-4 text-base-content/40" />;
+		const defaultIcon = <Settings className="text-base-content/40 h-4 w-4" />;
 
 		// Return consistent default during SSR to avoid hydration mismatch
 		if (!isMounted) {
@@ -53,13 +53,13 @@ export function AutoclaimModule() {
 				status: 'AUTOCLAIM ACTIVE',
 				detail: actionContractLabel,
 				icon: isGnosisPay ? (
-					<div className="bg-black h-6 w-16 rounded-lg flex items-center justify-center px-1">
+					<div className="flex h-6 w-16 items-center justify-center rounded-lg bg-black px-1">
 						<Image
 							src="/gnosis-pay.svg"
 							alt="Gnosis Pay"
 							width={40}
 							height={40}
-							className="w-full h-full object-contain"
+							className="h-full w-full object-contain"
 						/>
 					</div>
 				) : (
@@ -75,7 +75,8 @@ export function AutoclaimModule() {
 		};
 	}, [actionContractLabel, isMounted, isRegistered, network?.claimRegistryAddress]);
 
-	const isAvailable = isMounted && Boolean(network?.claimRegistryAddress) && Boolean(account.address);
+	const isAvailable =
+		isMounted && Boolean(network?.claimRegistryAddress) && Boolean(account.address);
 
 	const handleOpenAutoclaim = useCallback(() => {
 		if (!network?.claimRegistryAddress || !account.address) return;
@@ -87,10 +88,10 @@ export function AutoclaimModule() {
 			type="button"
 			onClick={handleOpenAutoclaim}
 			disabled={!isAvailable}
-			className={`group w-full text-left rounded-lg p-3 flex flex-col gap-y-2 transition-colors ${isAvailable ? 'cursor-pointer hover:bg-base-200/50' : 'cursor-not-allowed'}`}
+			className={`group flex w-full flex-col gap-y-2 rounded-lg p-3 text-left transition-colors ${isAvailable ? 'hover:bg-base-200/50 cursor-pointer' : 'cursor-not-allowed'}`}
 		>
 			<div className="flex items-center justify-between">
-				<span className="text-[10px] font-bold tracking-widest text-base-content/40">
+				<span className="text-base-content/40 text-[10px] font-bold tracking-widest">
 					AUTOCLAIM MODULE
 				</span>
 				<div className={`status ${isRegistered ? 'status-success' : ''}`} />
@@ -98,24 +99,24 @@ export function AutoclaimModule() {
 
 			<div className="flex items-center gap-3">
 				<div
-					className={`p-2 rounded-lg transition-colors duration-200 ${isRegistered ? '' : 'bg-base-200/50 text-base-content/40 group-hover:bg-base-200 group-hover:text-base-content/60'}`}
+					className={`rounded-lg p-2 transition-colors duration-200 ${isRegistered ? '' : 'bg-base-200/50 text-base-content/40 group-hover:bg-base-200 group-hover:text-base-content/60'}`}
 				>
 					{autoclaimStatus.icon}
 				</div>
 				<div className="flex flex-col">
 					<span
-						className={`font-bold text-sm leading-tight transition-colors duration-200 ${isRegistered ? 'text-base-content' : 'text-base-content/60 group-hover:text-base-content'}`}
+						className={`text-sm leading-tight font-bold transition-colors duration-200 ${isRegistered ? 'text-base-content' : 'text-base-content/60 group-hover:text-base-content'}`}
 					>
 						{autoclaimStatus.detail}
 					</span>
-					<span className="text-[10px] font-medium text-base-content/50">
+					<span className="text-base-content/50 text-[10px] font-medium">
 						{autoclaimStatus.status}
 					</span>
 				</div>
-				<ChevronRight className="w-4 h-4 ml-auto text-base-content/20 group-hover:text-base-content/40 group-hover:translate-x-0.5 transition-all" />
+				<ChevronRight className="text-base-content/20 group-hover:text-base-content/40 ml-auto h-4 w-4 transition-all group-hover:translate-x-0.5" />
 			</div>
 
-			<p className="text-[10px] text-base-content/40 leading-relaxed">
+			<p className="text-base-content/40 text-[10px] leading-relaxed">
 				{isRegistered
 					? 'Rewards sent to wallet automatically.'
 					: 'Configure automatic reward claiming.'}

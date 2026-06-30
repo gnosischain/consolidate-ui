@@ -29,10 +29,7 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
 		[validators, amount, totalBalance, preventExit, computeWithdrawals],
 	);
 
-	const calls = useMemo(
-		() => buildWithdrawCalls(withdrawals),
-		[withdrawals, buildWithdrawCalls],
-	);
+	const calls = useMemo(() => buildWithdrawCalls(withdrawals), [withdrawals, buildWithdrawCalls]);
 
 	return (
 		<>
@@ -74,7 +71,7 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
 				<p className={`text-sm ${exits.length === 0 ? 'text-gray-500' : 'text-warning'}`}>
 					Exits: {exits.length}
 				</p>
-				<ul className="flex text-xs gap-x-2">
+				<ul className="flex gap-x-2 text-xs">
 					{exits.map((exit) => (
 						<li key={exit.index}>{exit.index}</li>
 					))}

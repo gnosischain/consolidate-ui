@@ -12,8 +12,8 @@ Network supported: Gnosis Chain, Ethereum, Chiado, Sepolia.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18.20.1 or higher recommended)
-- [pnpm](https://pnpm.io/) package manager
+- [Node.js](https://nodejs.org/) — version pinned in [`.nvmrc`](./.nvmrc) (run `nvm use`)
+- [pnpm](https://pnpm.io/) package manager (`corepack enable`)
 
 ### Installation
 
@@ -25,7 +25,8 @@ pnpm install
 
 ### Running the Development Server
 
-Copy the `.env.example` file to `.env` and fill in the values.
+Copy the `.env.example` file to `.env` and fill in the values (see
+[Environment variables](#environment-variables)).
 
 Start the app locally:
 
@@ -42,6 +43,37 @@ To build the app for production:
 ```bash
 pnpm build
 ```
+
+## Environment variables
+
+Validated at startup by [`src/env.ts`](./src/env.ts); a missing **required**
+variable fails the build/boot with a clear error. See `.env.example` for the
+full list.
+
+| Variable                                                         | Required | Purpose                                                     |
+| ---------------------------------------------------------------- | -------- | ----------------------------------------------------------- |
+| `GNOSIS_VALIDATORS_API_URL` / `GNOSIS_VALIDATORS_API_KEY`        | ✅       | Validator indexer for Gnosis (`/api/validators-by-address`) |
+| `CHIADO_VALIDATORS_API_URL` / `CHIADO_VALIDATORS_API_KEY`        | ✅       | Validator indexer for Chiado                                |
+| `GRAPHQL_URL`                                                    | –        | Deposit-event lookups (`/api/validate-deposit`)             |
+| `NEXT_PUBLIC_QUICKNODE_ENDPOINT` / `NEXT_PUBLIC_QUICKNODE_TOKEN` | –        | QuickNode RPC for Ethereum mainnet/Sepolia only             |
+
+Set `SKIP_ENV_VALIDATION=1` to bypass validation (used by CI builds, which run
+without secrets).
+
+## Scripts
+
+| Command                             | Description                                |
+| ----------------------------------- | ------------------------------------------ |
+| `pnpm dev`                          | Start the dev server                       |
+| `pnpm build` / `pnpm start`         | Production build / serve                   |
+| `pnpm typecheck`                    | `tsc --noEmit`                             |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint (Next flat config)                  |
+| `pnpm format` / `pnpm format:check` | Prettier write / check                     |
+| `pnpm clean`                        | Remove `.next`, `node_modules`, build info |
+| `pnpm audit`                        | Dependency security audit                  |
+
+Git hooks (husky) run automatically: **pre-commit** formats/lints staged files
+via lint-staged, **pre-push** runs `pnpm typecheck`.
 
 ## Project Structure
 

@@ -13,7 +13,7 @@ export default function Page({ params }: { params: Promise<{ validatorIndex: str
 	}
 
 	return (
-		<div className="w-full flex items-center justify-center text-gray-500">
+		<div className="flex w-full items-center justify-center text-gray-500">
 			Validator {validatorIndex}
 			<StatisticsTable statistics={statistics} />
 		</div>

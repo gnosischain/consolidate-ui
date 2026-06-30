@@ -30,6 +30,7 @@ export function useWithdraw(network: NetworkConfig) {
 			amountToWithdraw: bigint,
 			totalValidatorBalance: bigint,
 			preventExit = true,
-		) => computeWithdrawals(validators, amountToWithdraw, totalValidatorBalance, network, preventExit),
+		) =>
+			computeWithdrawals(validators, amountToWithdraw, totalValidatorBalance, network, preventExit),
 	};
 }

@@ -1,25 +1,28 @@
 import js from '@eslint/js';
-import globals from 'globals';
+import next from '@next/eslint-plugin-next';
 import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-	{ ignores: ['dist'] },
+	{ ignores: ['.next', 'node_modules', 'next-env.d.ts'] },
+	js.configs.recommended,
+	...tseslint.configs.recommended,
+	next.configs.recommended,
+	next.configs['core-web-vitals'],
 	{
-		extends: [js.configs.recommended, ...tseslint.configs.recommended],
 		files: ['**/*.{ts,tsx}'],
+		plugins: { 'react-hooks': reactHooks },
 		languageOptions: {
-			ecmaVersion: 2020,
-			globals: globals.browser,
-		},
-		plugins: {
-			'react-hooks': reactHooks,
-			'react-refresh': reactRefresh,
+			ecmaVersion: 2022,
+			globals: {
+				...globals.browser,
+				...globals.node,
+			},
 		},
 		rules: {
-			...reactHooks.configs.recommended.rules,
-			'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+			'react-hooks/rules-of-hooks': 'error',
+			'react-hooks/exhaustive-deps': 'warn',
 		},
 	},
 );

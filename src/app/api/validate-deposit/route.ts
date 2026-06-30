@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateDepositData } from '../../../utils/depositValidation';
 import { NETWORK_CONFIG } from '../../../constants/networks';
+import { env } from '../../../env';
 
-const GRAPHQL_URL = process.env.GRAPHQL_URL;
+const GRAPHQL_URL = env.GRAPHQL_URL;
 
 if (!GRAPHQL_URL) {
 	console.error(
