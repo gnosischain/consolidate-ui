@@ -5,7 +5,12 @@ import useBalance from './useBalance';
 import { NetworkConfig } from '../types/network';
 import { DepositRequest, DepositDataJson } from '../types/deposit';
 import { CredentialType, ValidatorInfo } from '../types/validators';
-import { buildDepositRoot, generateDepositData, generateSignature } from '../utils/deposit';
+import {
+	buildDepositRoot,
+	floorToGwei,
+	generateDepositData,
+	generateSignature,
+} from '../utils/deposit';
 import DEPOSIT_ABI from '../utils/abis/deposit';
 import ERC677ABI from '../utils/abis/erc677';
 import { TransactionCall } from '../types/transaction';
@@ -130,13 +135,14 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
 	const buildPartialDepositCalls = useCallback(
 		(amounts: bigint[], validators: ValidatorInfo[]): TransactionCall[] => {
 			if (!contractConfig?.tokenAddress || !contractConfig?.depositAddress) return [];
+			const flooredAmounts = amounts.map(floorToGwei);
 
 			const depositsData = validators.map((validator, index) => {
 				const depositReq: DepositRequest = {
 					pubkey: validator.pubkey as `0x${string}`,
 					withdrawal_credentials: validator.withdrawal_credentials as `0x${string}`,
 					signature: generateSignature(96),
-					amount: amounts[index],
+					amount: flooredAmounts[index],
 				};
 
 				const deposit_data_root = buildDepositRoot(
@@ -160,7 +166,7 @@ function useDeposit(contractConfig: NetworkConfig, address: `0x${string}`) {
 			});
 
 			const data = generateDepositData(depositsData);
-			const totalAmount = amounts.reduce((acc, amt) => acc + amt, 0n);
+			const totalAmount = flooredAmounts.reduce((acc, amt) => acc + amt, 0n);
 			const calls: TransactionCall[] = [];
 
 			if ((allowance ?? 0n) < totalAmount) {
