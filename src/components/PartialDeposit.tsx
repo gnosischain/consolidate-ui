@@ -38,10 +38,7 @@ export default function PartialDeposit({ validator }: { validator: ValidatorInfo
 			<fieldset className="fieldset mt-2 w-full gap-y-2">
 				<legend className="fieldset-legend">
 					Amount to deposit{' '}
-					<button
-						className="btn btn-xs"
-						onClick={() => setAmount(floorToGwei(balance.balance))}
-					>
+					<button className="btn btn-xs" onClick={() => setAmount(floorToGwei(balance.balance))}>
 						Max
 					</button>
 				</legend>
