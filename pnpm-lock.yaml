@@ -66,7 +66,7 @@ importers:
     devDependencies:
       '@commitlint/cli':
         specifier: 21.1.0
-        version: 21.1.0(@types/node@22.19.11)(conventional-commits-parser@6.4.0)(typescript@5.7.3)
+        version: 21.1.0(@types/node@26.1.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3)
       '@commitlint/config-conventional':
         specifier: 21.1.0
         version: 21.1.0
@@ -77,8 +77,8 @@ importers:
         specifier: 16.2.9
         version: 16.2.9
       '@types/node':
-        specifier: 22.19.11
-        version: 22.19.11
+        specifier: 26.1.0
+        version: 26.1.0
       '@types/react':
         specifier: 19.2.5
         version: 19.2.5
@@ -809,8 +809,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/node@22.19.11':
-    resolution: {integrity: sha512-BH7YwL6rA93ReqeQS1c4bsPpcfOmJasG+Fkr6Y59q83f9M1WcBRHR2vM+P9eOisYRcN3ujQoiZY8uk5W+1WL8w==}
+  '@types/node@26.1.0':
+    resolution: {integrity: sha512-O0A1G3xPGy4w7AgQdAQYUlQ+BKk2Oovw8eRpofyp5KdBZULnbe+WqaOVNrm705SHphCiG4XHsACrSmPu1f+Kgw==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -1564,8 +1564,8 @@ packages:
   idb-keyval@6.2.1:
     resolution: {integrity: sha512-8Sb3veuYCyrZL+VBt9LJfZjLUPWVvqn8tG28VqYNFCo43KHcKuq+b4EiXGeuaLAQWL2YmyDgMp2aSpH9JHsEQg==}
 
-  idb-keyval@6.2.5:
-    resolution: {integrity: sha512-eKQkTnS0relYsSOYomx8ozIbmdsQCKUdhyuIaQ2DZgKuaxtyQQMkyD/wlnQN32pO3yutN1b1L8uqwcDKaJd7/Q==}
+  idb-keyval@6.2.6:
+    resolution: {integrity: sha512-FY64UEhw+5liMzMQ1R9Mw6AF0+wyBrg1CIA1z4CjI/EvT5ty/SvQcWZgd8s9sgaNhX10Y8UzScTh89tEAls5nA==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -2413,8 +2413,8 @@ packages:
   uncrypto@0.1.3:
     resolution: {integrity: sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q==}
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+  undici-types@8.3.0:
+    resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
   unstorage@1.17.5:
     resolution: {integrity: sha512-0i3iqvRfx29hkNntHyQvJTpf5W9dQ9ZadSoRU8+xVlhVtT7jAX57fazYO9EHvcRCfBCyi5YRya7XCDOsbTgkPg==}
@@ -2828,12 +2828,12 @@ snapshots:
       - zod
     optional: true
 
-  '@commitlint/cli@21.1.0(@types/node@22.19.11)(conventional-commits-parser@6.4.0)(typescript@5.7.3)':
+  '@commitlint/cli@21.1.0(@types/node@26.1.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3)':
     dependencies:
       '@commitlint/config-conventional': 21.1.0
       '@commitlint/format': 21.1.0
       '@commitlint/lint': 21.1.0
-      '@commitlint/load': 21.1.0(@types/node@22.19.11)(typescript@5.7.3)
+      '@commitlint/load': 21.1.0(@types/node@26.1.0)(typescript@5.7.3)
       '@commitlint/read': 21.1.0(conventional-commits-parser@6.4.0)
       '@commitlint/types': 21.1.0
       tinyexec: 1.2.4
@@ -2878,14 +2878,14 @@ snapshots:
       '@commitlint/rules': 21.1.0
       '@commitlint/types': 21.1.0
 
-  '@commitlint/load@21.1.0(@types/node@22.19.11)(typescript@5.7.3)':
+  '@commitlint/load@21.1.0(@types/node@26.1.0)(typescript@5.7.3)':
     dependencies:
       '@commitlint/config-validator': 21.1.0
       '@commitlint/execute-rule': 21.0.1
       '@commitlint/resolve-extends': 21.1.0
       '@commitlint/types': 21.1.0
       cosmiconfig: 9.0.2(typescript@5.7.3)
-      cosmiconfig-typescript-loader: 6.3.0(@types/node@22.19.11)(cosmiconfig@9.0.2(typescript@5.7.3))(typescript@5.7.3)
+      cosmiconfig-typescript-loader: 6.3.0(@types/node@26.1.0)(cosmiconfig@9.0.2(typescript@5.7.3))(typescript@5.7.3)
       es-toolkit: 1.48.1
       is-plain-obj: 4.1.0
       picocolors: 1.1.1
@@ -3633,9 +3633,9 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/node@22.19.11':
+  '@types/node@26.1.0':
     dependencies:
-      undici-types: 6.21.0
+      undici-types: 8.3.0
 
   '@types/react-dom@19.2.3(@types/react@19.2.5)':
     dependencies:
@@ -3960,8 +3960,8 @@ snapshots:
   '@walletconnect/keyvaluestorage@1.1.1':
     dependencies:
       '@walletconnect/safe-json': 1.0.2
-      idb-keyval: 6.2.5
-      unstorage: 1.17.5(idb-keyval@6.2.5)
+      idb-keyval: 6.2.6
+      unstorage: 1.17.5(idb-keyval@6.2.6)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -4536,9 +4536,9 @@ snapshots:
   cookie-es@1.2.3:
     optional: true
 
-  cosmiconfig-typescript-loader@6.3.0(@types/node@22.19.11)(cosmiconfig@9.0.2(typescript@5.7.3))(typescript@5.7.3):
+  cosmiconfig-typescript-loader@6.3.0(@types/node@26.1.0)(cosmiconfig@9.0.2(typescript@5.7.3))(typescript@5.7.3):
     dependencies:
-      '@types/node': 22.19.11
+      '@types/node': 26.1.0
       cosmiconfig: 9.0.2(typescript@5.7.3)
       jiti: 2.6.1
       typescript: 5.7.3
@@ -4873,7 +4873,7 @@ snapshots:
   idb-keyval@6.2.1:
     optional: true
 
-  idb-keyval@6.2.5:
+  idb-keyval@6.2.6:
     optional: true
 
   ieee754@1.2.1:
@@ -5230,11 +5230,11 @@ snapshots:
   ox@0.6.7(typescript@5.7.3)(zod@4.4.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
-      '@noble/curves': 1.8.1
-      '@noble/hashes': 1.7.1
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.7.3)(zod@4.4.3)
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.4(typescript@5.7.3)(zod@4.4.3)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.7.3
@@ -5353,7 +5353,7 @@ snapshots:
     dependencies:
       '@wagmi/core': 3.4.1(@tanstack/query-core@5.90.9)(@types/react@19.2.5)(react@19.2.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@19.2.0))(viem@2.43.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@4.4.3))
       hono: 4.12.25
-      idb-keyval: 6.2.5
+      idb-keyval: 6.2.6
       mipd: 0.0.7(typescript@5.7.3)
       ox: 0.9.17(typescript@5.7.3)(zod@4.4.3)
       viem: 2.43.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@4.4.3)
@@ -5675,9 +5675,9 @@ snapshots:
   uncrypto@0.1.3:
     optional: true
 
-  undici-types@6.21.0: {}
+  undici-types@8.3.0: {}
 
-  unstorage@1.17.5(idb-keyval@6.2.5):
+  unstorage@1.17.5(idb-keyval@6.2.6):
     dependencies:
       anymatch: 3.1.3
       chokidar: 5.0.0
@@ -5688,7 +5688,7 @@ snapshots:
       ofetch: 1.5.1
       ufo: 1.6.4
     optionalDependencies:
-      idb-keyval: 6.2.5
+      idb-keyval: 6.2.6
     optional: true
 
   update-browserslist-db@1.2.3(browserslist@4.28.4):
