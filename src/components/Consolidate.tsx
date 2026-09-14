@@ -1,5 +1,5 @@
 import { formatEther, parseEther } from 'viem';
-import { EL_FEE } from '../constants/misc';
+import { formatElFee } from '../utils/fee';
 import { ConsolidationSummary } from './ConsolidationSummary';
 import { useEffect, useMemo, useState } from 'react';
 import { computeConsolidations } from '../hooks/useConsolidate';
@@ -63,8 +63,8 @@ export default function Consolidate({ validators }: ConsolidateProps) {
 					<p>{consolidations.length}</p>
 				</div>
 				<div className="flex justify-between text-sm">
-					<p className="text-base-content/70">Processing fees:</p>
-					<p>{(EL_FEE * BigInt(consolidations.length)).toString()} wei</p>
+					<p className="text-base-content/70">Network fee:</p>
+					<p>{formatElFee(consolidations.length)}</p>
 				</div>
 				<div className="border-base-content/5 mt-2 mb-6 flex justify-between border-t pt-2 text-sm">
 					<p className="text-base-content/70">Validators remaining:</p>
