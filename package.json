@@ -31,12 +31,12 @@
 		"@tanstack/react-query": "5.90.9",
 		"dotenv": "16.6.1",
 		"lucide-react": "0.544.0",
-		"next": "16.2.6",
+		"next": "16.3.5",
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
 		"react-hot-toast": "2.6.0",
 		"tailwindcss": "4.1.17",
-		"viem": "2.43.1",
+		"viem": "2.56.5",
 		"wagmi": "3.6.0",
 		"zod": "4.4.3"
 	},
@@ -44,7 +44,7 @@
 		"@commitlint/cli": "21.2.0",
 		"@commitlint/config-conventional": "21.2.0",
 		"@eslint/js": "9.39.4",
-		"@next/eslint-plugin-next": "16.2.10",
+		"@next/eslint-plugin-next": "16.3.5",
 		"@types/node": "22.19.11",
 		"@types/react": "19.2.5",
 		"@types/react-dom": "19.2.3",
@@ -60,17 +60,5 @@
 		"typescript": "5.7.3",
 		"typescript-eslint": "8.62.1"
 	},
-	"packageManager": "pnpm@10.10.0",
-	"pnpm": {
-		"overrides": {
-			"hono@<4.12.25": "4.12.25",
-			"flatted@<3.4.2": "3.4.2",
-			"h3@<1.15.6": "1.15.6",
-			"picomatch@>=4.0.0 <4.0.4": "4.0.4",
-			"picomatch@<2.3.2": "2.3.2",
-			"defu@<6.1.5": "6.1.5",
-			"ws@>=8.0.0 <8.21.0": "8.21.0",
-			"ws@>=7.0.0 <7.5.11": "7.5.11"
-		}
-	}
+	"packageManager": "pnpm@10.10.0"
 }
