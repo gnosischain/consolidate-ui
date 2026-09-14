@@ -45,7 +45,7 @@ export function computeConsolidations(
 			});
 		}
 
-		for (let i = 0; i < remaining.length; ) {
+		for (let i = 0; i < remaining.length;) {
 			const cand = remaining[i];
 			if (tb + cand.balance <= chunkSize) {
 				consolidations.push({
