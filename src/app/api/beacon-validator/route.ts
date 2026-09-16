@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Address, parseGwei } from 'viem';
 import { APIValidatorInfo } from '../../../types/api';
 import { BeaconChainResponse } from '../../../types/beacon';
-import { STATUS_TO_FILTER } from '../../../utils/status';
+import { beaconToAPIValidatorInfo } from '../../../utils/apiConverters';
 import { NETWORK_CONFIG } from '../../../constants/networks';
 
 export async function GET(request: NextRequest) {
@@ -34,7 +33,6 @@ export async function GET(request: NextRequest) {
 		}
 
 		const clEndpoint = networkConfig.clEndpoint;
-		const multiplier = networkConfig.cl.multiplier;
 		const PUBKEY_REGEX = /^0x[0-9a-fA-F]{96}$/;
 
 		if (!pubkeyList.every((p) => PUBKEY_REGEX.test(p))) {
@@ -62,28 +60,13 @@ export async function GET(request: NextRequest) {
 		}
 
 		const results = await Promise.all(fetchPromises);
-		console.log(results);
 		const validators: APIValidatorInfo[] = [];
 
 		for (const json of results) {
 			if (!json || !json.data) continue;
 
 			for (const v of json.data as BeaconChainResponse[]) {
-				const creds = v.validator.withdrawal_credentials;
-				const filterStatus = STATUS_TO_FILTER[v.status];
-
-				validators.push({
-					index: Number(v.index),
-					pubkey: v.validator.pubkey as Address,
-					balance: (parseGwei(v.balance.toString()) / multiplier).toString(),
-					effectiveBalance: (
-						parseGwei(v.validator.effective_balance.toString()) / multiplier
-					).toString(),
-					withdrawal_credentials: creds,
-					type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
-					filterStatus: filterStatus,
-					status: v.status,
-				});
+				validators.push(beaconToAPIValidatorInfo(v, networkConfig.cl.multiplier));
 			}
 		}
 

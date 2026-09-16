@@ -4,6 +4,7 @@ import { ValidatorStatus } from './beacon';
 export enum FilterStatus {
 	ACTIVE = 'active',
 	PENDING = 'pending',
+	EXITED = 'exited',
 }
 
 export type CredentialType = 0 | 1 | 2;
@@ -17,6 +18,11 @@ export interface ValidatorInfo {
 	type: CredentialType;
 	status: ValidatorStatus;
 	filterStatus: FilterStatus;
+	slashed: boolean;
+	activationEpoch: bigint;
+	// FAR_FUTURE_EPOCH (2^64 - 1) until an exit is scheduled
+	exitEpoch: bigint;
+	withdrawableEpoch: bigint;
 }
 
 export interface ValidatorIndex {

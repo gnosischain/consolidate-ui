@@ -11,4 +11,9 @@ export interface APIValidatorInfo {
 	type: number;
 	status: ValidatorStatus;
 	filterStatus: FilterStatus;
+	slashed: boolean;
+	// Epochs as decimal strings: FAR_FUTURE_EPOCH (2^64 - 1) does not fit a JS number
+	activationEpoch: string;
+	exitEpoch: string;
+	withdrawableEpoch: string;
 }

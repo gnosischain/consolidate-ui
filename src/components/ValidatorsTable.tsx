@@ -105,6 +105,7 @@ export function ValidatorsTable({ validators }: ValidatorsTableProps) {
 						<option value="">All status</option>
 						<option value="active">Active</option>
 						<option value="pending">Pending</option>
+						<option value="exited">Exited</option>
 					</select>
 					<select
 						defaultValue=""

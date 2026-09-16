@@ -9,24 +9,31 @@ export const VALIDATOR_STATUS = [
 	'active_offline',
 	'active_exiting',
 	'active_slashed',
+	'exited_unslashed',
+	'exited_slashed',
 	'withdrawal_possible',
+	'withdrawal_done',
 ] as const;
 
 export type ValidatorStatus = (typeof VALIDATOR_STATUS)[number];
 
+// One entry of /eth/v1/beacon/states/{state_id}/validators.
+// Numeric fields are decimal strings; epochs can be FAR_FUTURE_EPOCH (2^64 - 1),
+// which does not fit a JS number.
 export interface BeaconChainResponse {
-	balance: number;
-	index: number;
+	index: string;
+	// in gwei
+	balance: string;
 	status: ValidatorStatus;
 	validator: {
-		activation_eligibility_epoch: number;
-		activation_epoch: number;
-		// in gwei
-		effective_balance: number;
-		exit_epoch: number;
 		pubkey: Address;
-		slashed: boolean;
-		withdrawal_epoch: number;
 		withdrawal_credentials: Address;
+		// in gwei
+		effective_balance: string;
+		slashed: boolean;
+		activation_eligibility_epoch: string;
+		activation_epoch: string;
+		exit_epoch: string;
+		withdrawable_epoch: string;
 	};
 }

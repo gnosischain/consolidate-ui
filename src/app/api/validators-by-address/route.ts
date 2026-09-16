@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAddress, parseGwei } from 'viem';
+import { isAddress } from 'viem';
 import { APIValidatorInfo } from '../../../types/api';
 import { BeaconChainResponse } from '../../../types/beacon';
-import { STATUS_TO_FILTER } from '../../../utils/status';
+import { beaconToAPIValidatorInfo } from '../../../utils/apiConverters';
 import { NETWORK_CONFIG } from '../../../constants/networks';
 import { env } from '../../../env';
 
@@ -11,7 +11,14 @@ const CHIADO_VALIDATORS_API_KEY = env.CHIADO_VALIDATORS_API_KEY;
 const GNOSIS_VALIDATORS_API_URL = env.GNOSIS_VALIDATORS_API_URL;
 const GNOSIS_VALIDATORS_API_KEY = env.GNOSIS_VALIDATORS_API_KEY;
 
+// The indexer accepts `limit` up to 10000. Pages are fetched until a short one.
+const INDEXER_PAGE_SIZE = 500;
+// Hard stop so a misbehaving indexer cannot keep us looping.
+const INDEXER_MAX_PAGES = 50;
+
+// Pubkeys per beacon request (bounded by URL length) and requests in flight at once.
 const BEACON_BATCH_SIZE = 50;
+const BEACON_MAX_CONCURRENCY = 5;
 
 interface IndexerRecord {
 	validator_index: number;
@@ -19,59 +26,94 @@ interface IndexerRecord {
 	withdrawal_address: string;
 }
 
-async function fetchPubkeysByCredential(
+// The deployed indexer returns a bare array; the electra-queue-index branch
+// wraps it as `{ validators, queued_deposits, ... }`. Accept both.
+type IndexerResponse = IndexerRecord[] | { validators?: IndexerRecord[] | null } | null;
+
+function indexerRecords(json: IndexerResponse): IndexerRecord[] {
+	if (Array.isArray(json)) return json;
+	return json?.validators ?? [];
+}
+
+async function fetchIndexerPage(
 	withdrawal_address: string,
 	chainId: number,
+	offset: number,
 ): Promise<IndexerRecord[]> {
-	console.log(chainId === 10200 ? CHIADO_VALIDATORS_API_URL : GNOSIS_VALIDATORS_API_URL);
-	const res = await fetch(
-		chainId === 10200 ? CHIADO_VALIDATORS_API_URL : GNOSIS_VALIDATORS_API_URL,
-		{
-			method: 'POST',
-			headers: {
-				Accept: 'application/json',
-				'X-API-Key': chainId === 10200 ? CHIADO_VALIDATORS_API_KEY : GNOSIS_VALIDATORS_API_KEY,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ withdrawal_address, limit: 500, offset: 0 }),
-			signal: AbortSignal.timeout(5_000),
+	const isChiado = chainId === 10200;
+	const res = await fetch(isChiado ? CHIADO_VALIDATORS_API_URL : GNOSIS_VALIDATORS_API_URL, {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'X-API-Key': isChiado ? CHIADO_VALIDATORS_API_KEY : GNOSIS_VALIDATORS_API_KEY,
+			'Content-Type': 'application/json',
 		},
-	);
+		body: JSON.stringify({ withdrawal_address, limit: INDEXER_PAGE_SIZE, offset }),
+		signal: AbortSignal.timeout(5_000),
+	});
 
 	if (!res.ok) {
 		const err = await res.text();
 		throw new Error(`Validators indexer error: ${err}`);
 	}
 
-	return res.json();
+	return indexerRecords(await res.json());
+}
+
+// Every pubkey the indexer holds for the address, across as many pages as needed.
+async function fetchPubkeysByCredential(
+	withdrawal_address: string,
+	chainId: number,
+): Promise<string[]> {
+	// A Set: an index refresh between two page requests could otherwise repeat
+	// a record at the page boundary.
+	const pubkeys = new Set<string>();
+
+	for (let page = 0; page < INDEXER_MAX_PAGES; page++) {
+		const records = await fetchIndexerPage(withdrawal_address, chainId, page * INDEXER_PAGE_SIZE);
+		for (const r of records) pubkeys.add(r.pubkey);
+		if (records.length < INDEXER_PAGE_SIZE) break;
+	}
+
+	return [...pubkeys];
+}
+
+async function fetchBeaconBatch(
+	pubkeys: string[],
+	clEndpoint: string,
+): Promise<BeaconChainResponse[]> {
+	const url = new URL('/eth/v1/beacon/states/head/validators', clEndpoint);
+	url.searchParams.set('id', pubkeys.join(','));
+	if (url.origin !== new URL(clEndpoint).origin) return [];
+
+	const res = await fetch(url, {
+		headers: { Accept: 'application/json' },
+		signal: AbortSignal.timeout(10_000),
+	});
+	if (!res.ok) throw new Error(`Beacon API error: ${res.status}`);
+
+	const json = await res.json();
+	return (json?.data ?? []) as BeaconChainResponse[];
 }
 
 async function fetchBeaconValidators(
 	pubkeys: string[],
 	clEndpoint: string,
 ): Promise<BeaconChainResponse[]> {
-	const batches: Promise<BeaconChainResponse[]>[] = [];
-	const allowedOrigin = new URL(clEndpoint).origin;
-
+	const batches: string[][] = [];
 	for (let i = 0; i < pubkeys.length; i += BEACON_BATCH_SIZE) {
-		const chunk = pubkeys.slice(i, i + BEACON_BATCH_SIZE);
-		const url = new URL('/eth/v1/beacon/states/head/validators', clEndpoint);
-		url.searchParams.set('id', chunk.join(','));
-
-		if (url.origin !== allowedOrigin) continue;
-
-		batches.push(
-			fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10_000) })
-				.then((r) => {
-					if (!r.ok) throw new Error(`Beacon API error: ${r.status}`);
-					return r.json();
-				})
-				.then((json) => (json?.data ?? []) as BeaconChainResponse[]),
-		);
+		batches.push(pubkeys.slice(i, i + BEACON_BATCH_SIZE));
 	}
 
-	const results = await Promise.all(batches);
-	return results.flat();
+	// Bounded concurrency: an address with thousands of validators must not fire
+	// hundreds of requests at the beacon node at once.
+	const results: BeaconChainResponse[] = [];
+	for (let i = 0; i < batches.length; i += BEACON_MAX_CONCURRENCY) {
+		const group = batches.slice(i, i + BEACON_MAX_CONCURRENCY);
+		const settled = await Promise.all(group.map((b) => fetchBeaconBatch(b, clEndpoint)));
+		results.push(...settled.flat());
+	}
+	return results;
 }
 
 export async function GET(request: NextRequest) {
@@ -94,32 +136,16 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: 'Invalid address' }, { status: 400 });
 
 		// Step 1: get pubkeys from the indexer (credential mapping only)
-		const records = await fetchPubkeysByCredential(address, Number(chainId));
+		const pubkeys = await fetchPubkeysByCredential(address, Number(chainId));
 
-		if (records.length === 0) return NextResponse.json({ data: [] });
-
-		const pubkeys = records.map((r) => r.pubkey);
+		if (pubkeys.length === 0) return NextResponse.json({ data: [] });
 
 		// Step 2: get real-time balance/status from beacon API
 		const beaconValidators = await fetchBeaconValidators(pubkeys, networkConfig.clEndpoint);
 
-		const multiplier = networkConfig.cl.multiplier;
-
-		const validators: APIValidatorInfo[] = beaconValidators.map((v) => {
-			const creds = v.validator.withdrawal_credentials;
-			return {
-				index: Number(v.index),
-				pubkey: v.validator.pubkey,
-				balance: (parseGwei(v.balance.toString()) / multiplier).toString(),
-				effectiveBalance: (
-					parseGwei(v.validator.effective_balance.toString()) / multiplier
-				).toString(),
-				withdrawal_credentials: creds,
-				type: creds.startsWith('0x02') ? 2 : creds.startsWith('0x01') ? 1 : 0,
-				filterStatus: STATUS_TO_FILTER[v.status],
-				status: v.status,
-			};
-		});
+		const validators: APIValidatorInfo[] = beaconValidators.map((v) =>
+			beaconToAPIValidatorInfo(v, networkConfig.cl.multiplier),
+		);
 
 		return NextResponse.json({ data: validators });
 	} catch (error) {

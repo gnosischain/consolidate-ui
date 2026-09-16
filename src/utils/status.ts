@@ -10,5 +10,8 @@ export const STATUS_TO_FILTER: Record<ValidatorStatus, FilterStatus> = {
 	active_slashed: FilterStatus.ACTIVE,
 	active_offline: FilterStatus.ACTIVE,
 	active_exiting: FilterStatus.ACTIVE,
-	withdrawal_possible: FilterStatus.ACTIVE,
+	exited_unslashed: FilterStatus.EXITED,
+	exited_slashed: FilterStatus.EXITED,
+	withdrawal_possible: FilterStatus.EXITED,
+	withdrawal_done: FilterStatus.EXITED,
 };
