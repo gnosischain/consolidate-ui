@@ -1,44 +1,33 @@
 version: 2
+# This repo is being decommissioned (~Dec 2026). Policy: no routine version-update churn.
+# Dependabot only opens PRs for actual security advisories (Dependabot security updates).
+#
+# `open-pull-requests-limit: 0` disables VERSION updates for the ecosystem while leaving
+# SECURITY updates running (those have a separate internal limit of 10 and are unaffected).
+#
+# Caveats baked into this choice:
+#   - Security updates ALWAYS target the default branch (main) and ignore `target-branch`,
+#     so these PRs land on main, not dev.
+#   - Dependabot bumps to the minimum *fixed* version, which is occasionally a major.
+#   - Requires "Dependabot security updates" to be ENABLED in
+#     Settings -> Code security. Without it you get alerts but no PRs.
 updates:
   # JavaScript / TypeScript dependencies (pnpm)
   - package-ecosystem: npm
     directory: '/'
-    target-branch: 'dev' # matches the PR-into-dev flow; change to "main" if you prefer
     schedule:
-      interval: weekly
-      day: monday
-      time: '08:00'
-      timezone: 'Etc/GMT' # GMT (UTC+0, no DST)
-    open-pull-requests-limit: 5 # cap concurrent version-update PRs
-    cooldown:
-      default-days: 3 # don't propose a release until it's been public 3 days
-    groups:
-      # Dev deps (lint, types, tooling) batch into ONE PR — never mixed with runtime deps,
-      # so the auto-merge workflow can safely merge this group (direct:development) on green CI.
-      dev-dependencies:
-        dependency-type: development
-        update-types: ['minor', 'patch']
-      # Production deps (viem, wagmi, next, react, …) batch into ONE PR for review — fewer PRs,
-      # and wagmi+viem naturally land together. NOT auto-merged (human review).
-      production-dependencies:
-        dependency-type: production
-        update-types: ['minor', 'patch']
-      # Majors (dev or prod) match no group → open individually, reviewed in isolation.
+      interval: weekly # scan cadence only; security PRs open as soon as a fix is available
+    open-pull-requests-limit: 0 # disable version updates; security updates keep running
     labels:
       - dependencies
+      - security
 
-  # GitHub Actions — keeps the SHA-pinned actions in quality.yml / security-audit.yml current
+  # GitHub Actions
   - package-ecosystem: github-actions
     directory: '/'
-    target-branch: 'dev'
     schedule:
       interval: weekly
-      day: monday
-      time: '08:00'
-      timezone: 'Etc/GMT' # GMT (UTC+0, no DST)
-    groups:
-      actions:
-        update-types: ['minor', 'patch']
+    open-pull-requests-limit: 0
     labels:
       - dependencies
-      - github-actions
+      - security
