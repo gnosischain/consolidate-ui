@@ -5,6 +5,7 @@ import { useWithdraw } from '../hooks/useWithdraw';
 import { useWallet } from '../context/WalletContext';
 import { useModal } from '../context/ModalContext';
 import { TransactionButton } from './TransactionButton';
+import { formatElFee } from '../utils/fee';
 
 interface WithdrawProps {
 	validator: ValidatorInfo;
@@ -87,8 +88,8 @@ export default function Withdraw({ validator }: WithdrawProps) {
 
 			<div className="text-base-content/70 bg-primary/5 mt-4 space-y-1 rounded-lg p-3 text-xs">
 				<div className="flex justify-between">
-					<span>Network Fee:</span>
-					<span className="font-medium">~0.0001 GNO</span>
+					<span>Network fee:</span>
+					<span className="font-medium">{formatElFee(1)}</span>
 				</div>
 				<span className="text-base-content/70">
 					Withdrawals may take one or two days to complete depending on the network.

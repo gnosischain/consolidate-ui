@@ -4,6 +4,7 @@ import { formatEther, parseEther } from 'viem';
 import { useWithdraw } from '../hooks/useWithdraw';
 import { useWallet } from '../context/WalletContext';
 import { TransactionButton } from './TransactionButton';
+import { formatElFee } from '../utils/fee';
 
 interface WithdrawProps {
 	validators: ValidatorInfo[];
@@ -76,6 +77,7 @@ export default function WithdrawBatch({ validators }: WithdrawProps) {
 						<li key={exit.index}>{exit.index}</li>
 					))}
 				</ul>
+				<p className="text-sm text-gray-500">Network fee: {formatElFee(calls.length)}</p>
 			</div>
 			<div className="mt-8 flex w-full justify-end">
 				<TransactionButton calls={calls} className="btn btn-primary">
